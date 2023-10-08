@@ -7,7 +7,7 @@ root = TaskNode('', 'Task Actions')
 root.populate(task_server.list())
 
 @router.get('/breakdown')
-@router.renders('execution/list')
+@router.renders('partials/execution/list')
 def taskSummary(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
