@@ -20,9 +20,12 @@
   </a>
 </td>
 <td class="pl-4 py-4 text-sm font-medium whitespace-nowrap">
-  <!-- {% with title="", subtext=desc, hint=hint %}  -->
-  {% include "widgets/title-subtitle.html" %}
-  <!-- {% endwith %} -->
+  <p class="text-sm font-normal text-gray-600 dark:text-gray-400">
+    {{ desc }} 
+    <span class="text-gray-300 dark:text-gray-700">
+      <em>{{ hint }}</em>
+    </span>    
+  </p>
 </td>
 <td class="flex flex-row px-3 pl-4 py-4 text-sm font-medium whitespace-nowrap">
   <a

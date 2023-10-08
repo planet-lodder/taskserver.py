@@ -1,9 +1,6 @@
-from anyserver import TemplateRouter
-from taskserver.models.TaskfileServer import TaskfileServer
+import os
 
-# Define a router that we can load some routes into
-router = TemplateRouter(prefix='/task')
-task_server = TaskfileServer()
+from taskserver import router, task_server
 
 
 @router.get('')
