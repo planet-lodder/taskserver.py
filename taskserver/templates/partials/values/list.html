@@ -25,7 +25,7 @@
         <div class="flex flex-row">
           <span class="flex-1"></span>
           <!-- Value Actions (top-right) -->
-          {% include 'config/add.html' %}
+          {% include 'partials/config/add.html' %}
         </div>
       </th>
     </tr>
@@ -41,7 +41,7 @@
     <!-- Key-value pair -->
     {% include 'partials/values/item.html' %} {% endfor %}
     <!-- {% else %} Empty: No value defined for context -->
-    {% include 'config/empty.html' %}
+    {% include 'partials/config/empty.html' %}
     <!-- {% endif %} -->
   </tbody>
 </table>

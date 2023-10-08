@@ -13,7 +13,7 @@
   {% include 'partials/toolbar.html' %}
   <div class="flex flex-col flex-1">
     <!-- Configuration Summary -->
-    {% include 'config/details.html' %}
+    {% include 'partials/config/details.html' %}
 
     <!-- Environment Vars {% with title="Environment Defaults", dest="env", ctx=taskfile.env %} -->
     {% include 'partials/values/list.html' %}

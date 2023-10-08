@@ -93,7 +93,7 @@ class TaskfileInclude(dict):
 
 
 @router.get('/config/includes')
-@router.renders("config/includes/items/default")
+@router.renders("partials/config/includes/items/default")
 def taskInclude(req, resp):
     htmx = HtmxRequest(req)
     taskfile = taskfile_for(req)
@@ -108,7 +108,7 @@ def taskInclude(req, resp):
 
 
 @router.put('/config/includes')
-@router.renders("config/includes/items/edit")
+@router.renders("partials/config/includes/items/edit")
 def taskIncludeNew(req, resp):
     htmx = HtmxRequest(req)
     taskfile = taskfile_for(req)
@@ -131,7 +131,7 @@ def taskIncludeNew(req, resp):
 
 
 @router.post('/config/includes')
-@router.renders("config/includes/items/edit")
+@router.renders("partials/config/includes/items/edit")
 def taskIncludeEdit(req, resp):
     htmx = HtmxRequest(req)
     taskfile = taskfile_for(req)
@@ -171,7 +171,7 @@ def taskIncludeEdit(req, resp):
         return data
 
     # Value has been updated successfully, show in default mode
-    return router.render_template("config/includes/items/default.html", data)
+    return router.render_template("partials/config/includes/items/default.html", data)
 
 
 @router.delete('/config/includes')
