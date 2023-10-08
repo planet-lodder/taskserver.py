@@ -1,13 +1,13 @@
 {% extends 'base.html' %} {% block content %}
 
 <main class="flex flex-col flex-1">
-  {% include 'toolbar.html' %}
+  {% include 'partials/toolbar.html' %}
 
   <form class="flex flex-col flex-1">
     <input type="hidden" name="name" value="{{task.key}}" />
     <input type="hidden" name="path" value="{{taskfile._path}}" />
     <!-- Command toolbar -->
-    {% include 'command.html' %}
+    {% include 'partials/toolbar/command.html' %}
     <!-- Task details and variables -->
     {% include 'info.html' %}
   </form>

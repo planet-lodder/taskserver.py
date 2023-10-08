@@ -13,7 +13,7 @@ def taskMain(req, resp):
     taskfile = taskfile_for(req)
     res = {
         "title": "Show All",
-        "toolbar": "toolbar/list.html",
+        "toolbar": "partials/toolbar/list.html",
         "taskfile": taskfile,
         "menu": root,
     }

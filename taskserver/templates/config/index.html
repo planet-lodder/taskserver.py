@@ -1,9 +1,4 @@
 {% extends 'base.html' %} {% block content %}
-<!--
-<div id="sidenav" hx-swap-oob="innerHTML">
-  <pre>HELLO WORLD!</pre>
-</div>
--->
 <form
   id="config-form"
   method="POST"
@@ -15,7 +10,7 @@
 >
   <input name="location" value="{{ taskfile._path }}" type="hidden" />
 
-  {% include 'toolbar.html' %}
+  {% include 'partials/toolbar.html' %}
   <div class="flex flex-col flex-1">
     <!-- Configuration Summary -->
     {% include 'config/details.html' %}

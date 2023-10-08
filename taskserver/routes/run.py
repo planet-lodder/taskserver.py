@@ -57,7 +57,7 @@ def taskRun(req, resp):
 
     result = {
         "title": task.key if task else "unknown",
-        "toolbar": "toolbar/task.html",        
+        "toolbar": "partials/toolbar/task.html",        
         "taskfile": taskfile,
         "task": task,
         "name": name,

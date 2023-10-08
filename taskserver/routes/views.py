@@ -24,7 +24,7 @@ def taskView(req, resp):
         return router.render_template('list.html', {
             "title": search + '*',
             "search": search,
-            "toolbar": "toolbar/list.html",
+            "toolbar": "partials/toolbar/list.html",
             "taskfile": taskfile,
             "list": task_server.filter(search)
         })
@@ -32,7 +32,7 @@ def taskView(req, resp):
     # Show the task view
     return {
         "title": task.key if task else "unknown",
-        "toolbar": "toolbar/task.html",
+        "toolbar": "partials/toolbar/task.html",
         "taskfile": taskfile,
         "task": task,
     }
@@ -45,7 +45,7 @@ def taskRunHistory(req, resp):
     task = root.find(htmx.triggerName)
     return {
         "title": f'{task.key} - Run History',
-        "toolbar": "toolbar/task.html",
+        "toolbar": "partials/toolbar/task.html",
         "taskfile": taskfile,
         "task": task,
     }
@@ -58,7 +58,7 @@ def taskDependencyGraph(req, resp):
     task = root.find(htmx.triggerName)
     return {
         "title": f'{task.key} - Dependency Graph',
-        "toolbar": "toolbar/task.html",
+        "toolbar": "partials/toolbar/task.html",
         "taskfile": taskfile,
         "task": task,
     }

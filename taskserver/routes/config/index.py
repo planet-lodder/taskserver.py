@@ -10,7 +10,7 @@ def taskConfig(req, resp):
     taskfile = taskfile_for(req)
     data = {
         "title": "Configuration",
-        "toolbar": "toolbar/config.html",
+        "toolbar": "partials/toolbar/config.html",
         "taskfile": taskfile
     }
     return data
@@ -26,7 +26,7 @@ def taskUpdateConfig(req, resp):
 
     data = {
         "title": "Configuration",
-        "toolbar": "toolbar/config.html",
+        "toolbar": "partials/toolbar/config.html",
         "taskfile": taskfile,
     }
     return data
