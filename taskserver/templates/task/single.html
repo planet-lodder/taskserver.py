@@ -13,6 +13,19 @@
   </form>
 
   <!-- View placeholder -->
-  {% block view %}{% endblock view %}
+  {% block view %}
+  {% if output %}
+  <style>
+    .terminal-output:empty {
+      display: none;
+    }
+  </style>
+  <div
+    class="terminal-output flex flex-col flex-0 text-sm p-4 h-64 min-h-64 text-gray-500 bg-gray-900 dark:bg-gray-900"
+  >
+    {{output}}
+  </div>
+  {% endif %}
+  {% endblock view %}
 </main>
 {% endblock content %}

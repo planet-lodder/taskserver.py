@@ -1,15 +1,9 @@
-{% extends 'base.html' %}
-<!--
-{% set title = name %}
--->
-
-<!-- Clear modal Dialog -->
-{% block modal %}
 <div hx-swap-oob="innerHTML:main">
   <em
     name="{{task.key}}"
-    hx-get="/task/run/details"
+    hx-get="/task/details"
     hx-target="main"
+    hx-swap="main"
     hx-trigger="click, load, reveal"
   >
     Loading...
@@ -19,7 +13,3 @@
   hx-swap-oob="outerHTML:modal"
   class="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-gray-500 bg-opacity-75 z-10 close-modal"
 ></modal>
-{% endblock modal %}
-
-<!-- Update view contents -->
-{% block view %}{% endblock view %}

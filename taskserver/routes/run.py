@@ -39,7 +39,7 @@ def format_output(output):
 
 
 @router.post('/run')
-@router.renders('run/details')
+@router.renders('task/single')
 def taskRun(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -83,25 +83,9 @@ def taskRun(req, resp):
     # Return the modal dialog, and assume validation failed or something went wrong
     return result
 
-@router.get('/run/details')
-@router.renders('run/details')
-def taskRunDialog(req, resp):
-    taskfile = taskfile_for(req)
-    htmx = HtmxRequest(req)
-
-    task = root.find(htmx.triggerName)
-    name = task.key if task else ""
-
-    # Show the task view
-    return {
-        "taskfile": taskfile,
-        "task": task,
-        "name": name,
-        "output": "TODO: Add console log output...",
-    }
 
 @router.get('/run/dialog')
-@router.renders('run/modal')
+@router.renders('partials/run/modal')
 def taskRunDialog(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -118,7 +102,7 @@ def taskRunDialog(req, resp):
 
 
 @router.post('/run/dialog')
-@router.renders('run/modal')
+@router.renders('partials/run/modal')
 def taskRun(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -153,7 +137,7 @@ def taskRun(req, resp):
             result.update({"output": output})
 
             # Return the running task to the main content screen
-            return router.render_template("run/confirm.html", result)
+            return router.render_template("partials/run/confirm.html", result)
 
         except Exception as ex:
             # The task failed to launch
@@ -165,7 +149,7 @@ def taskRun(req, resp):
 
 
 @router.get('/run/var')
-@router.renders('run/vars/item')
+@router.renders('partials/run/vars/item')
 def taskRunDialog(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
