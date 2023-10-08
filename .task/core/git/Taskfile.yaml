@@ -1,0 +1,50 @@
+# ------------------------------------------------------------
+# This project is powered by: https://taskfile.dev
+# ------------------------------------------------------------
+version: 3
+vars: # <-- Project Configuration (required ENV vars)
+  TASK_DIR: '{{ .TASK_DIR | default ".task" }}'
+  SCRIPT_DIR: '{{ .SCRIPT_DIR | default (printf "%s/core/git" .TASK_DIR) }}'
+tasks:
+
+  init: # Get submodule dependencies
+    desc: Initialize all submodules and checkout pinned branches
+    cmds:
+      - "{{ .SCRIPT_DIR }}/sources init"
+
+  list: # Show remote sources in a list
+    desc: List all the registered submodules
+    cmds:
+      - "{{ .SCRIPT_DIR }}/sources list"
+
+  peek: # Look for updates to submodules
+    desc: Peek at the origins to see if there is updates
+    cmds:
+      - "{{ .SCRIPT_DIR }}/sources peek"
+
+  update: # Update the submodules recurively
+    desc: Update all the submodule sources
+    cmds:
+      - "{{ .SCRIPT_DIR }}/sources update"
+
+  each: # Run the specified command for each submodule
+    desc: Run a predefined task action in each repo
+    vars:
+      CLI_ARGS: '{{ .CLI_ARGS | default "update" }}'
+    cmds:
+      - "{{ .SCRIPT_DIR }}/sources each {{ .CLI_ARGS }}"
+
+  clean: # Clean out any temp files (and untracked files)
+    desc: Clean all untracked data (including files added, but not comitted to git)
+    cmds:
+      - git clean -fdx
+
+  reset: # Reset all submodules to its pristine state
+    desc: Reset the git submodules to the original state
+    vars:
+      BRANCH_FROM: origin/main
+      BRANCH_TO: main
+    cmds:
+      - git clean -df
+      - "{{ .SCRIPT_DIR }}/sources clean"
+      - git submodule init

@@ -1,0 +1,71 @@
+<!-- {% if key %} -->
+<!-- 
+{% set item_key = '.includes.' + key %} 
+{% set status_raw = taskfile.status(item_key) %} 
+{% set status_values = {
+  "Unchanged": {
+    "icon": "task/icons/document.svg",
+    "style": "text-gray-500",
+  },
+  "Changed": {
+    "icon": "task/icons/document-text.svg",
+    "style": "text-blue-500",
+  },
+  "Deleted": {
+    "icon": "task/icons/document-minus.svg",
+    "style": "text-red-500 line-through",
+  },
+  "Added": {
+    "icon": "task/icons/document-plus.svg",
+    "style": "text-green-500",
+  }
+}
+%}
+{% set status = status_values[status_raw] | default(status_values["Unchanged"])  %} 
+-->
+<a id="include_{{key}}" class="flex flex-row my-1 {{status.style}}">
+  <div class="w-6 mr-1">    
+    <!-- {% block icon %} -->
+    {% include status.icon %}
+    <!-- {% endblock icon %} -->
+  </div>
+  <div class="px-2 w-24 font-bold">
+    <!-- {% block key %} -->
+    {{ key }}
+    <!-- {% endblock key %} -->
+  </div>
+  <div class="flex flex-row flex-1">
+    <!-- {% block value %} -->
+    <div class="flex flex-row flex-1 px-2">
+      <input type="hidden" name="config.includes.{{key}}" value="{{value}}" />
+      <span>{{ value }}</span>
+    </div>
+    <!-- {% endblock value %} -->
+    <!-- {% block actions %} -->
+    <button
+      type="button"
+      name="{{key}}"
+      value="edit"
+      hx-post="/task/config/includes"
+      hx-target="#include_{{key}}"
+      hx-swap="outerHTML"
+      class="mx-1 opacity-20 hover:opacity-100"
+    >
+      {% include "task/icons/pencil.svg" %}
+    </button>
+    <button
+      type="button"
+      name="{{key}}"
+      value="delete"
+      hx-confirm="Are you sure you want to remove '{{key}}'?"
+      hx-delete="/task/config/includes"
+      hx-target="#include_{{key}}"
+      hx-swap="outerHTML"
+      class="mx-1 opacity-20 hover:opacity-100"
+    >
+      {% include "task/icons/trash.svg" %}
+    </button>
+    <!-- {% endblock actions %} -->
+  </div>
+</a>
+<!-- {% endif %} -->

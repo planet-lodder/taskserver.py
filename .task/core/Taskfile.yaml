@@ -1,0 +1,34 @@
+# ------------------------------------------------------------
+# This project is powered by: https://taskfile.dev
+# ------------------------------------------------------------
+version: 3
+vars: # <-- Project Configuration (required ENV vars)
+  TASK_DIR: '{{ .TASK_DIR | default ".task" }}'
+  BASE_REPO: git@github.com:Club404/root.git
+includes:
+  git: ./git/
+tasks:
+  # ----------------------------------------------------------
+  # Define some common hooks (that can and should be re-used)
+  # ----------------------------------------------------------
+
+  init: # Download dependencies
+    desc: Initialise the repository with any required dependencies
+    cmds:
+      - task: git:init
+
+  update: # Update dependencies
+    desc: Update all the source code (including submodule dependencies)
+    cmds:
+      - task: git:update
+
+  upgrade: # Upgrade core utilities (handy for submodules)
+    desc: Update all the source code (including submodule dependencies)
+    cmds:
+      - '{{ .TASK_DIR }}/core/init --upgrade'
+
+  clean: # Clean all untracked files
+    desc: Clean all untracked data (including files added, but not comitted to git)
+    cmds:
+      - task: git:clean
+  

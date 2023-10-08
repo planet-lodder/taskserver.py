@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>Sandbox - Tailwind CSS + htmx</title>
+    <!-- Load HTMX, Alpine and Tailwind from a CDN -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.4/htmx.min.js"
+      integrity="sha512-ZM2vxgVBxhBI5Etj/c/qcJV+upate3VzbVQOQRCx1YGuyEX9dYdMh8pRUot4xIwtAay6QwRQC/FdXRjSWIEHrg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.3.0/alpine.js"
+      integrity="sha512-nIwdJlD5/vHj23CbO2iHCXtsqzdTTx3e3uAmpTm4x2Y8xCIFyWu4cSIV8GaGe2UNVq86/1h9EgUZy7tn243qdA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+      htmx.config.useTemplateFragments = true;
+    </script>
+  </head>
+  <body>
+    <!-- Main template -->
+    <div
+      class="flex flex-col min-h-screen w-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+    >
+      <!-- App Toolbar -->
+      <header
+        class="flex w-full p-2 items-center justify-between border-b-2 bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+      >
+        <h2
+          class="w-80 text-2xl font-extrabold text-gray-800 dark:text-gray-100"
+        >
+          HTMX Sandbox
+        </h2>
+        <div class="flex-grow">
+          <form
+            x-data="{ path: '', show_targets: false, show_actions: false, target: '', views: ['#sidenav', '#main', '#aside'], action: 'GET', actions: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] }"
+            onsubmit="htmx.ajax(action.value, path.value, {source: target.value || '#main'}); return false"
+          >
+            <div class="flex relative">
+              <label
+                for="hx-target-input"
+                class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:border-gray-700 dark:text-white rounded-l-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+              >
+                <strong>hx-target</strong>
+              </label>
+              <div class="relative">
+                <div
+                  class="flex items-center block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                >
+                  <input
+                    name="target"
+                    x-model="target"
+                    placeholder="default"
+                    class="w-full px-4 appearance-none outline-none text-gray-800 bg-gray-50 dark:bg-gray-700 dark:text-gray-200"
+                  />
+                  <a
+                    class="cursor-pointer outline-none focus:outline-none transition-all text-gray-300 hover:text-gray-600"
+                    x-on:click="target = ''"
+                  >
+                    <svg
+                      class="w-4 h-4 mx-2 fill-current"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </a>
+                  <label
+                    for="show_more"
+                    class="cursor-pointer outline-none focus:outline-none border-l border-gray-200 transition-all text-gray-300 hover:text-gray-600"
+                  >
+                    <svg
+                      class="w-2.5 h-2.5 ml-2.5"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 10 6"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m1 1 4 4 4-4"
+                      />
+                    </svg>
+                  </label>
+                </div>
+
+                <!-- Target Selector -->
+                <input
+                  type="checkbox"
+                  name="show_more"
+                  id="show_more"
+                  class="hidden peer"
+                  x-model="show_targets"
+                />
+                <div
+                  class="absolute rounded shadow overflow-hidden hidden peer-checked:flex flex-col w-full mt-1 border border-gray-200 bg-white dark:bg-gray-600 dark:border-gray-500"
+                >
+                  <template x-for="view in views">
+                    <div class="cursor-pointer group border-t">
+                      <a
+                        class="block p-2 border-transparent border-l-4 group-hover:border-blue-600 group-hover:bg-gray-100 group-hover:dark:bg-gray-500"
+                        x-on:click="show_targets = false; target = view"
+                        x-text="view"
+                      ></a>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <div class="flex relative">
+                <label
+                  for="show_actions"
+                  class="flex-shrink-0 w-24 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:border-gray-700 dark:text-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
+                >
+                  <strong class="flex flex-grow" x-text="action"></strong>
+                  <input name="action" type="hidden" x-model="action" />
+                  <svg
+                    class="w-2.5 h-2.5 ml-2.5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 10 6"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="m1 1 4 4 4-4"
+                    />
+                  </svg>
+                </label>
+                <input
+                  type="checkbox"
+                  id="show_actions"
+                  name="show_actions"
+                  x-model="show_actions"
+                  class="hidden peer"
+                />
+                <div
+                  class="flex-col top-11 w-full hidden absolute rounded shadow overflow-hidden peer-checked:flex border border-gray-200 bg-white dark:bg-gray-600 dark:border-gray-500"
+                >
+                  <template x-for="item in actions">
+                    <div class="cursor-pointer group border-t">
+                      <a
+                        class="block p-2 border-transparent border-l-4 group-hover:border-blue-600 group-hover:bg-gray-100 group-hover:dark:bg-gray-500"
+                        x-on:click="show_actions = false; action = item"
+                        x-text="item"
+                      ></a>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <div class="relative w-full">
+                <input
+                  name="path"
+                  x-model="path"
+                  class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-100 border-l-2 border border-gray-300 appearance-none outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                  placeholder="/path/to/fragment"
+                  type="search"
+                  required
+                />
+                <button
+                  type="submit"
+                  class="absolute flex flex-row top-0 right-0 p-2.5 h-full text-sm font-medium text-white bg-blue-700 rounded-r-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  <span class="mr-2">Load Partial</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="w-5 h-5"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div>
+          <button
+            id="theme-toggle"
+            type="button"
+            class="p-2 text-sm text-gray-500 rounded-lg md: dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 md:ml-2 max-w-5 xs:hidden"
+          >
+            <svg
+              id="theme-toggle-dark-icon"
+              class="hidden w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
+              ></path>
+            </svg>
+            <svg
+              id="theme-toggle-light-icon"
+              class="hidden w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-label="Dark or Light Mode"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="flex flex-grow flex-row">
+        <!-- Side Navigation -->
+        <nav
+          id="sidenav"
+          class="flex flex-col w-80 border-gray-200 bg-white dark:bg-gray-600"
+        >
+          {% block sidenav %}
+          <div class="space-y-2 p-2 text-gray-300 dark:text-gray-700">
+            <span>Target:</span>
+            <strong>#sidenav</strong>
+          </div>
+          {% endblock sidenav %}
+        </nav>
+
+        <!-- Main content page -->
+        <main id="main" class="flex flex-col flex-grow">
+          {% block content %}
+          <div class="text-gray-300 dark:text-gray-700">
+            <span>Target:</span>
+            <strong>#main</strong>
+          </div>
+          {% endblock content %}
+        </main>
+
+        <!-- Side panel (right) -->
+        <aside
+          id="aside"
+          class="flex flex-col space-y-2 min-w-0 border-gray-200 bg-white dark:bg-gray-600"
+        >
+          {% block aside %}{% endblock aside %}
+        </aside>
+      </div>
+    </div>
+
+    {% block modal_overlay %}
+    <style>
+      modal:empty {
+        display: none;
+      }
+    </style>
+    <modal
+      class="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-gray-500 bg-opacity-75 z-10 close-modal"
+      >{% block modal %}{% endblock modal %}</modal
+    >
+    <!-- Example content -->
+    <!--
+    <div class="w-80 p-4 mx-auto block bg-white border" onclick="event.stopPropagation()">MODAL CONTENTS</div>  
+    -->
+    <script>
+      const modal = document.querySelector("modal");
+      const closeModal = document.querySelectorAll(".close-modal");
+      const clearTarget = (close) => {
+        close.addEventListener("click", function () {
+          modal.innerHTML = "";
+        });
+      };
+      closeModal && closeModal.forEach(clearTarget);
+    </script>
+
+    {% endblock modal_overlay %}
+
+    <!-- Script block for initialisation hooks -->
+    {% block script %}{% endblock script %}
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+
+      var get = (id) => document.getElementById(id);
+      var stored = (k) => localStorage.getItem(k);
+      var stores = (k, v) => localStorage.setItem(k, v);
+      var target = document.body;
+      var themeToggleDarkIcon = get("theme-toggle-dark-icon");
+      var themeToggleLightIcon = get("theme-toggle-light-icon");
+
+      // Change the icons inside the button based on previous settings
+      var hasLocal = "color-theme" in localStorage;
+      var localValue = hasLocal && stored("color-theme");
+      var mediaDark = "(prefers-color-scheme: dark)";
+      var isDark =
+        (hasLocal && localValue === "dark") ||
+        (!hasLocal && window.matchMedia(mediaDark).matches);
+      if (isDark) {
+        themeToggleLightIcon.classList.remove("hidden");
+        target.classList.add("dark");
+      } else {
+        themeToggleDarkIcon.classList.remove("hidden");
+        target.classList.remove("dark");
+      }
+
+      var themeToggleBtn = get("theme-toggle");
+      themeToggleBtn.addEventListener("click", function () {
+        // toggle icons inside button
+        themeToggleDarkIcon.classList.toggle("hidden");
+        themeToggleLightIcon.classList.toggle("hidden");
+
+        // if set via local storage previously
+        var value = stored("color-theme");
+        if (value == "light" || !target.classList.contains("dark")) {
+          target.classList.add("dark");
+          stores("color-theme", "dark");
+        } else {
+          target.classList.remove("dark");
+          stores("color-theme", "light");
+        }
+      });
+    </script>
+  </body>
+</html>

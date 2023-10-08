@@ -1,0 +1,50 @@
+version: 3
+includes:
+  core: .task/core/
+env:
+  VERSION: "0.0.0"
+vars:
+  PROJECT: '{{ .PROJECT | default "my-project" }}'
+tasks:
+
+  init: [{ task: "core:init" }]
+  update: [{ task: "core:update" }]
+  clean: [{ task: "core:clean" }]
+
+  start:
+    - task --parallel serve hugo:watch
+  serve:
+    desc: Bootstrap the server and load from config
+    cmds:
+      - ./main.py --debug
+
+  # -------------------------------------------------
+  # Example commands
+  # -------------------------------------------------
+  example:
+    desc: Testing
+    sources:
+      - Taskfile.yaml
+    generates:
+      - './dist/lala.txt'
+    cmds:
+      - mkdir -p ./dist
+      - cat Taskfile.yaml > ./dist/lala.txt
+      - sleep 3
+
+  example2:
+    vars:
+      MESSAGE: Hello World
+      OUTPUT_PATH: ./some/path
+    cmds:
+      - echo "{{ .MESSAGE }}"
+      - task: example
+      - echo {{ .OUTPUT_PATH }}
+
+  example3:
+    - echo "Updating sources..."
+    - task: update
+    - echo "Start Examples..."
+    - task: example
+    - task: example2
+    - echo "Done"

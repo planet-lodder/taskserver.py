@@ -1,0 +1,32 @@
+{% extends 'base.html' %} {% block content %}
+<!--
+<div id="sidenav" hx-swap-oob="innerHTML">
+  <pre>HELLO WORLD!</pre>
+</div>
+-->
+<form
+  id="config-form"
+  method="POST"
+  action="/task/config"
+  hx-post="/task/config"
+  hx-target="this"
+  hx-swap="outerHTML"
+  class="flex flex-col flex-1"
+>
+  <input name="location" value="{{ taskfile._path }}" type="hidden" />
+
+  {% include 'task/toolbar.html' %}
+  <div class="flex flex-col flex-1">
+    <!-- Configuration Summary -->
+    {% include 'task/config/details.html' %}
+
+    <!-- Environment Vars {% with title="Environment Defaults", dest="env", ctx=taskfile.env %} -->
+    {% include 'task/values/list.html' %}
+    <!-- {% endwith %} -->
+
+    <!-- Taskfile Variables {% with title="Taskfile Variables", dest="vars", ctx=taskfile.vars %} -->
+    {% include 'task/values/list.html' %}
+    <!-- {% endwith %} -->
+  </div>
+</form>
+{% endblock content %}

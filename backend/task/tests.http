@@ -1,0 +1,51 @@
+
+# -------------------------------------------------------------------------
+# See: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+# -------------------------------------------------------------------------
+@target-url=http://127.0.0.1:9999
+
+# -------------------------------------------------------------------------
+### Blind check of 'target-url'
+# -------------------------------------------------------------------------
+curl {{target-url}}
+
+### Check for custom route
+curl {{target-url}}/task/list
+
+
+### Get hetml formatted
+GET {{target-url}}/task/list
+Hx-Request: true
+accpet: text/html
+
+### Get YAML content
+GET {{target-url}}/task/list
+accept: application/yaml
+
+### Get as CSV content
+GET {{target-url}}/task/list
+accept: text/csv
+
+
+### Post CONFIG updates
+POST {{target-url}}/task/config
+Content-Type: application/x-www-form-urlencoded
+HX-Current-URL: http://127.0.0.1:9999/task/config'
+HX-Request: true'
+HX-Target: config-form'
+HX-Trigger: config-form'
+
+location=Taskfile.yaml
+&config.env.VERSION=0.0.0
+&config.env.ENV=KOOSZ
+&config.vars.PROJECT=%7B%7B%20.PROJECT%20%7C%20default%20%22my-project%22%20%7D%7D
+&config.vars.AAAAA=AAAA
+
+### Test Delete
+curl 'http://127.0.0.1:9999/task/config/includes' \
+  -X 'DELETE' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -H 'HX-Current-URL: http://127.0.0.1:9999/task/config' \
+  -H 'HX-Request: true' \
+  --data-raw 'location=Taskfile.yaml&config.env.VERSION=0.0.0&config.env.ENV=KOOSZ&config.vars.PROJECT=%7B%7B%20.PROJECT%20%7C%20default%20%22my-project%22%20%7D%7D&config.vars.VAR=ZZZZZ&config.vars.AAAAA=AAAA' \
+  --compressed

@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+<!-- Modal Dialog -->
+{% block modal %}
+<div
+  class="p-4 mx-auto w-11/12 md:w-2/3 max-w-lg"
+  onclick="event.stopPropagation()"
+>
+  <style>
+    .task-starting {
+      display: none;
+    }
+    /* Show loader during HTMX request */
+    .htmx-request .task-starting,
+    .htmx-request.task-starting {
+      display: block;
+    }
+    /* Hide previously loaded content during HTMX request */
+    .htmx-request .task-tools,
+    .htmx-request.task-tools {
+      display: none;
+    }
+    .htmx-request .task-validation,
+    .htmx-request.task-validation {
+      display: none;
+    }
+  </style>
+  <form
+    hx-post="/task/run/dialog"
+    hx-target="modal"
+    hx-indicator=".task-tools,.task-starting,.task-validation"
+    class="relative py-8 px-5 md:px-10 bg-white text-gray-800 shadow-md rounded border border-gray-400"
+    x-data="{ showOptions: false }"
+  >
+    <div class="w-full flex flex-row justify-start text-gray-600 mb-3">
+      {% include 'task/icons/document-plus.svg' %}
+      <h1 class="pl-2 p-0.5 font-lg font-bold tracking-normal leading-tight">
+        Spawn a new task
+      </h1>
+    </div>
+
+    <div class="flex">
+      <input
+        name="name"
+        value="{{name}}"
+        placeholder="Task name(s)"
+        class="peer mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border"
+        autofocus
+      />
+      <!-- {% if error %} -->
+      <span class="task-validation -ml-10 mt-2 p-2 text-red-500">
+        {% include 'task/icons/error.svg' %}
+      </span>
+      <!-- {% endif %} -->
+    </div>
+    <!-- {% if error %} -->
+    <div
+      class="task-validation px-2 mb-4 -mt-3 text-sm font-normal w-max whitespace-normal break-words text-red-500"
+    >
+      {{error}}
+    </div>
+    <!-- {% endif %} -->
+
+    <div class="flex flex-col" style="display: none" x-show="showOptions">
+      <label
+        for=".vars.test"
+        class="flex flex-row text-gray-800 text-sm font-bold leading-tight tracking-normal"
+      >
+        Task Variables
+      </label>
+      <div class="relative mb-5 mt-2">
+        <div
+          class="absolute text-gray-600 flex items-center px-4 border-r h-full"
+        >
+          {% include 'task/icons/tools.svg' %}
+        </div>
+        <div
+          class="absolute right-0 text-gray-600 opacity-25 flex items-center pr-3 h-full cursor-pointer"
+        >
+          {% include 'task/icons/close.svg' %}
+        </div>
+        <input
+          id=".vars.test"
+          class="text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-16 text-sm border-gray-300 rounded border"
+          placeholder="Enter value or default"
+        />
+      </div>
+
+      <label
+        for="args"
+        class="text-gray-800 text-sm font-bold leading-tight tracking-normal"
+        >Extra Arguments</label
+      >
+      <div class="relative mb-5 mt-2">
+        <input
+          id=".cli_args"
+          class="text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border"
+          placeholder="(to be passed to the underlying process)"
+        />
+      </div>
+    </div>
+    <div class="w-full flex items-center justify-end space-x-2">
+      <div
+        class="flex flex-1 items-center justify-start text-gray-400 text-sm cursor-pointer"
+        @click="showOptions = !showOptions"
+      >
+        <span class="flex" x-show="showOptions">
+          {% include 'task/icons/chevron-up.svg' %}
+          <span class="pl-2">Hide Options</span>
+        </span>
+        <span class="flex" x-show="!showOptions">
+          {% include 'task/icons/chevron-down.svg' %}
+          <span class="pl-2">More Options</span>
+        </span>
+      </div>
+      <div class="task-starting flex items-center">
+        <button
+          type="button"
+          class="flex px-8 py-2 text-sm outline-none bg-gray-200 rounded text-gray-500"
+          disabled
+        >
+          <span class="-ml-5 mr-1 -my-0.5 w-6 h-6 animate-spin">
+            {% include 'task/icons/arrow-path.svg' %}
+          </span>
+          Starting...
+        </button>
+      </div>
+      <div class="task-tools flex items-center">
+        <button
+          type="button"
+          class="close-modal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 ml-3 bg-gray-100 transition duration-150 text-gray-600 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-700 transition duration-150 ease-in-out hover:bg-blue-600 bg-blue-700 rounded text-white px-8 py-2 text-sm"
+        >
+          Run Task
+        </button>
+      </div>
+    </div>
+    <button
+      class="close-modal cursor-pointer absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600 transition duration-150 ease-in-out rounded focus:ring-2 focus:outline-none focus:ring-gray-600"
+      type="button"
+    >
+      {% include 'task/icons/close.svg' %}
+    </button>
+  </form>
+</div>
+{% endblock modal %}

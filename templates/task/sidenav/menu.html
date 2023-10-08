@@ -1,0 +1,38 @@
+<!-- {% if menu %} -->
+<div class="flex flex-col justify-start flex-1 py-6 px-3">
+  <div class="">
+    <!-- {% with title=menu.name %} -->
+    {% include "task/sidenav/header.html" %}
+    <!-- {% endwith %} -->
+  </div>
+  <div class="flex flex-col justify-start flex-1">
+    <!-- {% for name,item in menu.children.items() %} -->
+    {% include "task/sidenav/menu-item.html" %}    
+    <!-- {% endfor %} -->
+  </div>
+
+  <div class="space-y-3">
+    <!-- {% with title="Additional Tools" %} -->
+    {% include "task/sidenav/header.html" %}
+    <!-- {% endwith %} -->
+    <a
+      href="/task/graphs"
+      class="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        class="w-6 h-6"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span class="mx-2 text-sm font-medium">Graph Examples</span>
+    </a>
+  </div>
+</div>
+<!-- {% endif %} -->

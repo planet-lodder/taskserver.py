@@ -1,0 +1,25 @@
+<div class="flex flex-1 relative group">
+  <div
+    name="{{task.key}}"
+    hx-get="/task/breakdown"
+    hx-target="closest .task-summary"
+    hx-trigger="load"
+    hx-swap="innerHTML"
+    class="task-summary flex flex-col flex-1 text-gray-600 dark:text-gray-300"
+  >
+    <div class="task-summary-loading opacity-25 flex flex-row flex-1 my-2">
+      <span class="w-6 h-6 animate-spin">
+        {% include 'task/icons/arrow-path.svg' %}
+      </span>
+      <span class="pl-2">Loading task summary...</span>
+    </div>
+  </div>
+  <button
+    type="button"
+    title="Copy commands"
+    class="absolute top-2 right-2 opacity-25 group-hover:opacity-75"
+    onclick="navigator.clipboard.writeText(document.querySelector('.task-commands').innerText);"
+  >
+    {% include 'task/icons/copy.svg' %}
+  </button>
+</div>

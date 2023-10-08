@@ -1,0 +1,36 @@
+<style>
+  ul.breadcrumb li + li::before {
+    content: "\276F";
+    padding-left: 8px;
+    padding-right: 4px;
+    color: inherit;
+  }
+
+  ul.breadcrumb li span {
+    opacity: 60%;
+  }
+</style>
+<nav
+  class="flex w-full flex-row justify-end bg-gray-300 dark:bg-gray-700 px-4 sm:justify-between"
+>
+  <ul
+    class="breadcrumb flex-row items-center py-4 text-lg text-gray-700 dark:text-white sm:flex"
+  >
+    <li class="inline font-bold">
+      <a href="/task/">{{ taskfile._path }}</a>
+    </li>
+    <li class="inline">
+      <span>{{ title }}</span>
+    </li>
+  </ul>
+
+  <span class="flex-grow"><!-- whitespace --></span>
+
+  <div class="flex items-center">
+    {% block tools %}
+    <!-- Start of tools -->
+    {% if toolbar %}{% include toolbar %}{% endif %}
+    <!-- End of tools -->
+    {% endblock tools %}
+  </div>
+</nav>

@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+set -euo pipefail # Stop running the script on first error...
+# -----------------------------------------------------------------------------
+
+config() {
+    TASK_DIR=${TASK_DIR:-".task"}
+    THIS_REPO=${THIS_REPO:-$(git config --get remote.origin.url)}    
+    BASE_REPO=${BASE_REPO:-"git@github.com:Club404/root.git"}
+    BASE_PATH=${BASE_PATH:-".task/core"}
+}
+
+run() {
+    config $@ # <-- Parse any cli args
+    skip-self
+
+    # Fetch the latest core tasks
+    temp="$TASK_DIR/temp"
+    fetch-core $temp
+    
+    # Replace the core tasks with the latest version
+    rm -rf "$TASK_DIR/core"
+    mkdir -p "$TASK_DIR/core"
+    cp -rf "$temp/$BASE_PATH" "$TASK_DIR/"
+}
+
+skip-self() {
+    # Sanity check that we dont try and update ourselves
+    if [ "${BASE_REPO:-}" == "${THIS_REPO:-}" ]
+    then
+        echo "This repository is the base repository."
+        echo " - BASE_REPO: $BASE_REPO"
+        echo "WARNING: Skipped."
+        exit 0
+    fi
+}
+
+fetch-core() {
+    local local=$1
+
+    # Create a temp git repo to fetch updates into
+    mkdir -p $local
+    [ -d $local/.git ] || git init -q -b main $local > /dev/null
+    pushd $local > /dev/null
+
+    # Add the origin (if this is a freshly initialised repo)
+    if ! git config --get remote.origin.url 2>&1 > /dev/null
+    then
+        git remote add -f origin $BASE_REPO > /dev/null
+    fi
+
+    # Checkout only the required files (if specified)
+    if [ ! -z "${BASE_PATH:-}" ]
+    then
+        git config core.sparseCheckout true
+        echo "${BASE_PATH}/**" >> .git/info/sparse-checkout
+    fi
+
+    # Fetch the latest sources
+    git pull -q origin main > /dev/null        
+
+    # Back to current folder
+    popd > /dev/null
+}
+
+run $@ # <-- Bootstrap command

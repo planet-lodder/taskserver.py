@@ -1,0 +1,16 @@
+<a
+  hx-get="/task"
+  hx-target="main"
+  class="flex items-center space-x-2 rounded py-1 px-4 my-4 mx-1 shadow-md text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 cursor-pointer"
+>
+  {% include "task/icons/back.svg" %}
+  <span>Back</span>
+</a>
+
+<button
+  type="submit"
+  class="flex items-center space-x-2 rounded py-1 px-4 my-4 mx-1 shadow-md bg-blue-500 text-gray-100 disabled:text-gray-400 disabled:bg-gray-500"
+>
+  {% include "task/icons/cloud-upload.svg" %}
+  <span>Save Config</span>
+</button>

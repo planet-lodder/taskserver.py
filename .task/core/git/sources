@@ -1,0 +1,564 @@
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+set -euo pipefail # Stop running the script on first error...
+# -----------------------------------------------------------------------------
+THIS_DIR=$(cd `dirname $0` && pwd)
+OUTPUT=${OUTPUT:-"stdout"}
+
+help() {
+    echo "Usage: $0 [ Options ] <action>" >&2
+    echo ""
+    echo "Options:"
+    echo "  -h|--help           Displays this help message"
+    echo "  -o|--out            Output types: stdout,json,yaml"
+    echo "  --dry-run           Do a dry run while doing certain operations"
+    echo ""
+    echo "Actions:"
+    echo "   init               Initialize the git submodules tracked in '.gitmodules'"
+    echo "   list               List all the repositories tracked"
+    echo "   peek               Takes a peak at all the submodules for status and updates."
+    echo "   update             Updates all tracked git submodules recursively..."
+    echo "   clean              Cleans out all the tracked repositories and re-init them."
+    echo "   each <command>     Executes the givent command(s) in each whitelisted repo."
+    echo ""
+}
+
+run() {
+    parse $@ # Parse command line args and set defaults
+
+    # Action is required
+    [ -z "${ACTION:-}" ] && help && exit 1
+    
+    case $ACTION in
+        init)
+            debug "${F_H1}Initialising: ${C_BOLD}${F_HREF}${PWD}${L_END}"
+            init_folder ${2:-"."}
+        ;;
+        list)
+            debug "${F_H1}Listing tracked repositories... ${L_END}"
+            list_repos
+        ;;
+        peek)
+            debug "${F_H1}Looking for changes in upstream sources...${C_NONE}"
+            git_check_recursive ${2:-"."}
+            debug "Done."
+        ;;
+        update)
+            debug "${F_H1}Updating all sources...${C_NONE}"
+            git_checkout_recursive "${2:-.}"
+            debug "Done."
+        ;;
+        each)            
+            shift # past value
+            debug "\n${F_H1}For each tracked repo: ${F_HREF}$@${L_END}"            
+            for_each "$@"
+        ;;
+        clean)            
+            shift # past value
+            debug "${F_H1}Cleaning tracked repositories...${C_NONE}"
+            clean_each
+        ;;
+        *) # unknown option
+            debug "\n${C_RED}ERROR: Action '$ACTION' not found.${L_END}"
+            help
+            exit 1
+        ;;
+    esac
+}
+
+parse() {
+    colors
+    
+    # Parse the command line arguments
+    POSITIONAL=()
+    while [[ $# -gt 0 ]]
+    do
+        case $1 in
+            -h|--help)
+                help
+                exit 0
+            ;;
+            -o|--out)
+                OUTPUT="$2"
+                shift # past argument
+                shift # past value
+            ;;
+            --dry-run)
+                DRY_RUN=Y
+                shift # past value
+            ;;
+            *) # unknown option
+                POSITIONAL+=("$1") # save it in an array for later
+                shift # past argument
+            ;;
+        esac
+    done
+    # restore positional parameters that could not be matched and parsed
+    set -- "${POSITIONAL[@]:-}"
+    
+    ACTION=${1:-}
+
+    if [ -z "${ACTION:-}" ]
+    then
+        printf "${C_RED}Warning: ACTION must be specified...${C_NONE}\n"
+        printf "${C_RED}Example: $0 ${C_BOLD}${ACTION:-"<action>"} ${C_NONE}\n\n"
+        help
+        exit 1
+    fi    
+}
+
+resolve_repo_url() {
+    local url=${1:-}
+    if [ "." == "${url:-.}" ]
+    then
+        url=$(git config --get remote.origin.url)
+    fi
+    # Convert the repo URL into a valid API URL by doing following:
+    # a) Convert `git@...` prefix to `https://` (if required)
+    # b) Swap the http(s) hostname and domain with the API domain    
+    url=$(echo $url \
+    | sed -E 's|https://api.bitbucket.org/2.0/repositories/|git@bitbucket.org:|' \
+    | sed -E 's|git@bitbucket.org:|https://bitbucket.org/|' \
+    | sed -E 's|\.git||g' \
+    )
+    
+    echo ${url}
+}
+
+list_repos() {    
+    [ -f '.gitmodules' ] || pull_repos
+
+    # Display the results as output
+    case ${OUTPUT:-stdout} in
+        stdout)
+            # Print out terminal friendly version
+            list_found | while IFS= read -r line;
+            do
+                [ ! -z $line ] && debug " - ${F_HREF}$(browsable_url ${line})${C_NONE}";
+            done
+            debug ""
+        ;;
+        yaml|json)
+            # Generate YAML output, and format to JSON if required
+            cat << EOF | ([ "${OUTPUT:-}" == "yaml" ] && cat || yq e '.' -o=json -)
+repositories: 
+$(list_found | while IFS= read -r line; do 
+
+# Declare some vars per line item...
+local repo=$(git_url ${line})
+local link=$(browsable_url ${line})
+local name=$(basename ${link})
+
+# Print out line item as yaml
+cat << EOI
+ - name: ${name}
+   repo: ${repo}
+   link: ${link}
+EOI
+done)
+EOF
+        ;;
+        *) # no output
+        ;;
+    esac    
+}
+
+init_folder() {
+    pushd ${1} > /dev/null
+    init_git_sources || throw "Init Failed: ${PWD}"
+    popd > /dev/null
+}
+
+init_git_sources() {
+    printf "${F_H1}Updating submodules...${C_NONE}${C_DEBUG}\n"
+    git submodule update --init --recursive
+    git submodule update --remote 
+    printf "${C_NONE}"
+        
+    printf "${F_H1}Switching branches...${C_NONE}${C_DEBUG}\n"
+    git submodule foreach -q --recursive '\
+    branch="$(git config -f $toplevel/.gitmodules submodule.$name.branch)"; \
+    echo "{ name: $name, path: $toplevel/$path, branch: ${branch:-null}, modules: $toplevel/.gitmodules }";' | while IFS= read -r line; do \
+        path=$(echo "${line}" | yq e '.path' - | sed "s|$PWD|.|")
+        name=$(echo "${line}" | yq e '.name' -)
+        branch=$(echo "${line}" | yq e '.branch' -)
+        modules=$(echo "${line}" | yq e '.modules' -)
+        default="$(cd $path && git rev-parse --abbrev-ref HEAD)"
+        padded=$(printf "$-8s" "$branch")
+
+        pushd $path > /dev/null
+        if git_has_changes;
+        then
+            printf " - ${C_RED}%-32s${C_DEBUG} [ ${C_BOLD}${C_RED}%-8s${C_NONE}${C_DEBUG} ] - ${C_YELLOW}${C_BOLD}Skipping, local changes were detected...${C_NONE}\n" "$path" "${branch:-$default}"
+        elif [ ! "${branch}" == "null" ]
+        then
+            printf " - ${C_INFO}%-32s${C_DEBUG} [ ${C_BOLD}${C_WHITE}%-8s${C_NONE}${C_DEBUG} ] -${C_DEBUG} Switched branch to default.${C_NONE}\n" "$path" "${branch:-$default}"
+            [ -z "${branch:-}" ] || git checkout --quiet ${branch}            
+        elif [ ! "${default}" == "HEAD" ]
+        then
+            printf " - ${C_GREEN}%-32s${C_DEBUG} [ ${C_BOLD}${C_GREEN}%-8s${C_NONE}${C_DEBUG} ]\n" "$path" "$default"
+            git config -f $modules submodule.$name.branch "${default}"
+        else
+            printf " - ${C_YELLOW}%-32s${C_DEBUG} [ ${C_BOLD}${C_YELLOW}%-8s${C_NONE}${C_DEBUG} ]\n" "$path" "${branch:-$default}"
+        fi
+        popd > /dev/null
+    done
+    printf "${C_NONE}"
+}
+
+for_each() {
+    local command="$([ "${1:-}" = "-" ] && cat /dev/stdin || echo $@)"
+
+    export root=${PWD}
+    export this=${root}/$(basename $0)
+
+    # Make sure we have the sources checked out
+    [ ! -f '.gitmodules' ] && pull_repos
+    [ -z "${command:-}" ] && throw "No command specified to run."    
+    
+    # Generate a list of all repos...    
+    list_found | while IFS= read -r repo; do [ ! -z $repo ] && \
+        local repo_url=$(git_url ${repo})
+        local web_url=$(browsable_url ${repo_url:-})
+        local path="$(basename $web_url)"
+        
+        if [ -d ${path} ]
+        then
+            local stdout="$(mktemp "/tmp/XXXXXXXX").log"
+            local stderr="$(mktemp "/tmp/XXXXXXXX").err"
+            pushd ${path} > /dev/null
+            printf "${C_NONE} - Run on ${C_INFO}${C_BOLD}%-32s${C_NONE} ... " "$path"
+            CONTEXT=${repo_url} 
+            
+            stdout=$stdout \
+            stderr=$stderr \
+            timed "$command" 
+            if [ "${SUCCESS:-N}" == "Y" ]
+            then
+                [ "$(cat $stdout | wc -l | xargs)" == "0" ] && rm -f $stdout || printf " « $stdout"
+            else
+                [ "$(cat $stdout | wc -l | xargs)" == "0" ] && rm -f $stdout || printf " « $stdout"
+                [ "$(cat $stderr | wc -l | xargs)" == "0" ] && rm -f $stderr || printf "${C_RED} « $stderr${C_DEBUG}"
+            fi
+            echo ""
+
+            popd > /dev/null
+        fi
+    done
+}
+
+clean_each() {
+    git clean -fdx 
+
+    # Generate a list of all repos...    
+    list_found | while IFS= read -r repo; do [ ! -z $repo ] && \
+        local web_url=$(browsable_url ${repo})
+        local path="./$(basename $web_url)"        
+        if [ -d ${path} ] 
+        then
+            rm -rf ${path}
+        fi
+    done
+
+    # Re-innitialise all the sources
+    $0 init
+}
+
+list_found() {
+    cat .gitmodules | grep url | cut -d '=' -f2 | sed 's/^ *//;s/ *$//' | sort -u
+}
+
+git_url() {
+    local url="${1:-}"
+    [ "$url" = "." ] && url="$(git config --get remote.origin.url)"
+    [[ ! "$url" =~ (.*)\/ ]] && url="$(dirname `git config --get remote.origin.url`)/${url}"
+    [[ ! "$url" =~ \.git$ ]] && url="${url}.git"
+    echo "$url"
+}
+
+browsable_url() {
+    echo "$1" \
+    | sed -E 's|git@github.com:|https://github.com|g' \
+    | sed -E 's|.git$||g'
+}
+
+gsm_remove() {
+  local target_dir=${1}
+
+  [ ! "${target_dir}" == "" ] || throw "No target specified..."
+  [ -d "${target_dir}" ] || throw "Submodule folder does not exists."
+
+  if git ls-tree -r HEAD --name-only | grep -Fx "${target_dir}" > /dev/null
+  then
+    debug "De-init submodule: ${target_dir}"
+    git submodule deinit -f ${target_dir}
+  fi
+
+  rm -rf ${target_dir}
+  #git rm ${target_dir} || debug " - No git folder to remove..."
+  #git rm --cached -f ${target_dir} || debug " - Could not remove git cache for '${target_dir}'..."  
+}
+
+git_check_recursive() {
+	local path=${1:-.}
+	local space=${2:-}
+
+	pushd "${path}" > /dev/null
+	git_check_status "${space}" || throw "Error: ${path}"
+	for item in `find . -type d -mindepth 1 -maxdepth 2 -not -path '*/\.*' | sort -u`
+	do
+		if [ -d "${item}/.git" ] || [ -f "${item}/.git" ];
+		then
+			git_check_recursive "${item}" "  ${space}" || throw "Error: ${path}"
+		fi
+	done
+	popd > /dev/null
+}
+
+git_check_status() {
+	local space=${1:-}
+	local path=${PWD##*/}
+	local branch=
+	local comment=
+
+	if [ -d ".git" ] || [ -f ".git" ]
+	then
+		branch=`git rev-parse --abbrev-ref HEAD`
+		comment=`git log --oneline -1`
+        padded=$(printf "%-8s" "${branch}") 
+
+		if git_has_changes; then
+			path="${C_BOLD}${C_YELLOW}${path}${C_NONE}"
+			branch="${C_BOLD}${C_RED}${padded}${C_NONE}"
+			comment="${C_YELLOW}You have un-tracked changes...${C_NONE}"
+		elif git_has_commits; then
+			path="${C_BOLD}${C_YELLOW}${path}${C_NONE}"
+			branch="${C_BOLD}${C_YELLOW}${padded}${C_NONE}"
+			comment="${C_YELLOW}You have changes ready to commit...${C_NONE}"
+		else
+			git fetch origin --quiet &> /dev/null
+
+			LOCAL=$(git rev-parse @ 2> /dev/null)
+			REMOTE=$(git rev-parse @{u} 2> /dev/null)
+			BASE=$(git merge-base @ @{u} 2> /dev/null)
+
+			if [ "${LOCAL}" == "${REMOTE}" ]; then
+				# Up-to-date
+				path="${C_BOLD}${C_INFO}${path}${C_NONE}"
+				branch="${C_BOLD}${C_WHITE}${padded}${C_NONE}"
+			elif [ "${LOCAL}" == "${BASE}" ]; then
+				# Need to pull
+				path="${C_BOLD}${C_YELLOW}${path}${C_NONE}"
+				branch="${C_YELLOW}${padded}${C_NONE}"
+				comment="Updates available ${REMOTE}."
+			elif [ "${REMOTE}" == "${BASE}" ]; then
+				# Need to push
+				path="${C_BOLD}${C_YELLOW}${path}${C_NONE}"
+				branch="${C_BOLD}${C_YELLOW}${padded}${C_NONE}"
+				comment="${C_YELLOW}There are commits that has not been pushed.${C_NONE}"
+			else
+				# Diverged
+				path="${C_BOLD}${C_RED}${path}${C_NONE}"
+				branch="${C_BOLD}${C_RED}${padded}${C_NONE}"
+				comment="Diverged from remote sources."
+			fi
+		fi
+
+		branch="[ ${C_BOLD}${padded}${C_NONE} ]"
+	else
+		path="${C_BOLD}${PWD##*/}${C_NONE}"
+	fi
+
+	# set colors
+
+	comment="${C_DEBUG}${comment}${C_NONE}"
+    prefix="${space} + "
+    len=$((48 - ${#path} - ${#prefix}))
+	printf "${C_DEBUG}${prefix}${C_NONE}${path} %${len}s ${branch} ${comment}\n" "<~?"	
+}
+
+git_has_changes() {
+    git rev-parse --verify HEAD >/dev/null || exit 1
+    git update-index -q --ignore-submodules --refresh
+    err=0
+    if git diff-files --quiet --ignore-submodules
+    then
+        err=1
+    fi
+    return $err
+}
+
+git_has_commits() {
+    err=0
+    if git diff-index --cached --quiet --ignore-submodules HEAD --
+    then
+        err=1
+    fi
+    return $err
+}
+
+git_checkout_recursive() {
+	local path=${1:-.}
+	local prefix=${2:-" + "}
+
+    if [ ! -d "${path}" ]
+    then
+        echo "WARNING: No folder for submodule path: ${path} in $(pwd)"
+        return
+    fi
+
+	pushd "${path}" > /dev/null    
+	check_git_status "${prefix}" || throw "Error: ${path}"
+	for item in `git submodule foreach -q 'echo $path' 2> /dev/null | sort -u`
+	do
+        target="$(basename $PWD)/"
+        [ -z "${prefix:-}" ] || target="${prefix:-}$(basename $PWD)/"
+        git_checkout_recursive "$PWD/${item}" "  ${prefix}" || throw "Error: ${path}"
+	done
+	popd > /dev/null
+}
+
+check_git_status() {
+	local prefix=${1:-}
+	local path=${PWD##*/}
+	local branch=
+	local comment=
+
+	if [ -d ".git" ] || [ -f ".git" ]
+	then
+		branch=`git rev-parse --abbrev-ref HEAD`
+		comment=`git log --oneline -1`
+        padded=$(printf "%-8s" "${branch}") 
+
+		if git_has_changes; then
+			path="${C_BOLD}${C_RED}${path}${C_NONE}"
+			comment="${C_BOLD}${C_YELLOW}Skipping, local changes were detected..."
+			branch="${C_BOLD}${C_RED}${padded}${C_NONE}"
+		elif git_has_commits; then
+			path="${C_BOLD}${C_YELLOW}${path}${C_NONE}"
+			comments="Found local commits to push..."
+			branch="${C_BOLD}${C_YELLOW}${padded}${C_NONE}"
+		else
+			comments="Updating..."
+
+			git fetch origin --quiet &>/dev/null
+			LOCAL=$(git rev-parse @ 2>/dev/null)
+			REMOTE=$(git rev-parse @{u} 2>/dev/null)
+			BASE=$(git merge-base @ @{u} 2>/dev/null)
+
+			if [ "$LOCAL" == "$REMOTE" ]; then
+				# Up-to-date
+				path="${C_BOLD}${C_INFO}${path}${C_NONE}"
+				branch="${C_BOLD}${C_WHITE}${padded}${C_NONE}"
+				comment="${C_DEBUG}Up to date.${C_NONE}"
+			elif [ "$LOCAL" == "$BASE" ]; then
+				# Need to pull
+				git pull &> /dev/null
+				path="${C_BOLD}${C_GREEN}${path}${C_NONE}"
+				branch="${C_BOLD}${C_GREEN}${padded}${C_NONE}"
+				comment="${C_GREEN}`git log --oneline -1`${C_NONE}"
+			elif [ "$REMOTE" == "$BASE" ]; then
+				# Need to push
+				#git push &> /dev/null
+				path="${C_BOLD}${C_YELLOW}${path}${C_NONE}"
+				branch="${C_YELLOW}${padded}${C_NONE}"
+				comment="${C_YELLOW}Push changes...${C_NONE}"
+			else
+				# Diverged
+				path="${C_BOLD}${C_RED}${path}${C_NONE}"
+				branch="${C_BOLD}${C_RED}${padded}${C_NONE}"
+				comment="Diverged from 'origin'..."
+			fi
+
+		fi
+
+		branch="[ ${C_BOLD}${branch}${C_NONE} ]"
+	else
+		path="${C_WHITE}${PWD##*/}${C_NONE}"
+	fi
+
+	# set colors
+
+	comment="${C_DEBUG}${comment}${C_NONE}"
+    len=$((48 - ${#path} - ${#prefix}))
+	printf "${C_DEBUG}${prefix}${C_NONE}${path} %${len}s ${branch} ${comment}\n" "<=-"
+}
+
+colors() {
+    C_NONE="\e[0m"
+    C_WHITE="\e[97m"
+    C_DEBUG="\e[90m"
+    C_INFO="\e[94m"
+    C_BOLD="\e[1m"
+    C_GREEN="\e[32m"
+    C_RED="\e[31m"
+    C_YELLOW="\e[33m"
+    F_H1="\e[4m${C_WHITE}\e[1m"
+    F_HREF="\e[4m\e[34m"
+    L_END="\n${C_NONE}"
+}
+
+debug() {
+    # Only show if shell output
+    [ "${OUTPUT:-stdout}" == "stdout" ] && printf "$@\n" || true
+}
+
+throw() {
+    printf "${C_RED}$1${L_END}\n" 1>&2
+    exit 1
+}
+
+timed() {    
+    local stdout=${stdout:-/dev/null}
+    local stderr=${stderr:-/dev/null}
+
+    CONTEXT=${CONTEXT:-$0}
+
+    # Reset timer
+    SECONDS=0
+    SUCCESS=Y
+    
+    # Execute main run
+    (echo "$@" | bash) > $stdout 2> $stderr  \
+    && SUCCESS=Y \
+    || SUCCESS=N
+    
+    # Calculate elapsed time
+    num=${SECONDS}
+    min=0
+    hour=0
+    day=0
+    if((num>59));then
+        ((sec=num%60))
+        ((num=num/60))
+        if((num>59));then
+            ((min=num%60))
+            ((num=num/60))
+            if((num>23));then
+                ((hour=num%24))
+                ((day=num/24))
+            else
+                ((hour=num))
+            fi
+        else
+            ((min=num))
+        fi
+    else
+        ((sec=num))
+    fi
+    
+    local formatted=""
+    [ "${sec}" == "0" ] || formatted="${sec} seconds"
+    [ "${min}" == "0" ] || formatted="${min} mins, ${formatted}"
+    [ "${day}" == "0" ] || formatted="${day} days, ${formatted}"
+    [ "${formatted}"=="" ] || formatted=", (${num})"
+    [ "${SUCCESS}" == "Y" ] && state="${C_GREEN}SUCCESS${C_NONE}" || state="${C_RED}FAILED${C_NONE}"
+    printf "${C_DEBUG}[ ${C_BOLD}${state}${C_DEBUG} ] « ${C_BOLD}${C_INFO}${formatted:-0s}${C_NONE}${C_DEBUG}"
+}
+
+require() {
+    command -v $1 >/dev/null 2>&1 || { echo >&2 "$2"; exit 1; }
+}
+
+# Bootstrap script
+run $@

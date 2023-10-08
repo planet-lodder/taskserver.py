@@ -1,0 +1,9 @@
+{% if req and not req.head["hx-request"] %}
+{% extends 'debug.html' %}
+{% endif %}
+
+{% block sidenav %}{% endblock sidenav %}
+{% block content %}{% endblock content %}
+{% block aside %}{% endblock aside %}
+{% block modal %}{% endblock modal %}
+{% block script %}{% endblock script %}

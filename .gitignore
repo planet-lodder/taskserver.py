@@ -1,0 +1,10 @@
+
+# Common ignores
+dist/
+data/
+public/
+node_modules/
+resources/
+venv/
+**/__pycache__
+.hugo_build.lock

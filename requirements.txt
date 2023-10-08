@@ -1,0 +1,13 @@
+anyserver==0.2.0
+python-multipart==0.0.6
+Jinja2==3.1.2
+
+# Required dependencies
+yq==3.2.3
+
+# Optional Dependencies
+fastapi==0.96.0
+uvicorn==0.22.0
+
+# Converting terminal output into HTML color coded
+ansi2html==1.8.0

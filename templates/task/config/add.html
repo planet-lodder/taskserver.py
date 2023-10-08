@@ -1,0 +1,10 @@
+<button
+  class="flex flex-0 py-1 -my-1 px-4 mx-1 items-center space-x-2 text-gray-300 dark:text-gray-700 hover:text-gray-500 dark:hover:text-gray-500"
+  hx-post="/task/config/{{dest}}?path={{taskfile._path}}"
+  hx-prompt="Key Name"
+  hx-target="#config-{{dest}}"
+  hx-swap="beforeend"
+>
+  {% include 'task/icons/plus.svg' %}
+  <span>Add</span>
+</button>

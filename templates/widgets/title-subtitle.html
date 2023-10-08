@@ -1,0 +1,17 @@
+{% if title %}
+<h2 class="font-medium text-gray-800 dark:text-white">
+  {% if href %}
+  <a href="{{ href }}">{{ title }}</a>
+  {% else %}{{ title }}{% endif %}
+</h2>
+{% endif %}
+
+<p class="text-sm font-normal text-gray-600 dark:text-gray-400">
+  {{ subtext }} {% if subtext2 %}
+  <span class="text-gray-300 dark:text-gray-700"> - {{ subtext2 }} </span>
+  {% elif not subtext and hint %}
+  <span class="text-gray-300 dark:text-gray-700">
+    <em>{{ hint }}</em>
+  </span>
+  {% endif %}
+</p>

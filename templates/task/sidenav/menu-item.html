@@ -1,0 +1,65 @@
+<!-- {% if item %} -->
+<!-- 
+{% set key = item.key %} 
+{% set name = item.name %} 
+{% set open = item.open %} 
+{% set icon = item.icon %}
+{% set style = item.style %} 
+{% set htmx = item.htmx %} 
+{% set actions = item.actions %} 
+{% set children = item.children %} 
+-->
+<!-- {% endif %} -->
+<!-- {% if children and children.keys() %} -->
+<!-- 
+{% set icon_htmx = 'name="'+key+'" hx-post="/task/sidenav/toggle" hx-target="closest .menu-item" hx-swap="outerHTML"' %} 
+{% set icon_style = 'cursor-pointer' %} 
+-->
+<!-- {% endif %} -->
+<div class="menu-item">
+  <div
+    class="{{ style | default('text-gray-600 dark:text-gray-300') }} flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+  >
+    <span class="w-6 h-6 {{icon_style}}" {{icon_htmx}}>
+      {% if icon %}{% include icon %}{% endif %}
+      <input type="hidden" name="open" value="{{open}}" />
+    </span>
+
+    <!-- {% if href %} -->
+    <a
+      href="{{ href }}"
+      class="flex-grow mx-2 text-sm font-medium cursor-pointer"
+      {{htmx}}
+      >{{name}}</a
+    >
+    <!-- {% else %} -->
+    <label class="flex-grow mx-2 text-sm font-medium cursor-pointer" {{htmx}}
+      >{{name}}</label
+    >
+    <!-- {% endif %} -->
+
+    <!-- {% if actions %} -->
+    <span class="flex flex-row">
+      <!-- {% for value in actions %} -->
+      <a
+        {%if
+        value.href%}href="{{ value.href }}"
+        {%endif%}
+        title="{{ value.name }}"
+        class="{{ value.style}} ml-2 opacity-10 hover:opacity-100 cursor-pointer"
+        {{value.htmx}}
+      >
+        {% include value.icon %}
+      </a>
+      <!-- {% endfor %} -->
+    </span>
+    <!-- {% endif %} -->
+  </div>
+  <!-- {% if children and open %} -->
+  <div class="flex flex-col ml-7">
+    <!-- {% for key,item in children.items() %}-->
+    {% include "task/sidenav/menu-item.html" %}
+    <!-- {% endfor %} -->
+  </div>
+  <!-- {% endif %} -->
+</div>
