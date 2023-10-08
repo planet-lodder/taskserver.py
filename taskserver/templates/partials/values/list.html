@@ -39,7 +39,7 @@
     <!-- {% if ctx %} List values for the current context -->
     {% for key,value in ctx.items() %}
     <!-- Key-value pair -->
-    {% include 'values/item.html' %} {% endfor %}
+    {% include 'partials/values/item.html' %} {% endfor %}
     <!-- {% else %} Empty: No value defined for context -->
     {% include 'config/empty.html' %}
     <!-- {% endif %} -->

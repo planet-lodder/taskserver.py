@@ -47,7 +47,7 @@ def taskfile_value_remove(req, resp, dest):
 
 
 @router.post('/config/env')
-@router.renders("values/item")
+@router.renders("partials/values/item")
 def taskAddConfigEnv(req, resp):
     return taskfile_value_update(req, resp, "env")
 
@@ -59,7 +59,7 @@ def taskRemoveConfigEnv(req, resp):
 
 
 @router.post('/config/vars')
-@router.renders("values/item")
+@router.renders("partials/values/item")
 def taskAddConfigEnv(req, resp):
     return taskfile_value_update(req, resp, "vars")
 

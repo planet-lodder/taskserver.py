@@ -16,11 +16,11 @@
     {% include 'config/details.html' %}
 
     <!-- Environment Vars {% with title="Environment Defaults", dest="env", ctx=taskfile.env %} -->
-    {% include 'values/list.html' %}
+    {% include 'partials/values/list.html' %}
     <!-- {% endwith %} -->
 
     <!-- Taskfile Variables {% with title="Taskfile Variables", dest="vars", ctx=taskfile.vars %} -->
-    {% include 'values/list.html' %}
+    {% include 'partials/values/list.html' %}
     <!-- {% endwith %} -->
   </div>
 </form>
