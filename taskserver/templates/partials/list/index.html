@@ -1,4 +1,3 @@
-{% block content %}
 <div class="task-list">
   <table
     class="min-w-full overflow-hidden divide-y divide-gray-200 dark:divide-gray-700 border-solid border-0 border-b border-gray-200 dark:border-gray-700"
@@ -18,8 +17,8 @@
     >
       {% if list %} {% for item in list %}
       <tr>
-        {% with name=item.name, desc=item.desc %} 
-        {% include "list/item.html" %} {% endwith %}
+        {% with name=item.name, desc=item.desc %} {% include "partials/list/item.html" %}
+        {% endwith %}
       </tr>
       {% endfor %} {% else %}
       <tr
@@ -47,4 +46,3 @@
     </tbody>
   </table>
 </div>
-{% endblock content %}

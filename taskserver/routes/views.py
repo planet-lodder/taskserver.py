@@ -38,7 +38,7 @@ def taskView(req, resp):
     }
 
 @router.get('/view/history')
-@router.renders('views/history')
+@router.renders('task/history')
 def taskRunHistory(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -51,7 +51,7 @@ def taskRunHistory(req, resp):
     }
 
 @router.get('/view/dep-graph')
-@router.renders('views/dep-graph')
+@router.renders('task/dep-graph')
 def taskDependencyGraph(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
