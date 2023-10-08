@@ -2,18 +2,18 @@
 <div class="flex flex-col justify-start flex-1 py-6 px-3">
   <div class="">
     <!-- {% with title=menu.name %} -->
-    {% include "sidenav/header.html" %}
+    {% include "partials/sidenav/header.html" %}
     <!-- {% endwith %} -->
   </div>
   <div class="flex flex-col justify-start flex-1">
     <!-- {% for name,item in menu.children.items() %} -->
-    {% include "sidenav/menu-item.html" %}    
+    {% include "partials/sidenav/menu-item.html" %}    
     <!-- {% endfor %} -->
   </div>
 
   <div class="space-y-3">
     <!-- {% with title="Additional Tools" %} -->
-    {% include "sidenav/header.html" %}
+    {% include "partials/sidenav/header.html" %}
     <!-- {% endwith %} -->
     <a
       href="/task/graphs"
