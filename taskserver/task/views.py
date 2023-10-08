@@ -2,13 +2,13 @@ from functools import reduce
 from anyserver import TemplateRouter
 import yaml
 
-from backend.task import router, taskserver
-from backend.task.models.TaskNode import TaskNode
-from backend.task.models.TaskfileConfig import taskfile_for
-from backend.task.utils import HtmxRequest
+from taskserver.task import router, task_server
+from taskserver.task.models.TaskNode import TaskNode
+from taskserver.task.models.TaskfileConfig import taskfile_for
+from taskserver.task.utils import HtmxRequest
 
 root = TaskNode('', 'Task Actions')
-root.populate(taskserver.list())
+root.populate(task_server.list())
 
 
 @router.get('/details')
@@ -26,7 +26,7 @@ def taskView(req, resp):
             "search": search,
             "toolbar": "task/toolbar/list.html",
             "taskfile": taskfile,
-            "list": taskserver.filter(search)
+            "list": task_server.filter(search)
         })
     
     # Show the task view

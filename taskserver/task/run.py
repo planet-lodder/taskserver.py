@@ -7,13 +7,13 @@ import time
 from ansi2html import Ansi2HTMLConverter
 from ansi2html.style import (get_styles)
 
-from backend.task import router, taskserver
-from backend.task.models.TaskNode import TaskNode
-from backend.task.models.TaskfileConfig import taskfile_for
-from backend.task.utils import HtmxRequest
+from taskserver.task import router, task_server
+from taskserver.task.models.TaskNode import TaskNode
+from taskserver.task.models.TaskfileConfig import taskfile_for
+from taskserver.task.utils import HtmxRequest
 
 root = TaskNode('', 'Task Actions')
-root.populate(taskserver.list())
+root.populate(task_server.list())
 
 
 def format_output(output):

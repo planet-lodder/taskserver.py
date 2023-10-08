@@ -8,7 +8,7 @@ import yq
 
 from copy import deepcopy
 
-from backend.task.utils import HtmxRequest, bind, flatten
+from taskserver.task.utils import HtmxRequest, bind, flatten
 
 # In-memory cache of all the taskfiles by path name
 TASKFILE_CACHE = {}

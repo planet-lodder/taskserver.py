@@ -1,6 +1,6 @@
-from backend.task import router
-from backend.task.models.TaskfileConfig import taskfile_for
-from backend.task.utils import HtmxRequest
+from taskserver.task import router
+from taskserver.task.models.TaskfileConfig import taskfile_for
+from taskserver.task.utils import HtmxRequest
 
 
 def taskfile_value_update(req, resp, dest):

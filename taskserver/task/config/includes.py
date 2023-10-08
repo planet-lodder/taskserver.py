@@ -2,9 +2,9 @@ import os
 import random
 import string
 
-from backend.task import router
-from backend.task.models.TaskfileConfig import taskfile_for
-from backend.task.utils import HtmxRequest
+from taskserver.task import router
+from taskserver.task.models.TaskfileConfig import taskfile_for
+from taskserver.task.utils import HtmxRequest
 
 
 class TaskfileInclude(dict):

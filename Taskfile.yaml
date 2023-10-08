@@ -6,17 +6,24 @@ env:
 vars:
   PROJECT: '{{ .PROJECT | default "my-project" }}'
 tasks:
-
-  init: [{ task: "core:init" }]
-  update: [{ task: "core:update" }]
-  clean: [{ task: "core:clean" }]
+  init:
+    - task: core:init
+    - task: init:python
+  init:python:
+    desc: Install required application dependencies
+    sources:
+      - requirements.txt
+    cmds:
+      - pip3 install -r requirements.txt
 
   start:
-    - task --parallel serve hugo:watch
-  serve:
     desc: Bootstrap the server and load from config
+    deps: [init:python]
     cmds:
       - ./main.py --debug
+
+  update: [{ task: "core:update" }]
+  clean: [{ task: "core:clean" }]
 
   # -------------------------------------------------
   # Example commands
@@ -26,7 +33,7 @@ tasks:
     sources:
       - Taskfile.yaml
     generates:
-      - './dist/lala.txt'
+      - "./dist/lala.txt"
     cmds:
       - mkdir -p ./dist
       - cat Taskfile.yaml > ./dist/lala.txt

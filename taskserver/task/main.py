@@ -1,9 +1,9 @@
 from anyserver import TemplateRouter
-from backend.task.models.TaskfileServer import TaskfileServer
+from taskserver.task.models.TaskfileServer import TaskfileServer
 
 # Define a router that we can load some routes into
 router = TemplateRouter(prefix='/task')
-taskserver = TaskfileServer()
+task_server = TaskfileServer()
 
 
 @router.get('')
@@ -11,11 +11,11 @@ taskserver = TaskfileServer()
 def taskMain(req, resp):
     # TODO: Load from resolver
     # taskfile = taskfile_for(req)
-    taskfile = {"_path": taskserver.location}
+    taskfile = {"_path": task_server.location}
     res = {
         "title": "Show All",
         "toolbar": "task/toolbar/list.html",
         "taskfile": taskfile,
-        "list": taskserver.list()
+        "list": task_server.list()
     }
     return res
