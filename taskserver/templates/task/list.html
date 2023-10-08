@@ -1,8 +1,50 @@
-{% extends 'base.html' %} 
-<!-- Main Contents -->
 {% block content %}
-<main class="flex flex-col flex-1">
-  {% include 'task/toolbar.html' %}
-  {% include 'task/list/index.html' %}  
-</main>
+<div class="task-list">
+  <table
+    class="min-w-full overflow-hidden divide-y divide-gray-200 dark:divide-gray-700 border-solid border-0 border-b border-gray-200 dark:border-gray-700"
+  >
+    <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+      <tr class="text-sm font-normal text-left rtl:text-right">
+        <th class="w-12 px-1 py-3.5 px-4"></th>
+        <th class="w-80 py-3.5 px-4">Task Name</th>
+        <th class="py-3.5 px-4">Description</th>
+        <th class="w-24 py-3.5 px-4">
+          <span class="sr-only">Edit</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-900"
+    >
+      {% if list %} {% for item in list %}
+      <tr>
+        {% with name=item.name, desc=item.desc %} 
+        {% include "list/item.html" %} {% endwith %}
+      </tr>
+      {% endfor %} {% else %}
+      <tr
+        hx-post="/task/list"
+        hx-trigger="load"
+        hx-indicator=".htmx-indicator"
+        hx-target="prev .task-list"
+        class="htmx-indicator"
+      >
+        <td
+          class="text-gray-600 pl-4 py-4 text-sm font-medium whitespace-nowrap"
+        >
+          <div class="w-6 h-6 animate-spin">
+            {% include "icons/arrow-path.svg" %}
+          </div>
+        </td>
+        <td
+          colspan="3"
+          class="italic pl-4 py-4 text-sm font-medium text-gray-300 dark:text-gray-700"
+        >
+          Loading...
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
 {% endblock content %}

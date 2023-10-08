@@ -35,16 +35,16 @@ class TaskNode():
         # Check for children
         if len(self.children.keys()):
             # Has children, so treat like a folder
-            return 'task/icons/folder-minus.svg' if self.open else 'task/icons/folder-plus.svg'
+            return 'icons/folder-minus.svg' if self.open else 'icons/folder-plus.svg'
 
         # Check the current state
         if "up_to_date" in task and task["up_to_date"]:
-            return "task/icons/document-check.svg"
+            return "icons/document-check.svg"
         elif "up_to_date" in task and not task["up_to_date"]:
-            return "task/icons/document-text.svg"
+            return "icons/document-text.svg"
 
         # Default icon
-        return 'task/icons/document.svg'
+        return 'icons/document.svg'
 
     @property
     def style(self):
@@ -74,13 +74,13 @@ class TaskNode():
             return [
                 {
                     "name": "Task Vars",
-                    "icon": "task/icons/arrow-path.svg",
+                    "icon": "icons/arrow-path.svg",
                     "href": "/task/start",
                     "style": "animate-spin"
                 },
                 {
                     "name": "Run Task",
-                    "icon": "task/icons/stop.svg",
+                    "icon": "icons/stop.svg",
                     "href": "/task/build",
                     "style": "opacity-100"
                 }
@@ -90,12 +90,12 @@ class TaskNode():
             return [
                 {
                     "name": "Task Vars",
-                    "icon": "task/icons/list.svg",
+                    "icon": "icons/list.svg",
                     "htmx": self.htmx
                 },
                 {
                     "name": "Run Task",
-                    "icon": "task/icons/play.svg",
+                    "icon": "icons/play.svg",
                     "htmx": f'name="{self.key}" hx-get="/task/run/dialog" hx-target="modal" hx-trigger="click" onclick="event.preventDefault()"'
                 }
             ]

@@ -1,0 +1,65 @@
+<!-- {% if task %} -->
+<!-- 
+{% set name = task.key %}
+{% set path = taskfile._path %}
+-->
+<div
+  class="flex flex-row flex-1 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
+>
+  <div class="w-48 h-48 p-6 text-gray-500">
+    {% include "icons/document-large.svg" %}
+  </div>
+  <div class="flex flex-col flex-grow p-4 text-gray-600 dark:text-gray-300">
+    <div class="flex flex-row">
+      <!-- Task main details -->
+      <div class="w-2/3 flex flex-col">
+        <div class="flex flex-row">
+          <label class="p-2 w-32 on inline-block element">Task Name:</label>
+          <a class="p-2 font-bold">{{ name }}</a>
+        </div>
+
+        <div class="flex flex-row">
+          <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
+          <a class="p-2 font-bold">{{ path }}</a>
+          <!-- {% if path != task.path %} -->
+          <span class="p-2 opacity-50"
+            >{% include 'icons/forward.svg' %}</span
+          >
+          <a class="p-2 font-bold">{{ task.path }}</a>
+          <!-- {% endif %} -->
+        </div>
+
+        <div class="flex flex-row">
+          <label class="p-2 w-32 on inline-block element">Description:</label>
+          {% if task.value and task.value.desc %}
+          <div class="p-2 flex-grow">{{ task.value.desc }}</div>
+          {% else %}
+          <em class="p-2 text-gray-500 opacity-50">No description available</em>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Task variables -->
+      <div class="w-1/3 flex relative">
+        <label class="p-2 w-32 on absolute -left-36">Task Variables:</label>
+        <div class="flex-1">
+          <div class="task-vars">
+            <!-- {% if taskfile and name in taskfile.tasks and taskfile.tasks[name].vars %} -->
+            <!-- {% for key,value in taskfile.tasks[name].vars.items() %} -->
+            {% include 'run/vars/item.html' %}
+            <!-- {% endfor %} -->
+            <!-- {% endif %} -->
+          </div>
+          {% include 'run/vars/add.html' %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Task breakdown -->
+    <div class="flex flex-row">
+      <label class="p-2 w-32 on inline-block element">Executes:</label>
+      {% include 'execution/index.html' %}
+    </div>
+  </div>
+</div>
+<!-- {% endif %} -->

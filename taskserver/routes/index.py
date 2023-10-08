@@ -11,7 +11,7 @@ def taskMain(req, resp):
     taskfile = {"_path": task_server.location}
     res = {
         "title": "Show All",
-        "toolbar": "task/toolbar/list.html",
+        "toolbar": "toolbar/list.html",
         "taskfile": taskfile,
         "list": task_server.list()
     }

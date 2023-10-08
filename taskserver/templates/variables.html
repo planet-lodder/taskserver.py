@@ -1,0 +1,6 @@
+<!-- {% if task %} -->
+{% set vars = taskfile.tasks[task.key].vars %}
+<!-- Task Variables {% with title="Task Variables", closed=not edit, dest="task", ctx=vars %} -->
+{% include 'values/list.html' %}
+<!-- {% endwith %} -->
+<!-- {% endif %} -->

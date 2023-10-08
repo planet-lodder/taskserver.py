@@ -1,0 +1,52 @@
+<!-- 
+{% if item %} 
+{% set name = item.name %} 
+{% set desc = item.desc %} 
+{% set hint = "" if desc else "No description available" %} 
+{% endif %} 
+-->
+<td class="text-gray-600 pl-4 py-4 text-sm font-medium whitespace-nowrap">
+  {% include "icons/document.svg" %}
+</td>
+<td class="pl-4 py-4 text-sm font-medium whitespace-nowrap">
+  <a
+    name="{{name}}"
+    hx-get="/task/details"
+    hx-target="main"
+    hx-swap="outerHTML"
+    class="font-medium cursor-pointer text-gray-800 dark:text-white"
+  >
+    {{name}}
+  </a>
+</td>
+<td class="pl-4 py-4 text-sm font-medium whitespace-nowrap">
+  <p class="text-sm font-normal text-gray-600 dark:text-gray-400">
+    {{ desc }} 
+    <span class="text-gray-300 dark:text-gray-700">
+      <em>{{ hint }}</em>
+    </span>    
+  </p>
+</td>
+<td class="flex flex-row px-3 pl-4 py-4 text-sm font-medium whitespace-nowrap">
+  <a
+    name="{{name}}"
+    hx-get="/task/details"
+    hx-target="main"
+    hx-swap="outerHTML"
+    class="flex items-center cursor-pointer space-x-2 rounded py-1 px-4 mx-1 text-gray-300 dark:text-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
+  >
+    {% include "icons/list.svg" %}
+    <span>Task Vars</span>
+  </a>
+  <a
+    name="{{name}}"
+    hx-get="/task/run"
+    hx-target="modal"
+    hx-trigger="click"
+    onclick="event.preventDefault()"
+    class="flex items-center cursor-pointer space-x-2 rounded py-1 px-4 mx-1 text-gray-300 dark:text-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
+  >
+    {% include "icons/play.svg" %}
+    <span>Run Task</span>
+  </a>
+</td>

@@ -1,0 +1,35 @@
+<!-- {% if task %} -->
+<!-- 
+{% set name = task.key %}
+{% set path = taskfile._path %}
+{% set cmd = "task " + name %}
+{% if path and path != "Taskfile.yaml" %}
+{% set cmd = "task -f " + path + " " + name %}
+{% endif %}
+-->
+<div
+  class="flex flex-row items-center bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+>
+  <span class="font-bold pl-4 pr-2 py-3.5">
+    {% include 'icons/terminal.svg' %}
+  </span>
+  <span class="font-bold pr-2 py-3.5">Command:</span>
+  <input
+    type="text"
+    name="command"
+    value="{{cmd}}"
+    class="block flex-1 px-4 py-1.5 m-1.5 text-gray-700 bg-white border dark:border-gray-700 rounded-lg placeholder-gray-400/70 dark:bg-gray-900 dark:text-gray-300"
+    readonly
+  />
+  <button
+    name="{{name}}"
+    hx-post="/task/run"
+    hx-target="main"
+    onclick="event.preventDefault()"
+    class="flex items-center space-x-2 cursor-pointer rounded py-1 px-4 my-4 mx-1 mr-5 shadow-md bg-blue-500 text-gray-100"
+  >
+    {% include 'icons/play.svg' %}
+    <span>Run Task</span>
+  </button>
+</div>
+<!-- {% endif %} -->

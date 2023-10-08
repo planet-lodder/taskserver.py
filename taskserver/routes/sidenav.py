@@ -8,12 +8,12 @@ root.populate(task_server.list())
 
 
 @router.get('/sidenav')
-@router.renders('task/sidenav/index')
+@router.renders('sidenav/index')
 def taskMain(req, resp):
     taskfile = taskfile_for(req)
     res = {
         "title": "Show All",
-        "toolbar": "task/toolbar/list.html",
+        "toolbar": "toolbar/list.html",
         "taskfile": taskfile,
         "menu": root,
     }
@@ -21,7 +21,7 @@ def taskMain(req, resp):
 
 
 @router.post('/sidenav/toggle')
-@router.renders('task/sidenav/menu-item')
+@router.renders('sidenav/menu-item')
 def taskMain(req, resp):
     htmx = HtmxRequest(req)
     key = htmx.triggerName

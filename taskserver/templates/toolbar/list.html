@@ -1,0 +1,61 @@
+<span class="flex flex-grow justify-end items-center px-2">
+  <div
+    class="inline-flex overflow-hidden bg-white border divide-x rounded-lg dark:bg-gray-900 rtl:flex-row-reverse dark:border-gray-700 dark:divide-gray-700"
+  >
+    <!--
+    <button
+      class="px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 bg-gray-100 sm:text-sm dark:bg-gray-800 dark:text-gray-300"
+    >
+      Show Grouped
+    </button>
+    <button
+      class="px-5 py-2 text-xs font-medium text-gray-600 transition-colors duration-200 sm:text-sm dark:hover:bg-gray-800 dark:text-gray-300 hover:bg-gray-100"
+    >
+      List All
+    </button>
+    -->
+    <div class="relative flex items-center">
+      <span class="absolute text-gray-400 dark:text-gray-600">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-5 h-5 mx-3"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+          />
+        </svg>
+      </span>
+      <input
+        type="text"
+        name="search"
+        value="{{search}}"
+        placeholder="Find a task by name"
+        class="block w-full py-1.5 pr-5 text-gray-700 bg-white border dark:border-gray-700 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 dark:bg-gray-900 dark:text-gray-300 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+        hx-post="/task/list"
+        hx-trigger="keyup changed delay:250ms"
+        hx-indicator=".htmx-indicator"
+        hx-target="next .task-list"
+      />
+      <span class="-ml-8 mr-2 htmx-indicator">
+        <div class="w-6 h-6 animate-spin text-gray-400 dark:text-gray-600">
+          {% include "icons/arrow-path.svg" %}
+        </div>
+      </span>
+    </div>
+  </div>
+</span>
+
+<a
+  hx-get="/task/config"
+  hx-target="main"
+  class="flex items-center space-x-2 rounded py-1 px-4 my-4 mx-1 shadow-md bg-gray-500 text-gray-200 cursor-pointer"
+>
+  {% include "icons/cloud-upload.svg" %}
+  <span>Configure</span>
+</a>

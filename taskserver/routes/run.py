@@ -39,7 +39,7 @@ def format_output(output):
 
 
 @router.post('/run')
-@router.renders('task/run/details')
+@router.renders('run/details')
 def taskRun(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -57,7 +57,7 @@ def taskRun(req, resp):
 
     result = {
         "title": task.key if task else "unknown",
-        "toolbar": "task/toolbar/task.html",        
+        "toolbar": "toolbar/task.html",        
         "taskfile": taskfile,
         "task": task,
         "name": name,
@@ -84,7 +84,7 @@ def taskRun(req, resp):
     return result
 
 @router.get('/run/details')
-@router.renders('task/run/details')
+@router.renders('run/details')
 def taskRunDialog(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -101,7 +101,7 @@ def taskRunDialog(req, resp):
     }
 
 @router.get('/run/dialog')
-@router.renders('task/run/modal')
+@router.renders('run/modal')
 def taskRunDialog(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -118,7 +118,7 @@ def taskRunDialog(req, resp):
 
 
 @router.post('/run/dialog')
-@router.renders('task/run/modal')
+@router.renders('run/modal')
 def taskRun(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
@@ -153,7 +153,7 @@ def taskRun(req, resp):
             result.update({"output": output})
 
             # Return the running task to the main content screen
-            return router.render_template("task/run/confirm.html", result)
+            return router.render_template("run/confirm.html", result)
 
         except Exception as ex:
             # The task failed to launch
@@ -165,7 +165,7 @@ def taskRun(req, resp):
 
 
 @router.get('/run/var')
-@router.renders('task/run/vars/item')
+@router.renders('run/vars/item')
 def taskRunDialog(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)

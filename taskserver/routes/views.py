@@ -21,10 +21,10 @@ def taskView(req, resp):
     if task and not task.value:
         # Not a leaf node, so show the search results instead
         search = task.key + ':'
-        return router.render_template('task/list.html', {
+        return router.render_template('list.html', {
             "title": search + '*',
             "search": search,
-            "toolbar": "task/toolbar/list.html",
+            "toolbar": "toolbar/list.html",
             "taskfile": taskfile,
             "list": task_server.filter(search)
         })
@@ -32,33 +32,33 @@ def taskView(req, resp):
     # Show the task view
     return {
         "title": task.key if task else "unknown",
-        "toolbar": "task/toolbar/task.html",
+        "toolbar": "toolbar/task.html",
         "taskfile": taskfile,
         "task": task,
     }
 
 @router.get('/view/history')
-@router.renders('task/views/history')
+@router.renders('views/history')
 def taskRunHistory(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
     task = root.find(htmx.triggerName)
     return {
         "title": f'{task.key} - Run History',
-        "toolbar": "task/toolbar/task.html",
+        "toolbar": "toolbar/task.html",
         "taskfile": taskfile,
         "task": task,
     }
 
 @router.get('/view/dep-graph')
-@router.renders('task/views/dep-graph')
+@router.renders('views/dep-graph')
 def taskDependencyGraph(req, resp):
     taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
     task = root.find(htmx.triggerName)
     return {
         "title": f'{task.key} - Dependency Graph',
-        "toolbar": "task/toolbar/task.html",
+        "toolbar": "toolbar/task.html",
         "taskfile": taskfile,
         "task": task,
     }
