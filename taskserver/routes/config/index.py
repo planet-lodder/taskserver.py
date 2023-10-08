@@ -1,7 +1,7 @@
 
-from taskserver.task import router
-from taskserver.task.models.TaskfileConfig import taskfile_for
-from taskserver.task.utils import partial_values
+from taskserver import router
+from taskserver.models.TaskfileConfig import taskfile_for
+from taskserver.utils import partial_values
 
 
 @router.get('/config')

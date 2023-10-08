@@ -2,10 +2,10 @@ from functools import reduce
 from anyserver import TemplateRouter
 import yaml
 
-from taskserver.task import router, task_server
-from taskserver.task.models.TaskNode import TaskNode
-from taskserver.task.models.TaskfileConfig import taskfile_for
-from taskserver.task.utils import HtmxRequest
+from taskserver import router, task_server
+from taskserver.models.TaskNode import TaskNode
+from taskserver.models.TaskfileConfig import taskfile_for
+from taskserver.utils import HtmxRequest
 
 root = TaskNode('', 'Task Actions')
 root.populate(task_server.list())

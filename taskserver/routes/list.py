@@ -1,5 +1,5 @@
-from taskserver.task import router, task_server
-from taskserver.task.models.TaskfileConfig import taskfile_for
+from taskserver import router, task_server
+from taskserver.models.TaskfileConfig import taskfile_for
 
 
 @router.get('/list')

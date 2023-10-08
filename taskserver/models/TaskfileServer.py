@@ -6,7 +6,7 @@ import subprocess
 
 import yaml
 
-from taskserver.task.utils import bind
+from taskserver.utils import bind
 
 
 class TaskfileServer(dict):

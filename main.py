@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from anyserver import AnyServer
 
-from taskserver.task import router as TASK_ROUTES
+from taskserver import router as TASK_ROUTES
 
 app = AnyServer()
 
