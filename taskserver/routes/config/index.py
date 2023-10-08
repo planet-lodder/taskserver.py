@@ -5,7 +5,7 @@ from taskserver.utils import partial_values
 
 
 @router.get('/config')
-@router.renders("config/index")
+@router.renders("task/config")
 def taskConfig(req, resp):
     taskfile = taskfile_for(req)
     data = {
@@ -17,7 +17,7 @@ def taskConfig(req, resp):
 
 
 @router.post('/config')
-@router.renders("config/index")
+@router.renders("task/config")
 def taskUpdateConfig(req, resp):
     partials = partial_values(req.body, "config.")
     taskfile = taskfile_for(req)
