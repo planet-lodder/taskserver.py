@@ -28,7 +28,7 @@ tasks:
   # -------------------------------------------------
   # Example commands
   # -------------------------------------------------
-  example:
+  example:alpha:
     desc: Testing
     sources:
       - Taskfile.yaml
@@ -39,7 +39,7 @@ tasks:
       - cat Taskfile.yaml > ./dist/lala.txt
       - sleep 3
 
-  example2:
+  example:beta:
     vars:
       MESSAGE: Hello World
       OUTPUT_PATH: ./some/path
@@ -48,7 +48,7 @@ tasks:
       - task: example
       - echo {{ .OUTPUT_PATH }}
 
-  example3:
+  example:omega:
     - echo "Updating sources..."
     - task: update
     - echo "Start Examples..."

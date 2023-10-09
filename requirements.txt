@@ -2,11 +2,13 @@ anyserver==0.2.0
 python-multipart==0.0.6
 Jinja2==3.1.2
 
-# Required dependencies
+# Internally used dependencies
 yq==3.2.3
+pydantic==1.10.7
+pytest==7.4.2
 
 # Optional Dependencies
-fastapi==0.96.0
+fastapi==0.103.2
 uvicorn==0.22.0
 
 # Converting terminal output into HTML color coded
