@@ -4,6 +4,7 @@ from taskserver.domain.entities.Task import Task
 
 
 class AbstractTaskUseCase(ABC):
+    
     @abstractmethod
     def get_by_name(self, task_name):
         ...

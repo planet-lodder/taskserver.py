@@ -22,4 +22,4 @@ class TaskDetailSerializer(TaskBaseSerializer):
 class TaskListSerializer(TaskBaseSerializer):
     class Meta:
         model = Task
-        fields = TaskBaseSerializer.Meta.fields + ["id", ]
+        fields = TaskBaseSerializer.Meta.fields + ["key", ]

@@ -7,6 +7,8 @@ class TaskVars(dict[str, str]):
 
 
 class Task(BaseModel):
+    key: str
+    name: str
     desc: str
     vars: TaskVars
     sources: list(str)
