@@ -7,5 +7,6 @@ node_modules/
 resources/
 venv/
 **/__pycache__
+.pytest_cache
 .DS_Store
 .hugo_build.lock
