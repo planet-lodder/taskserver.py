@@ -1,10 +1,10 @@
 
 from taskserver.main import router, task_server
 
-import taskserver.routes.index
-import taskserver.routes.sidenav
-import taskserver.routes.execution.breakdown
-import taskserver.routes.views
-import taskserver.routes.list
-import taskserver.routes.config
-import taskserver.routes.run
+import taskserver.app.index
+import taskserver.app.sidenav
+import taskserver.app.execution.breakdown
+import taskserver.app.views
+import taskserver.app.list
+import taskserver.app.config
+import taskserver.app.run
