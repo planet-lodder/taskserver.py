@@ -1,12 +1,7 @@
-from taskserver import router, task_server
+from taskserver import router
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.details import TaskDetailUseCase
-from taskserver.domain.use_cases.list import TaskListUseCase
-from taskserver.models.TaskNode import TaskNode
 from taskserver.utils import HtmxRequest
-
-root = TaskNode('', 'Task Actions')
-root.populate(task_server.list())
 
 
 @router.get('/details')
@@ -14,7 +9,7 @@ root.populate(task_server.list())
 def taskDetails(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
     htmx = HtmxRequest(req)
-    task = root.find(htmx.triggerName)
+    task = view.root.find(htmx.triggerName)
     if task and not task.value:
         # Not a leaf node, so we show the search results instead
         result = view.list(task)
@@ -29,7 +24,7 @@ def taskDetails(req, resp):
 def taskRunHistory(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
     htmx = HtmxRequest(req)
-    task = root.find(htmx.triggerName)
+    task = view.root.find(htmx.triggerName)
     return view.history(task)
 
 
@@ -38,5 +33,5 @@ def taskRunHistory(req, resp):
 def taskDependencyGraph(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
     htmx = HtmxRequest(req)
-    task = root.find(htmx.triggerName)
+    task = view.root.find(htmx.triggerName)
     return view.graph(task)
