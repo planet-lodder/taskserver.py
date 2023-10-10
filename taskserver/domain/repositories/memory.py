@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, Sequence
 
 from taskserver.domain.entities.Task import Task
-from taskserver.repo.base import AbstractTaskRepository
+from taskserver.domain.repositories.base import ATaskfileRepository
 
 CACHED_TASKFILES = {}
 
@@ -39,7 +39,7 @@ class InMemoryTaskfile():
         return CACHED_TASKFILES[file]
 
 
-class InMemoryTaskRepository(AbstractTaskRepository):
+class InMemoryTaskRepository(ATaskfileRepository):
 
     def insert(self, task: Task) -> Optional[Task]:
         store = InMemoryTaskfile.get(task)

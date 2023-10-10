@@ -1,4 +1,5 @@
 
+from typing import List
 from pydantic import BaseModel
 
 
@@ -11,5 +12,5 @@ class Task(BaseModel):
     name: str
     desc: str
     vars: TaskVars
-    sources: list(str)
-    generates: list(str)
+    sources: List[str]
+    generates: List[str]
