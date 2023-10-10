@@ -1,3 +1,5 @@
+from taskserver.domain.use_cases.base import UseCase
+from taskserver.domain.use_cases.list import TaskListUseCase
 from taskserver.main import task_server
 
 from taskserver.domain.entities.Task import Task
@@ -17,6 +19,16 @@ class TaskDetailUseCase(TaskfileUseCase):
         result = self.base(task)
         result.update({
             "title": task.key if task else "(unknown)",
+        })
+        return result
+
+    def list(self, task: Task):
+        search = task.key + ':'
+        result = TaskListUseCase(self.repo).filter(search)
+        result.update({
+            "title": search + '*',
+            "search": search,
+            "toolbar": "partials/toolbar/list.html",
         })
         return result
 
