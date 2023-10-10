@@ -1,7 +1,7 @@
-from taskserver import router, task_server
+from taskserver import router
+from taskserver.domain.handlers.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.list import TaskListUseCase
-from taskserver.models.TaskfileConfig import taskfile_for
 
 
 @router.get('/list')
@@ -17,11 +17,13 @@ def taskList(req, resp):
 @router.post('/list')
 @router.renders("partials/list/index")
 def taskSearch(req, resp):
-    store = UseCase.forWeb(req, TaskListUseCase)
-    
-    # task = Serializer.TaskCreate(request).entity(required=True)
-    terms = "" if req.body and not "search" in req.body else req.body["search"]
+    class WebSearchTerms(WebSerializer):
+        def parse(self):
+            return self.body["search"] if "search" in self.body else ""
 
+    store = UseCase.forWeb(req, TaskListUseCase)
+    input = Serialize.fromWeb(req, WebSearchTerms)
+    terms = input.parse()
     return {
         "taskfile": store.taskfile,
         "list": store.filter(terms)

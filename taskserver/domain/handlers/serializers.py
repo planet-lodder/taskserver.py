@@ -1,25 +1,39 @@
-from taskserver.domain.entities.Task import Task
+from abc import ABC, abstractmethod
+from typing import Type, TypeVar
 
 
-class TaskBaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Task
-        fields = ["desc", "vars", "sources", "generates", ]
+class Serializer(ABC):
+    data = None
+    errors = []
+
+    @abstractmethod
+    def parse(self): ...
+
+    def validate(self):
+        # Clear previous validation result
+        self.errors = []
+        self.data = self.parse()
+        return self.data and len(self.errors) == 0
 
 
-class TaskCreateSerializer(TaskBaseSerializer):
-    ...
+class WebSerializer(Serializer):
+
+    def __init__(self, req) -> None:
+        self.req = req
+
+    @property
+    def head(self): return self.req.head if self.req and self.req.head else {}
+
+    @property
+    def body(self): return self.req.body if self.req and self.req.body else {}
 
 
-class TaskPutOrPatchSerializer(TaskBaseSerializer):
-    ...
+TWebSerializer = TypeVar("TWebSerializer", bound=WebSerializer)
 
 
-class TaskDetailSerializer(TaskBaseSerializer):
-    ...
+class Serialize():
 
-
-class TaskListSerializer(TaskBaseSerializer):
-    class Meta:
-        model = Task
-        fields = TaskBaseSerializer.Meta.fields + ["key", ]
+    @staticmethod
+    def fromWeb(req, cls: Type[TWebSerializer]) -> TWebSerializer:
+        res = cls(req)
+        return res

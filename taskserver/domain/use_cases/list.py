@@ -5,7 +5,7 @@ from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 
 
 class TaskListUseCase(TaskfileUseCase):
-
+    
     def list(self):
         return task_server.list()
 
