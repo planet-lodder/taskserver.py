@@ -1,5 +1,3 @@
-import os
-
 from taskserver import router
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.list import TaskListUseCase

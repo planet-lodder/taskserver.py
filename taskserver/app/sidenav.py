@@ -1,33 +1,20 @@
-from taskserver import router, task_server
-from taskserver.models.TaskNode import TaskNode
-from taskserver.models.TaskfileConfig import taskfile_for
+from taskserver import router
+from taskserver.domain.use_cases.base import UseCase
+from taskserver.domain.use_cases.sidenav import TaskSideNavUseCase
 from taskserver.utils import HtmxRequest
-
-root = TaskNode('', 'Task Actions')
-root.populate(task_server.list())
 
 
 @router.get('/sidenav')
 @router.renders('task/sidenav')
 def taskMain(req, resp):
-    taskfile = taskfile_for(req)
-    res = {
-        "title": "Show All",
-        "toolbar": "partials/toolbar/list.html",
-        "taskfile": taskfile,
-        "menu": root,
-    }
-    return res
+    view = UseCase.forWeb(req, TaskSideNavUseCase)
+    return view.index()
 
 
 @router.post('/sidenav/toggle')
 @router.renders('partials/sidenav/menu-item')
 def taskMain(req, resp):
+    view = UseCase.forWeb(req, TaskSideNavUseCase)
     htmx = HtmxRequest(req)
     key = htmx.triggerName
-    node = root.find(key)
-    if node:
-        node.open = not node.open
-    return {
-        "item": node,
-    }
+    return view.toggle(key)
