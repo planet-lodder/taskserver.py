@@ -15,6 +15,54 @@ class TaskConfigUseCase(TaskfileUseCase):
         }
         return result
 
+    def getInclude(self, key, value):
+        result = {
+            "key": key,
+            "value": value,
+            "taskfile": self.taskfile,
+        }
+        return result
+
+    def newInclude(self, id, key, value):
+        hint = value if value and key else "Enter new value here"
+        focus = f'key.includes.{id}' if not key else f'config.includes.{key}'
+        return {
+            "id": id,
+            "key": key,
+            "value": value,
+            "taskfile": self.taskfile,
+            "autofocus": focus,
+            "placeholder": hint,
+        }
+
+    def updateInclude(self, id, key, value, hint, errors):
+        focus = f'key.includes.{id}' if not key else f'config.includes.{id}'
+        result = {
+            "id": id,
+            "key": key,
+            "value": value,
+            "taskfile": self.taskfile,
+            "autofocus": focus,
+            "placeholder": hint,
+            "errors": errors,
+        }
+
+        # Check if the value should be updated (in the cache)
+        if not key in self.taskfile.includes or value != self.taskfile.includes[key]:
+            # Update they value from the input field
+            print(f' * INCLUDES [ {key} ] == {value}')
+            self.taskfile.includes[key] = value
+
+        return result
+
+    def deleteInclude(self, key):
+        if not key:
+            raise Exception("Expected 'include' key name.")
+
+        taskfile = self.taskfile
+        if key in taskfile.includes:
+            del taskfile.includes[key]  # Soft delete the value from memory
+
     def updatePartial(self, values):
         taskfile = TaskfileConfig.resolve(self.location)
         taskfile.update(values)
@@ -48,7 +96,7 @@ class TaskConfigUseCase(TaskfileUseCase):
 
         return result
 
-    def removeValue(self, dest, key):
+    def deleteValue(self, dest, key):
         if not key:
             raise Exception("Expected 'hx-trigger-name' header.")
 

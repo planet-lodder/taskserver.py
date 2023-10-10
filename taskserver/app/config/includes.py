@@ -3,6 +3,8 @@ import random
 import string
 
 from taskserver import router
+from taskserver.domain.use_cases.base import UseCase
+from taskserver.domain.use_cases.config import TaskConfigUseCase
 from taskserver.models.TaskfileConfig import taskfile_for
 from taskserver.utils import HtmxRequest
 
@@ -48,7 +50,8 @@ class TaskfileInclude(dict):
 
         if os.path.isdir(filepath) and not os.path.isfile(filepath + "Taskfile.yaml"):
             # Cannot find a valid taskfile
-            error("value", f"Cannot resolve `{filepath}Taskfile.yaml` to a valid file.")
+            error(
+                "value", f"Cannot resolve `{filepath}Taskfile.yaml` to a valid file.")
 
         return errors
 
@@ -95,94 +98,82 @@ class TaskfileInclude(dict):
 @router.get('/config/includes')
 @router.renders("partials/config/includes/items/default")
 def taskInclude(req, resp):
+    view = UseCase.forWeb(req, TaskConfigUseCase)
+
+    # ------------------------------------------------------
+    # TODO: Serialize
+    # ------------------------------------------------------
     htmx = HtmxRequest(req)
-    taskfile = taskfile_for(req)
+    taskfile = view.taskfile
     include = TaskfileInclude.resolve(taskfile, htmx)
     key = include.key or ""
     value = include.value or ""
-    return {        
-        "key": key,
-        "value": value,
-        "taskfile": taskfile,
-    }
+    # ------------------------------------------------------
+
+    return view.getInclude(key, value)
 
 
 @router.put('/config/includes')
 @router.renders("partials/config/includes/items/edit")
-def taskIncludeNew(req, resp):
-    htmx = HtmxRequest(req)
-    taskfile = taskfile_for(req)
+def taskIncludeAdd(req, resp):
+    view = UseCase.forWeb(req, TaskConfigUseCase)
 
-    # Look for the key/value pair using user input
+    # ------------------------------------------------------
+    # TODO: Serialize
+    # ------------------------------------------------------
+    htmx = HtmxRequest(req)
+    taskfile = view.taskfile
     include = TaskfileInclude.resolve(taskfile, htmx)
     id = include.id
     key = include.key or ""
     value = include.value or ""
-    hint = value if value and include.key else "Enter new value here"
-    focus = f'key.includes.{id}' if not key else f'config.includes.{id}'
-    return {
-        "id": id,
-        "key": key,
-        "value": value,
-        "taskfile": taskfile,
-        "autofocus": focus,
-        "placeholder": hint,
-    }
+    # ------------------------------------------------------
+
+    return view.newInclude(id, key, value)
 
 
 @router.post('/config/includes')
 @router.renders("partials/config/includes/items/edit")
 def taskIncludeEdit(req, resp):
-    htmx = HtmxRequest(req)
-    taskfile = taskfile_for(req)
+    view = UseCase.forWeb(req, TaskConfigUseCase)
 
-    # Look for the key/value pair using user input
+    # ------------------------------------------------------
+    # TODO: Serialize
+    # ------------------------------------------------------
+    htmx = HtmxRequest(req)
+    taskfile = view.taskfile
     include = TaskfileInclude.resolve(taskfile, htmx)
     id = include.id
     key = include.key
     value = include.value
     action = htmx.triggerValue
+    hint = value if action != "add" else "Enter new value here"
 
     # Validate input and creaqte data context object
     errors = include.validate(key, value)
     valid = not len(errors.keys())
-    hint = include.value if action != "add" else "Enter new value here"
-    focus = f'key.includes.{id}' if not key else f'config.includes.{id}'
+    # ------------------------------------------------------
 
-    # Set some additional metadata
-    data = {
-        "id": include.id,
-        "key": key,
-        "value": value,
-        "taskfile": taskfile,
-        "autofocus": focus,
-        "placeholder": hint,
-        "errors": errors,
-    }
+    result = view.updateInclude(id, key, value, hint, errors)
 
-    # Check if the value should be updated (in the cache)
-    if not key in taskfile.includes or value != taskfile.includes[key]:
-        # Update they value from the input field
-        print(f' * INCLUDES [ {key} ] == {value}')
-        taskfile.includes[key] = value
-
+    # Keep in edit mode if not validated
     if not valid or action in ["edit", "add"]:
-        # Keep in edit mode
-        return data
-
-    # Value has been updated successfully, show in default mode
-    return router.render_template("partials/config/includes/items/default.html", data)
+        return result
+    else:
+        # Value has been updated successfully
+        return router.render_template("partials/config/includes/items/default.html", result)
 
 
 @router.delete('/config/includes')
 def taskIncludeDelete(req, resp):
-    taskfile = taskfile_for(req)
+    view = UseCase.forWeb(req, TaskConfigUseCase)
+
+    # ------------------------------------------------------
+    # TODO: Serialize
+    # ------------------------------------------------------
     htmx = HtmxRequest(req)
     key = htmx.triggerName
+    # ------------------------------------------------------
 
-    if key in taskfile.includes:
-        del taskfile.includes[key]  # Soft delete the value from memory
-    elif not key:
-        raise Exception("Expected 'hx-trigger-name' header.")
-
-    return ""  # Return empty result (swap with original html content)
+    view.deleteInclude(key)
+    return ""  # empty result

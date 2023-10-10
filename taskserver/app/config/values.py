@@ -40,7 +40,7 @@ def taskEditConfigEnv(req, resp):
 def taskRemoveConfigEnv(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigValueInput)
-    view.removeValue(*input.forDelete("env"))
+    view.deleteValue(*input.forDelete("env"))
     return ""  # empty result
 
 
@@ -56,5 +56,5 @@ def taskAddConfigEnv(req, resp):
 def taskRemoveConfigVars(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigValueInput)
-    view.removeValue(*input.forDelete("vars"))
+    view.deleteValue(*input.forDelete("vars"))
     return ""  # empty result
