@@ -6,15 +6,7 @@ from taskserver.models.TaskNode import TaskNode
 
 
 class TaskSideNavUseCase(TaskfileUseCase):
-    _root = None
-
-    @property
-    def root(self):
-        if not self._root:
-            self._root = TaskNode('', 'Task Actions')
-            self._root.populate(task_server.list())
-        return self._root
-
+    
     def index(self):
         result = {
             "title": "Show All",

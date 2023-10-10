@@ -13,18 +13,18 @@ class ATaskfileRepository(ABC):
         self._filename = filename
         self._taskfile = None
 
-    def taskfile(self):
+    def taskfile(self) -> TaskfileConfig:
         if not self._taskfile:
             self._taskfile = self.load()  # Load and cache result
         return self._taskfile
 
-    def load(self):
+    def load(self) -> TaskfileConfig:
         path = self._filename
 
         # Resolve the current taskfile
-        if not os.path.exists(path):
+        if os.path.exists(path):
             return TaskfileConfig.resolve(path)
-        
+
         return {"_path": self._filename}
 
     @abstractmethod

@@ -148,10 +148,10 @@ class TaskfileConfig(dict):
 
     def breakdown(self, task_name):
         output = self.summary(task_name)
-
+        
         # Strip everything up to the commands
         output = re.sub(r'(?is).*commands:', '', output, flags=re.MULTILINE)
-        commands = []        
+        commands = []
         type = 'cmd'
         while output:
             match = re.search(r'( - )(Task: )?', output, re.MULTILINE)

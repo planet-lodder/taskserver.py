@@ -1,26 +1,13 @@
-from taskserver import router, task_server
-from taskserver.models.TaskNode import TaskNode
-from taskserver.models.TaskfileConfig import taskfile_for
+from taskserver import router
+from taskserver.domain.use_cases.base import UseCase
+from taskserver.domain.use_cases.breakdown import TaskExecutionUseCase
 from taskserver.utils import HtmxRequest
-
-root = TaskNode('', 'Task Actions')
-root.populate(task_server.list())
 
 @router.get('/breakdown')
 @router.renders('partials/execution/list')
-def taskSummary(req, resp):
-    taskfile = taskfile_for(req)
+def taskBreakdown(req, resp):
+    view = UseCase.forWeb(req, TaskExecutionUseCase)
     htmx = HtmxRequest(req)
-    task = root.find(htmx.triggerName)
-    breakdown = []
-
-    if task and taskfile:
-        # Not a leaf node, so show the search results instead
-        breakdown = taskfile.breakdown(task.key)
-    
-    # Show the task view
-    return {
-        "task": task,
-        "taskfile": taskfile,
-        "breakdown": breakdown,
-    }
+    task = view.find(htmx.triggerName)
+    result = view.breakdown(task)
+    return result

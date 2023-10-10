@@ -11,6 +11,10 @@ class ATaskfileUseCase(ABC):
     def __init__(self, repo: ATaskfileRepository):
         self.repo = repo
 
+    @property
+    def location(self) -> str:
+        return self.repo._filename
+
 
 T = TypeVar("T", bound=ATaskfileUseCase)
 

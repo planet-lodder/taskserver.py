@@ -18,7 +18,7 @@ def taskDetails(req, resp):
     if task and not task.value:
         # Not a leaf node, so we show the search results instead
         result = view.list(task)
-        return router.render_template('list.html', result)
+        return router.render_template('task/list.html', result)
 
     # Show the task view
     return view.index(task)
