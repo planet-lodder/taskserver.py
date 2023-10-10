@@ -2,16 +2,28 @@ from taskserver.main import task_server
 
 from taskserver.domain.entities.Task import Task
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
+from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
 class TaskConfigUseCase(TaskfileUseCase):
 
     def index(self):
-        result = self.list()
-        result.update({
-            "title": "Show All",
-            "toolbar": "partials/toolbar/list.html",
-        })
+        result = {
+            "title": "Configuration",
+            "toolbar": "partials/toolbar/config.html",
+            "taskfile": self.taskfile
+        }
+        return result
+
+    def updatePartial(self, values):
+        taskfile = TaskfileConfig.resolve(self.location)
+        taskfile.update(values)
+        taskfile.save(reload=True)
+        result = {
+            "title": "Configuration",
+            "toolbar": "partials/toolbar/config.html",
+            "taskfile": taskfile,
+        }
         return result
 
     def updateValue(self, dest, key, value):
@@ -43,4 +55,3 @@ class TaskConfigUseCase(TaskfileUseCase):
         taskfile = self.taskfile
         if dest in taskfile and key in taskfile[dest]:
             del taskfile[dest][key]
-
