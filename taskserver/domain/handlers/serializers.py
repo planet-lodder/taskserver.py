@@ -21,11 +21,17 @@ class WebSerializer(Serializer):
     def __init__(self, req) -> None:
         self.req = req
 
-    @property
-    def head(self): return self.req.head if self.req and self.req.head else {}
+    def head(self, key=None, default=None):
+        head = self.req.head if self.req and self.req.head else {}
+        if key:
+            return head[key] if key in head else default
+        return head
 
-    @property
-    def body(self): return self.req.body if self.req and self.req.body else {}
+    def body(self, key=None, default=None):
+        body = self.req.body if self.req and self.req.body else {}
+        if key:
+            return body[key] if key in body else default
+        return body
 
 
 TWebSerializer = TypeVar("TWebSerializer", bound=WebSerializer)

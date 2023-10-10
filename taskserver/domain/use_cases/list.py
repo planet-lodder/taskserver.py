@@ -5,9 +5,22 @@ from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 
 
 class TaskListUseCase(TaskfileUseCase):
-    
-    def list(self):
-        return task_server.list()
+
+    def index(self):
+        result = self.list()
+        result.update({
+            "title": "Show All",
+            "toolbar": "partials/toolbar/list.html",
+        })
+        return result
+
+    def list(self, values=None):
+        values = values if values else task_server.list()
+        return {
+            "taskfile": self.taskfile,
+            "list": values
+        }
 
     def filter(self, terms: str):
-        return task_server.filter(terms)
+        found = task_server.filter(terms)
+        return self.list(found)
