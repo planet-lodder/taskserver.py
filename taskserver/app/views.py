@@ -3,6 +3,9 @@ from anyserver import TemplateRouter
 import yaml
 
 from taskserver import router, task_server
+from taskserver.domain.use_cases.base import UseCase
+from taskserver.domain.use_cases.details import TaskDetailUseCase
+from taskserver.domain.use_cases.list import TaskListUseCase
 from taskserver.models.TaskNode import TaskNode
 from taskserver.models.TaskfileConfig import taskfile_for
 from taskserver.utils import HtmxRequest
@@ -13,52 +16,39 @@ root.populate(task_server.list())
 
 @router.get('/details')
 @router.renders('task/single')
-def taskView(req, resp):
-    taskfile = taskfile_for(req)
+def taskDetails(req, resp):
     htmx = HtmxRequest(req)
     task = root.find(htmx.triggerName)
 
     if task and not task.value:
-        # Not a leaf node, so show the search results instead
+        # Not a leaf node, so we show the search results instead
         search = task.key + ':'
-        return router.render_template('list.html', {
+        result = UseCase.forWeb(req, TaskListUseCase).filter(search)
+        result.update({
             "title": search + '*',
             "search": search,
             "toolbar": "partials/toolbar/list.html",
-            "taskfile": taskfile,
-            "list": task_server.filter(search)
         })
-    
+        return router.render_template('list.html', result)
+
     # Show the task view
-    return {
-        "title": task.key if task else "unknown",
-        "toolbar": "partials/toolbar/task.html",
-        "taskfile": taskfile,
-        "task": task,
-    }
+    view = UseCase.forWeb(req, TaskDetailUseCase)
+    return view.index(task)
+
 
 @router.get('/history')
 @router.renders('task/history')
 def taskRunHistory(req, resp):
-    taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
     task = root.find(htmx.triggerName)
-    return {
-        "title": f'{task.key} - Run History',
-        "toolbar": "partials/toolbar/task.html",
-        "taskfile": taskfile,
-        "task": task,
-    }
+    view = UseCase.forWeb(req, TaskDetailUseCase)
+    return view.history(task)
+
 
 @router.get('/dep-graph')
 @router.renders('task/dep-graph')
 def taskDependencyGraph(req, resp):
-    taskfile = taskfile_for(req)
     htmx = HtmxRequest(req)
     task = root.find(htmx.triggerName)
-    return {
-        "title": f'{task.key} - Dependency Graph',
-        "toolbar": "partials/toolbar/task.html",
-        "taskfile": taskfile,
-        "task": task,
-    }
+    view = UseCase.forWeb(req, TaskDetailUseCase)
+    return view.graph(task)

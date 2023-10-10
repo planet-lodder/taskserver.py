@@ -4,6 +4,7 @@ import os
 from typing import Optional, Sequence
 
 from taskserver.domain.entities.Task import Task
+from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
 class ATaskfileRepository(ABC):
@@ -18,8 +19,12 @@ class ATaskfileRepository(ABC):
         return self._taskfile
 
     def load(self):
-        if not os.path.exists(self._filename):
-            return {"_path": self._filename}
+        path = self._filename
+
+        # Resolve the current taskfile
+        if not os.path.exists(path):
+            return TaskfileConfig.resolve(path)
+        
         return {"_path": self._filename}
 
     @abstractmethod
