@@ -1,5 +1,5 @@
 from taskserver import router
-from taskserver.domain.handlers.serializers import Serialize, WebSerializer
+from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.config import TaskConfigUseCase
 from taskserver.models.TaskfileInclude import TaskfileInclude

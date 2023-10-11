@@ -1,7 +1,7 @@
 
 
 from taskserver import router
-from taskserver.domain.handlers.serializers import Serialize, WebSerializer
+from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.run import TaskRunUseCase
 from taskserver.utils import HtmxRequest
