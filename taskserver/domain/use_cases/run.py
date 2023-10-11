@@ -6,9 +6,28 @@ from ansi2html.style import (get_styles)
 from taskserver.domain.entities.Task import Task
 from taskserver.domain.serializers import Serializer
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
+from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
 class TaskRunUseCase(TaskfileUseCase):
+    
+    def findTask(self, task_name: str) -> Task:
+        return self.root.find(task_name)
+
+    def breakdown(self, task: Task):
+        breakdown = []
+
+        if task and self.taskfile:
+            # Not a leaf node, so show the search results instead
+            config = TaskfileConfig.resolve(self.location)
+            breakdown = config.breakdown(task.key)
+
+        # Show the task view
+        return {
+            "task": task,
+            "taskfile": self.taskfile,
+            "breakdown": breakdown,
+        }
 
     def runDialog(self, task_name: str):
         task = self.root.find(task_name)

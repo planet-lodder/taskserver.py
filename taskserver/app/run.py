@@ -6,6 +6,7 @@ from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.run import TaskRunUseCase
 from taskserver.utils import HtmxRequest
 
+
 class TaskRunInputs(WebSerializer):
     _task = None
 
@@ -72,3 +73,13 @@ def taskRunDialog(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
     return view.runVarDetails(input.trigger, input.prompt)
+
+
+@router.get('/run/breakdown')
+@router.renders('partials/run/list')
+def taskBreakdown(req, resp):
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    htmx = HtmxRequest(req)
+    task = view.findTask(htmx.triggerName)
+    result = view.breakdown(task)
+    return result
