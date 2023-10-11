@@ -1,5 +1,5 @@
 
-from taskserver.main import router, task_server
+from taskserver.main import router
 
 import taskserver.main
 import taskserver.app.index
