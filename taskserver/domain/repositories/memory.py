@@ -1,76 +1,52 @@
 
-from abc import ABC, abstractmethod
+from ast import List
+import json
+import os
+import subprocess
 from typing import Optional, Sequence
 
 from taskserver.domain.entities.Task import Task
 from taskserver.domain.repositories.base import ATaskfileRepository
+from taskserver.models.TaskList import TaskList
+from taskserver.models.TaskNode import TaskNode
+from taskserver.models.TaskfileConfig import TaskfileConfig
 
-CACHED_TASKFILES = {}
-CACHED_REPOS = {}
 
-
-class InMemoryTaskfile():
-    tasks = []
-
-    def add_task(self, task: Task):
-        if found := filter(lambda t: t.name == task.name, self.tasks):
-            raise Exception('Task already exists')
-        item = task.dict()
-        self.tasks.append(item)
-        return item
-
-    def find_task(self, task_name: str):
-        if found := filter(lambda t: t.name == task_name, self.tasks):
-            return list(found)[0]
-        return None
-
-    def update_task(self, task: Task):
-        if item := self.find_task(task.name):
-            item.update(task.dict())
-            return item
-        raise Exception('Cannot update task: not part of this taskfile.')
+class InMemory():
+    CACHED_REPOS = {}
 
     @staticmethod
-    def get(task: Task):
-        file = "Taskfile.yaml"
-        if not file in CACHED_TASKFILES:
-            CACHED_TASKFILES[file] = {
-                "version": 3,
-                "tasks": []
-            }
-        return CACHED_TASKFILES[file]
+    def TaskfileRepository(file: str):
+        if not file in InMemory.CACHED_REPOS:
+            InMemory.CACHED_REPOS[file] = InMemoryTaskRepository(file)
+        return InMemory.CACHED_REPOS[file]
 
 
 class InMemoryTaskRepository(ATaskfileRepository):
 
-    def insert(self, task: Task) -> Optional[Task]:
-        store = InMemoryTaskfile.get(task)
-        item = store.add_task(task)
-        return Task(**item)
+    def __init__(self, filename: str):
+        self._path = filename
+        self.taskfile = TaskfileConfig.resolve(filename)
+        self.tasks = TaskList.discover(filename)
+        self.nodes = TaskNode('', 'Task Actions', task_list=self.tasks)
 
-    def update(self, task: Task) -> Task:
-        store = InMemoryTaskfile.get(task)
-        item = store.update_task(task)
-        return Task(**item)
+    def listTasks(self) -> Sequence[Task]:
+        return self.tasks
 
-    def get_by_name(self, task_name) -> Optional[Task]:
-        store = InMemoryTaskfile.get(None)
-        if item := store.find_task(task_name):
-            return Task(**item)
-        else:
-            return None
+    def searchTasks(self, terms) -> Sequence[Task]:
+        def matches(val, term):
+            return term.lower() in val.lower()
 
-    def delete(self, task_name):
-        store = InMemoryTaskfile.get(None)
-        store.delete_task(task_name)
+        def search(task):
+            match_all = True
+            if terms:
+                # Search for each work in the terms given
+                for term in terms.split(' '):
+                    found = False
+                    found = found or matches(task.name, term)
+                    found = found or matches(task.desc, term)
+                    found = found or matches(task.summary, term)
+                    match_all = match_all and found
+            return match_all
 
-    def list(self) -> Optional[Sequence[Task]]:
-        store = InMemoryTaskfile.get(None)
-        tasks = store.tasks
-        return [Task(**task) for task in tasks]
-
-    @staticmethod
-    def resolve(file: str):
-        if not file in CACHED_REPOS:
-            CACHED_REPOS[file] = InMemoryTaskRepository(file)
-        return CACHED_REPOS[file]
+        return self.tasks if not len(terms) else list(filter(search, self.tasks))

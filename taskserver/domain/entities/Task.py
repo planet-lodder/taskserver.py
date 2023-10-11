@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import List, Optional, Required
 from pydantic import BaseModel
 
 
@@ -8,9 +8,11 @@ class TaskVars(dict[str, str]):
 
 
 class Task(BaseModel):
+    src: str
     key: str
     name: str
-    desc: str
-    vars: TaskVars
-    sources: List[str]
-    generates: List[str]
+    desc: Optional[str]
+    vars: Optional[TaskVars]
+    summary: Optional[str]
+    sources: Optional[list]
+    generates: Optional[list]

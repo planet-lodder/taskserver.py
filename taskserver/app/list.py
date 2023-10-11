@@ -19,6 +19,5 @@ def taskList(req, resp):
 @router.renders("partials/list/index")
 def taskSearch(req, resp):
     view = UseCase.forWeb(req, TaskListUseCase)
-    input = Serialize.fromWeb(req, WebSearchTerms)
-    terms = input.parse()
-    return view.filter(terms)
+    terms = Serialize.fromWeb(req, WebSearchTerms).parse()
+    return view.search(terms)

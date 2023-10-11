@@ -1,5 +1,9 @@
 
 # Todo: Implement task thread pool
+from typing import List
+from taskserver.domain.entities.Task import Task
+
+
 TASK_THREADS = {
     "Taskfile.yaml": {
         "serve": [{"pid": 999}]
@@ -8,7 +12,7 @@ TASK_THREADS = {
 
 
 class TaskNode():
-    def __init__(self, key, name, value=None, state='', open=False, children=[]):
+    def __init__(self, key, name, value=None, state='', open=False, task_list=[]):
         self.key = key
         self.name = name
         self.value = value
@@ -17,8 +21,8 @@ class TaskNode():
 
         # Populate children if specified
         self.children = {}
-        if len(children):
-            self.populate(children)
+        if len(task_list):
+            self.populate(task_list)
 
     @property
     def path(self):
@@ -103,9 +107,9 @@ class TaskNode():
         # Default actions
         return []
 
-    def populate(self, list):
+    def populate(self, list: List[Task]):
         sep = ':'
-        tasks = {t["name"]: t for t in list}
+        tasks = {t.name: t for t in list}
         path_names = sorted(tasks.keys())
         for name in path_names:
             # Build a hirarchical tree

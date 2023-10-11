@@ -18,6 +18,6 @@ class TaskListUseCase(TaskfileUseCase):
             "list": values
         }
 
-    def filter(self, terms: str):
-        found = self.repo.filterTasks(terms)
+    def search(self, terms: str):
+        found = self.repo.searchTasks(terms)
         return self.list(found)

@@ -3,7 +3,7 @@ from typing import Type, TypeVar
 
 from taskserver.domain.entities.Task import Task
 from taskserver.domain.repositories.base import ATaskfileRepository
-from taskserver.domain.repositories.memory import InMemoryTaskRepository
+from taskserver.domain.repositories.memory import InMemory, InMemoryTaskRepository
 
 
 class ATaskfileUseCase(ABC):
@@ -28,12 +28,12 @@ class UseCase():
         body = req.body if req and req.body else {}
         path = body["location"] if "location" in body else None
         path = path or UseCase.default_path
-        repo = InMemoryTaskRepository.resolve(path)
+        repo = InMemory.TaskfileRepository(path)
         res = cls(repo)
         return res
 
     @staticmethod
     def forFile(filename, cls: Type[T]) -> T:
-        repo = InMemoryTaskRepository.resolve(filename)
+        repo = InMemory.TaskfileRepository(filename)
         res = cls(repo)
         return res

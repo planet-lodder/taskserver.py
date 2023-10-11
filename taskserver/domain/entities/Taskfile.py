@@ -1,5 +1,6 @@
 
 
+from typing import List
 from pydantic import BaseModel
 
 from taskserver.domain.entities.Task import Task, TaskVars
@@ -23,4 +24,4 @@ class Taskfile(BaseModel):
     includes: TaskfileIncludes
     env: TaskfileEnvs
     vars: TaskfileVars
-    tasks: list(Task)
+    tasks: List[Task]
