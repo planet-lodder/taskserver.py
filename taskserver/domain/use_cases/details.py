@@ -22,7 +22,7 @@ class TaskDetailUseCase(TaskfileUseCase):
 
     def list(self, task: Task):
         search = task.key + ':'
-        result = TaskListUseCase(self.repo).filter(search)
+        result = TaskListUseCase(self.repo).search(search)
         result.update({
             "title": search + '*',
             "search": search,
