@@ -1,68 +1,29 @@
-import os
-import random
-import string
-
 from taskserver import router
+from taskserver.domain.handlers.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.config import TaskConfigUseCase
-from taskserver.models.TaskfileConfig import taskfile_for
+from taskserver.models.TaskfileInclude import TaskfileInclude
 from taskserver.utils import HtmxRequest
 
 
-class TaskfileInclude(dict):
+class ConfigIncludeInputs(WebSerializer):
+    _htmx = None
 
-    def __init__(self, taskfile, key, value, raw={}):
-        self.id = key or self._new_id()  # Used for new items (without key name)
-        self.key = key
-        self.value = value
-        self.taskfile = taskfile
-        dict.__init__(self, **raw)
+    @property
+    def htmx(self):
+        if not self._htmx:
+            self._htmx = HtmxRequest(self.req)
+        return self._htmx
 
-    def _new_id(self):
-        letters = string.ascii_letters
-        return "_new_" + ''.join(random.choice(letters) for i in range(10))
+    def parse(self): return None
 
-    def validate(self, key, value):
-        errors = {}
-
-        def error(key, message):
-            errors[key] = errors[key] if key in errors else []
-            errors[key].append(message)
-
-        if not key:
-            # Key is required
-            error("key", "Key is required")
-
-        if not value:
-            # Value is required
-            error("value", "Value is required")
-
-        if len(errors.keys()):
-            # Basic validation failed, no need to run additional checks
-            return errors
-
-        # Check that the path exists
-        basepath = os.path.dirname(self.taskfile._path)
-        filepath = os.path.join(basepath, value)
-        if not os.path.exists(filepath):
-            # File or folder does not exists
-            error("value", "File or folder path does not point to a taskfile")
-
-        if os.path.isdir(filepath) and not os.path.isfile(filepath + "Taskfile.yaml"):
-            # Cannot find a valid taskfile
-            error(
-                "value", f"Cannot resolve `{filepath}Taskfile.yaml` to a valid file.")
-
-        return errors
-
-    @staticmethod
-    def resolve(taskfile, htmx):
-        key = TaskfileInclude.findKey(taskfile, htmx)
-        value = TaskfileInclude.findValue(taskfile, htmx, key) if key else ""
+    def resolve(self, taskfile):
+        htmx = self.htmx
+        key = self.findKey(taskfile, htmx)
+        value = self.findValue(taskfile, htmx, key) if key else ""
         return TaskfileInclude(taskfile, key, value)
 
-    @staticmethod
-    def findKey(taskfile, htmx):
+    def findKey(self, taskfile, htmx):
         requested_key = htmx.prompt or htmx.triggerName
         if requested_key:
             # Return the requested key (eg: when using add/delete/edit/cancel)
@@ -85,8 +46,7 @@ class TaskfileInclude(dict):
                 print(f' * FOUND  [ {k} ] == {v}')
                 return k
 
-    @staticmethod
-    def findValue(taskfile, htmx, key):
+    def findValue(self, taskfile, htmx, key):
         value = None
         if key and htmx:  # Update they value from the input field
             value = htmx.input(f'config.includes.{key}')
@@ -99,61 +59,36 @@ class TaskfileInclude(dict):
 @router.renders("partials/config/includes/items/default")
 def taskInclude(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
-
-    # ------------------------------------------------------
-    # TODO: Serialize
-    # ------------------------------------------------------
-    htmx = HtmxRequest(req)
-    taskfile = view.taskfile
-    include = TaskfileInclude.resolve(taskfile, htmx)
-    key = include.key or ""
-    value = include.value or ""
-    # ------------------------------------------------------
-
-    return view.getInclude(key, value)
+    input = Serialize.fromWeb(req, ConfigIncludeInputs)
+    include = input.resolve(view.taskfile)
+    return view.getInclude(include.key, include.value)
 
 
 @router.put('/config/includes')
 @router.renders("partials/config/includes/items/edit")
 def taskIncludeAdd(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
-
-    # ------------------------------------------------------
-    # TODO: Serialize
-    # ------------------------------------------------------
-    htmx = HtmxRequest(req)
-    taskfile = view.taskfile
-    include = TaskfileInclude.resolve(taskfile, htmx)
-    id = include.id
-    key = include.key or ""
-    value = include.value or ""
-    # ------------------------------------------------------
-
-    return view.newInclude(id, key, value)
+    input = Serialize.fromWeb(req, ConfigIncludeInputs)
+    include = input.resolve(view.taskfile)
+    return view.newInclude(include.id, include.key, include.value)
 
 
 @router.post('/config/includes')
 @router.renders("partials/config/includes/items/edit")
 def taskIncludeEdit(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
+    input = Serialize.fromWeb(req, ConfigIncludeInputs)
+    include = input.resolve(view.taskfile)
 
-    # ------------------------------------------------------
-    # TODO: Serialize
-    # ------------------------------------------------------
-    htmx = HtmxRequest(req)
-    taskfile = view.taskfile
-    include = TaskfileInclude.resolve(taskfile, htmx)
     id = include.id
     key = include.key
     value = include.value
-    action = htmx.triggerValue
+    action = input.htmx.triggerValue
     hint = value if action != "add" else "Enter new value here"
 
     # Validate input and creaqte data context object
     errors = include.validate(key, value)
     valid = not len(errors.keys())
-    # ------------------------------------------------------
-
     result = view.updateInclude(id, key, value, hint, errors)
 
     # Keep in edit mode if not validated
@@ -167,13 +102,7 @@ def taskIncludeEdit(req, resp):
 @router.delete('/config/includes')
 def taskIncludeDelete(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
-
-    # ------------------------------------------------------
-    # TODO: Serialize
-    # ------------------------------------------------------
-    htmx = HtmxRequest(req)
-    key = htmx.triggerName
-    # ------------------------------------------------------
-
+    input = Serialize.fromWeb(req, ConfigIncludeInputs)
+    key = input.htmx.triggerName
     view.deleteInclude(key)
     return ""  # empty result

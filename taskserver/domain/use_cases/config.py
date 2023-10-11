@@ -17,19 +17,19 @@ class TaskConfigUseCase(TaskfileUseCase):
 
     def getInclude(self, key, value):
         result = {
-            "key": key,
-            "value": value,
+            "key": key or "",
+            "value": value or "",
             "taskfile": self.taskfile,
         }
         return result
 
     def newInclude(self, id, key, value):
         hint = value if value and key else "Enter new value here"
-        focus = f'key.includes.{id}' if not key else f'config.includes.{key}'
+        focus = f'key.includes.{id}' if not key else f'config.includes.{id}'
         return {
             "id": id,
-            "key": key,
-            "value": value,
+            "key": key or "",
+            "value": value or "",
             "taskfile": self.taskfile,
             "autofocus": focus,
             "placeholder": hint,
@@ -39,8 +39,8 @@ class TaskConfigUseCase(TaskfileUseCase):
         focus = f'key.includes.{id}' if not key else f'config.includes.{id}'
         result = {
             "id": id,
-            "key": key,
-            "value": value,
+            "key": key or "",
+            "value": value or "",
             "taskfile": self.taskfile,
             "autofocus": focus,
             "placeholder": hint,
