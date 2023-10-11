@@ -57,9 +57,12 @@
   </div>
   <!-- {% if children and open %} -->
   <div class="flex flex-col ml-7">
-    <!-- {% for key,item in children.items() %}-->
-    {% include "partials/sidenav/menu-item.html" %}
-    <!-- {% endfor %} -->
+    <!-- {% for name,item in children.items() %}{% if item.children %} -->
+    {% include "partials/sidenav/menu-item.html" %}    
+    <!-- {% endif %}{% endfor %} -->
+    <!-- {% for name,item in children.items() %}{% if not item.children %} -->
+    {% include "partials/sidenav/menu-item.html" %}    
+    <!-- {% endif %}{% endfor %} -->
   </div>
   <!-- {% endif %} -->
 </div>
