@@ -8,7 +8,6 @@ class TaskDetailUseCase(TaskfileUseCase):
 
     def base(self, task: Task):
         return {
-            "toolbar": "partials/toolbar/task.html",
             "taskfile": self.taskfile,
             "task": task,
         }
@@ -16,6 +15,7 @@ class TaskDetailUseCase(TaskfileUseCase):
     def index(self, task: Task):
         result = self.base(task)
         result.update({
+            "toolbar": "partials/toolbar/task.html",
             "title": task.key if task else "(unknown)",
         })
         return result
@@ -24,7 +24,7 @@ class TaskDetailUseCase(TaskfileUseCase):
         search = task.key + ':'
         result = TaskListUseCase(self.repo).search(search)
         result.update({
-            "title": search + '*',
+            "title": search + '(list)',
             "search": search,
             "toolbar": "partials/toolbar/list.html",
         })
