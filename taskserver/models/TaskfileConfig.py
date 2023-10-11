@@ -13,13 +13,6 @@ from taskserver.utils import HtmxRequest, bind, flatten
 # In-memory cache of all the taskfiles by path name
 TASKFILE_CACHE = {}
 
-
-def taskfile_for(req):
-    # Resolve the current taskfile and its cached config
-    path = req.body["location"] if req.body and "location" in req.body else ""
-    return TaskfileConfig.resolve(path)
-
-
 class TaskfileConfig(dict):
     version = bind("version")
     includes = bind("includes")

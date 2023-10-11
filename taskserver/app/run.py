@@ -1,168 +1,74 @@
 
-import json
-import os
-import re
-import time
 
-from ansi2html import Ansi2HTMLConverter
-from ansi2html.style import (get_styles)
-
-from taskserver import router, task_server
-from taskserver.models.TaskNode import TaskNode
-from taskserver.models.TaskfileConfig import taskfile_for
+from taskserver import router
+from taskserver.domain.handlers.serializers import Serialize, WebSerializer
+from taskserver.domain.use_cases.base import UseCase
+from taskserver.domain.use_cases.run import TaskRunUseCase
 from taskserver.utils import HtmxRequest
 
-root = TaskNode('', 'Task Actions')
-root.populate(task_server.list())
+class TaskRunInputs(WebSerializer):
+    _task = None
 
+    @property
+    def name(self):
+        return self.body("name", "")
 
-def format_output(output):
-    if not output:
-        return ""
+    @property
+    def trigger(self):
+        return HtmxRequest(self.req).triggerName
 
-    converter = Ansi2HTMLConverter(linkify=True)
-    formatted = converter.prepare(output)
+    @property
+    def prompt(self):
+        return HtmxRequest(self.req).prompt
 
-    dark_bg = formatted["dark_bg"]
-    all_styles = get_styles(dark_bg)
-    backgrounds = all_styles[:5]
-    used_styles = filter(
-        lambda e: e.klass.lstrip(
-            ".") in formatted["styles"], all_styles
-    )
-    style = "\n".join(
-        list(map(str, backgrounds + list(used_styles))))
+    def task(self, root):
+        if not self._task:
+            self._task = root.find(self.name)
+        return self._task
 
-    body = formatted["body"]
-    output = f'<style>{style}</style>\n<pre>{body}</pre>'
-    return output
+    def parse(self):
+        if not self.name:
+            error = 'Please specify a task name'
+            self.errors.append(error)
+        elif not self._task:
+            error = f'Task "{self.name}" could not be found.'
+            self.errors.append(error)
+        return self._task
 
 
 @router.post('/run')
 @router.renders('task/single')
 def taskRun(req, resp):
-    taskfile = taskfile_for(req)
-    htmx = HtmxRequest(req)
-
-    # Collect the head and body
-    body = req.body or {}
-    name = body["name"] if "name" in body else ""
-    task = None if not name else root.find(name)
-
-    error = ''
-    if not name:
-        error = 'Please specify a task name'
-    elif not task:
-        error = f'Task "{name}" could not be found.'
-
-    result = {
-        "title": task.key if task else "unknown",
-        "toolbar": "partials/toolbar/task.html",        
-        "taskfile": taskfile,
-        "task": task,
-        "name": name,
-        "error": error,
-    }
-    if not error:
-        try:
-            # Add HEAD and BODY values to ENV vars
-            env = os.environ.copy()
-
-            # Execute the task command (given the input HEAD and BODY)
-            output = taskfile.run(name, env)
-            output = format_output(output)
-
-            # Capture the details to the task that was spawned
-            result.update({"output": output})
-
-        except Exception as ex:
-            # The task failed to launch
-            print(f'Something went wrong: {ex}')
-            result.update({"error": str(ex)})
-
-    # Return the modal dialog, and assume validation failed or something went wrong
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+    task = input.task(view.root)
+    result = view.tryRun(input, task)
     return result
 
 
 @router.get('/run/dialog')
 @router.renders('partials/run/modal')
 def taskRunDialog(req, resp):
-    taskfile = taskfile_for(req)
-    htmx = HtmxRequest(req)
-
-    task = root.find(htmx.triggerName)
-    name = task.key if task else ""
-
-    # Show the task view
-    return {
-        "taskfile": taskfile,
-        "task": task,
-        "name": name,
-    }
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+    result = view.runDialog(input.trigger)
+    return result
 
 
 @router.post('/run/dialog')
 @router.renders('partials/run/modal')
 def taskRun(req, resp):
-    taskfile = taskfile_for(req)
-    htmx = HtmxRequest(req)
-
-    # Collect the head and body
-    body = req.body or {}
-    name = body["name"] if "name" in body else ""
-    task = None if not name else root.find(name)
-
-    error = ''
-    if not name:
-        error = 'Please specify a task name'
-    elif not task:
-        error = f'Task "{name}" could not be found.'
-
-    result = {
-        "taskfile": taskfile,
-        "task": task,
-        "name": name,
-        "error": error,
-    }
-    if not error:
-        try:
-            # Add HEAD and BODY values to ENV vars
-            env = os.environ.copy()
-
-            # Execute the task command (given the input HEAD and BODY)
-            output = taskfile.run(name, env)
-            output = format_output(output)
-
-            # Capture the details to the task that was spawned
-            result.update({"output": output})
-
-            # Return the running task to the main content screen
-            return router.render_template("partials/run/confirm.html", result)
-
-        except Exception as ex:
-            # The task failed to launch
-            print(f'Something went wrong: {ex}')
-            result.update({"error": str(ex)})
-
-    # Return the modal dialog, and assume validation failed or something went wrong
-    return result
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+    task = input.task(view.root)
+    result = view.tryRun(input, task)
+    failed = "error" in result and result["error"]
+    return result if failed else router.render_template("partials/run/confirm.html", result)
 
 
 @router.get('/run/var')
 @router.renders('partials/run/vars/item')
 def taskRunDialog(req, resp):
-    taskfile = taskfile_for(req)
-    htmx = HtmxRequest(req)
-
-    task = root.find(htmx.triggerName)
-    print(f'TASK VARS: {taskfile}')
-    key = htmx.prompt
-    value = ""
-
-    # Show the task view
-    return {
-        "taskfile": taskfile,
-        "task": task,
-        "key": key,
-        "value": value,
-    }
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+    return view.runVarDetails(input.trigger, input.prompt)
