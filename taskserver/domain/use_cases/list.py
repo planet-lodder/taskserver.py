@@ -1,5 +1,3 @@
-from taskserver.main import task_server
-
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 
 
@@ -14,12 +12,12 @@ class TaskListUseCase(TaskfileUseCase):
         return result
 
     def list(self, values=None):
-        values = values if values else task_server.list()
+        values = values or self.repo.listTasks()
         return {
             "taskfile": self.taskfile,
             "list": values
         }
 
     def filter(self, terms: str):
-        found = task_server.filter(terms)
+        found = self.repo.filterTasks(terms)
         return self.list(found)

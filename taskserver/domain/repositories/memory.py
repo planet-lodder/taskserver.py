@@ -6,6 +6,8 @@ from taskserver.domain.entities.Task import Task
 from taskserver.domain.repositories.base import ATaskfileRepository
 
 CACHED_TASKFILES = {}
+CACHED_REPOS = {}
+
 
 class InMemoryTaskfile():
     tasks = []
@@ -66,3 +68,9 @@ class InMemoryTaskRepository(ATaskfileRepository):
         store = InMemoryTaskfile.get(None)
         tasks = store.tasks
         return [Task(**task) for task in tasks]
+
+    @staticmethod
+    def resolve(file: str):
+        if not file in CACHED_REPOS:
+            CACHED_REPOS[file] = InMemoryTaskRepository(file)
+        return CACHED_REPOS[file]

@@ -13,7 +13,7 @@ class ATaskfileUseCase(ABC):
 
     @property
     def location(self) -> str:
-        return self.repo._filename
+        return self.repo._path
 
 
 T = TypeVar("T", bound=ATaskfileUseCase)
@@ -25,11 +25,15 @@ class UseCase():
     @staticmethod
     def forWeb(req, cls: Type[T]) -> T:
         # Resolve the current Taskfile path, if specified in request object
-        path = req.body["location"] if req and req.body and "location" in req.body else None
-        return UseCase.forFile(path or UseCase.default_path, cls)
+        body = req.body if req and req.body else {}
+        path = body["location"] if "location" in body else None
+        path = path or UseCase.default_path
+        repo = InMemoryTaskRepository.resolve(path)
+        res = cls(repo)
+        return res
 
     @staticmethod
     def forFile(filename, cls: Type[T]) -> T:
-        repo = InMemoryTaskRepository(filename)
+        repo = InMemoryTaskRepository.resolve(filename)
         res = cls(repo)
         return res
