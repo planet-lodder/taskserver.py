@@ -22,8 +22,7 @@
     readonly
   />
   <button
-    name="{{name}}"
-    hx-post="/task/run"
+    hx-post="/task/run?name={{name}}"
     hx-target="main"
     onclick="event.preventDefault()"
     class="flex items-center space-x-2 cursor-pointer rounded py-1 px-4 my-4 mx-1 mr-5 shadow-md bg-blue-500 text-gray-100"

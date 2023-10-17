@@ -6,15 +6,17 @@ from ansi2html.style import (get_styles)
 from taskserver.domain.entities.Task import Task
 from taskserver.domain.serializers import Serializer
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
+from taskserver.models.TaskNode import TaskNode
 from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
 class TaskRunUseCase(TaskfileUseCase):
-    
+
     def findTask(self, task_name: str) -> Task:
         return self.root.find(task_name)
 
-    def breakdown(self, task: Task):
+    def breakdown(self, task_name: str):
+        task = self.findTask(task_name)
         breakdown = []
 
         if task and self.taskfile:
@@ -73,7 +75,8 @@ class TaskRunUseCase(TaskfileUseCase):
 
         return result
 
-    def tryRun(self, input: Serializer, task: Task):
+    def tryRun(self, input: Serializer, node: TaskNode):
+        task = self.repo.findTask(node.key)
         result = {
             "title": task.key if task else "unknown",
             "toolbar": "partials/toolbar/task.html",

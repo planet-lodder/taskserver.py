@@ -100,7 +100,7 @@ class TaskNode():
                 {
                     "name": "Run Task",
                     "icon": "icons/play.svg",
-                    "htmx": f'name="{self.key}" hx-get="/task/run/dialog" hx-target="modal" hx-trigger="click" onclick="event.preventDefault()"'
+                    "htmx": f'hx-get="/task/run/dialog?name={self.key}" hx-target="modal" hx-trigger="click" onclick="event.preventDefault()"'
                 }
             ]
 

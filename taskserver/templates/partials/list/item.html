@@ -38,8 +38,7 @@
     <span>Task Vars</span>
   </a>
   <a
-    name="{{name}}"
-    hx-get="/task/run/dialog"
+    hx-get="/task/run/dialog?name={{name}}"
     hx-target="modal"
     hx-trigger="click"
     onclick="event.preventDefault()"

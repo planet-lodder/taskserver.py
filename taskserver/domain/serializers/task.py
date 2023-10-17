@@ -8,7 +8,9 @@ class TaskRequest(WebSerializer):
     file = None
 
     def parse(self):
-        self.name = self.req.query.get('name')
+        self.name = self.req.query.get('name') # from GET
+        self.name = self.name or self.req.input('name') # from POST
+
         self.file = self.req.query.get('file', 'Taskfile.yaml')
 
     def selected(self, repo: ATaskfileRepository) -> TaskNode:

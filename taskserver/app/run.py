@@ -2,38 +2,26 @@
 
 from taskserver import router
 from taskserver.domain.serializers import Serialize, WebSerializer
+from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.run import TaskRunUseCase
 from taskserver.utils import HtmxRequest
 
 
-class TaskRunInputs(WebSerializer):
+class TaskRunInputs(TaskRequest):
     _task = None
 
-    @property
-    def name(self):
-        return self.body("name", "")
-
-    @property
-    def trigger(self):
-        return HtmxRequest(self.req).triggerName
-
-    @property
-    def prompt(self):
-        return HtmxRequest(self.req).prompt
-
-    def task(self, root):
-        if not self._task:
-            self._task = root.find(self.name)
-        return self._task
-
     def parse(self):
+        super().parse()  # Parse task properties
+
         if not self.name:
             error = 'Please specify a task name'
             self.errors.append(error)
-        elif not self._task:
-            error = f'Task "{self.name}" could not be found.'
-            self.errors.append(error)
+        
+        #if not self._task:
+        #    error = f'Task "{self.name}" could not be found.'
+        #    self.errors.append(error)
+            
         return self._task
 
 
@@ -42,8 +30,11 @@ class TaskRunInputs(WebSerializer):
 def taskRun(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
-    task = input.task(view.root)
+
+    # Try and run the task (no additional parameters)
+    task = input.selected(view.repo)
     result = view.tryRun(input, task)
+
     return result
 
 
@@ -52,7 +43,10 @@ def taskRun(req, resp):
 def taskRunDialog(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
-    result = view.runDialog(input.trigger)
+
+    # Open a modal dialog to run task with parameters
+    result = view.runDialog(input.name)
+
     return result
 
 
@@ -61,10 +55,17 @@ def taskRunDialog(req, resp):
 def taskRun(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
-    task = input.task(view.root)
+
+    # Run the task with the given parameters supplied by the modal dialog
+    task = input.selected(view.repo)
     result = view.tryRun(input, task)
     failed = "error" in result and result["error"]
-    return result if failed else router.render_template("partials/run/confirm.html", result)
+
+    if failed:
+        return result  # Validation failed or runtime invalid
+
+    # Task run has been confirmed, clear the modal and force refresh of main display
+    return router.render_template("partials/run/confirm.html", result)
 
 
 @router.get('/run/var')
@@ -72,14 +73,18 @@ def taskRun(req, resp):
 def taskRunDialog(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
-    return view.runVarDetails(input.trigger, input.prompt)
+
+    # Get the task variable details
+    key = input.htmx.prompt if input.htmx else ''
+    return view.runVarDetails(input.name, key)
 
 
 @router.get('/run/breakdown')
 @router.renders('partials/run/list')
 def taskBreakdown(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
-    htmx = HtmxRequest(req)
-    task = view.findTask(htmx.triggerName)
-    result = view.breakdown(task)
+    input = Serialize.fromWeb(req, TaskRunInputs)    
+
+    # Do a breakdown of the current task
+    result = view.breakdown(input.name)
     return result

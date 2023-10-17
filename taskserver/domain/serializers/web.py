@@ -1,11 +1,21 @@
 
 from taskserver.domain.serializers.base import Serializer
+from taskserver.utils import HtmxRequest
 
 
 class WebSerializer(Serializer):
+    _htmx = None
 
     def __init__(self, req) -> None:
         self.req = req
+
+    @property
+    def htmx(self):
+        if "hx-request" in self.req.head and not self.req.head["hx-request"]:
+            return None # Not an htmx request
+        if not self._htmx:
+            self._htmx = HtmxRequest(self.req)
+        return self._htmx
 
     def head(self, key=None, default=None):
         head = self.req.head if self.req and self.req.head else {}

@@ -1,10 +1,9 @@
 <div class="relative z-0 w-full group opacity-50">
   <input
     type="text"
-    name="{{task.key}}"
     placeholder=""
     hx-target=".task-vars"
-    hx-get="/task/run/var"
+    hx-get="/task/run/var?name={{task.key}}"
     hx-prompt="VARIABLE_NAME"
     hx-trigger="click"
     hx-swap="beforeend"
