@@ -1,6 +1,6 @@
 from taskserver import router
 from taskserver.domain.use_cases.base import UseCase
-from taskserver.domain.serializers.static import Serialize
+from taskserver.domain.serializers.core import Serialize
 from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.details import TaskDetailUseCase
 
@@ -14,7 +14,6 @@ def taskDetails(req, resp):
     # Show the task view if the selected node is a task
     if node and node.value:
         task = view.repo.findTask(node.key)
-        print(f' -- [ {task} ]')
         return view.index(task)
 
     # Not a leaf (task) node, so we show the search results instead

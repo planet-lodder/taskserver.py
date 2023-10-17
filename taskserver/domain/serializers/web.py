@@ -12,12 +12,9 @@ class WebSerializer(Serializer):
 
     @property
     def htmx(self):
-        if not self.req.header('hx-request', False):
-            return None  # Not an htmx request
-        if not self._htmx:
-            # Instantiate a new HTMX handler
-            self._htmx = HtmxRequest(self.req)
-        return self._htmx
+        if self.req.header('hx-request', False):
+            return HtmxRequest(self.req)
+        return None  # Not an htmx request
 
     def head(self, key=None, default=None):
         head = self.req.head if self.req and self.req.head else {}

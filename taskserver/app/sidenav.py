@@ -1,5 +1,5 @@
 from taskserver import router
-from taskserver.domain.serializers.static import Serialize
+from taskserver.domain.serializers.core import Serialize
 from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.sidenav import TaskSideNavUseCase
