@@ -12,7 +12,7 @@
 <!-- {% endif %} -->
 <!-- {% if children and children.keys() %} -->
 <!-- 
-{% set icon_htmx = 'name="'+key+'" hx-post="/task/sidenav/toggle" hx-target="closest .menu-item" hx-swap="outerHTML"' %} 
+{% set icon_htmx = 'hx-post="/task/sidenav/toggle?name='+key+'" hx-target="closest .menu-item" hx-swap="outerHTML"' %} 
 {% set icon_style = 'cursor-pointer' %} 
 -->
 <!-- {% endif %} -->
