@@ -3,39 +3,32 @@ from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.config import TaskConfigUseCase
 from taskserver.models.TaskfileInclude import TaskfileInclude
-from anyserver import HtmxRequest
 
 
 class ConfigIncludeInputs(WebSerializer):
-    _htmx = None
-
-    @property
-    def htmx(self):
-        if not self._htmx:
-            self._htmx = HtmxRequest(self.req)
-        return self._htmx
 
     def parse(self): return None
 
     def resolve(self, taskfile):
-        htmx = self.htmx
-        key = self.findKey(taskfile, htmx)
-        value = self.findValue(taskfile, htmx, key) if key else ""
+        key = self.findKey(taskfile)
+        value = self.findValue(taskfile, key) if key else ""
         return TaskfileInclude(taskfile, key, value)
 
     def findKey(self, taskfile, htmx):
-        requested_key = htmx.prompt or htmx.triggerName
-        if requested_key:
-            # Return the requested key (eg: when using add/delete/edit/cancel)
-            return requested_key
+        htmx = self.htmx
+
+        # Look for request originating from HTMX interactions
+        # Return the requested key (eg: when using add/delete/edit/cancel)
+        if htmx:
+            if requested_key := htmx.prompt or htmx.triggerName:
+                return requested_key
 
         # Resolve the key name from given inputs
         # Update key/value pairs (if changed)
         prefix = f'key.includes.'
-        for input in htmx.inputs(prefix):
-            k = input[len(prefix):]
-            l = htmx.input(f'{prefix}{k}')
-            v = htmx.input(f'config.includes.{k}')
+        for k in self.req.inputs(prefix, strip_prefix=True):
+            l = self.req.input(f'{prefix}{k}')
+            v = self.req.input(f'config.includes.{k}')
             if k != l:
                 print(f' * RENAME [ {k} -> {l} ] == {v}')
                 if k in taskfile.includes:
@@ -49,7 +42,7 @@ class ConfigIncludeInputs(WebSerializer):
     def findValue(self, taskfile, htmx, key):
         value = None
         if key and htmx:  # Update they value from the input field
-            value = htmx.input(f'config.includes.{key}')
+            value = self.req.input(f'config.includes.{key}')
         if value == None:  # Try and fetch from cache
             value = taskfile.includes.get(key, "")
         return value

@@ -2,14 +2,15 @@ from taskserver import router
 from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.config import TaskConfigUseCase
-from anyserver import HtmxRequest
 
 
 class ConfigValueInput(WebSerializer):
     def parse(self): return None
 
     def forUpdate(self, dest):
-        htmx = HtmxRequest(self.req)
+        htmx = self.htmx
+        if not htmx:
+            raise Exception('Not an htmx request')
 
         # Resolve key for value that changed
         key = htmx.prompt or ""
@@ -17,13 +18,13 @@ class ConfigValueInput(WebSerializer):
             key = htmx.triggerName[len(f'config.{dest}.'):]
 
         # Get the key value
-        value = "" if not key else htmx.input(f'config.{dest}.{key}') or ""
+        value = self.req.input(f'config.{dest}.{key}', '')
 
         # Return relevant information
         return dest, key, value
 
     def forDelete(self, dest):
-        htmx = HtmxRequest(self.req)
+        htmx = self.htmx
         key = htmx.triggerName
         return dest, key
 
@@ -49,7 +50,7 @@ def taskRemoveConfigEnv(req, resp):
 def taskAddConfigEnv(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigValueInput)
-    return view.updateValue(*input.forTarget("vars"))
+    return view.updateValue(*input.forUpdate("vars"))
 
 
 @router.delete('/config/vars')
