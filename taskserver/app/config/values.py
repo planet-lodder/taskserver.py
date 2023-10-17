@@ -2,7 +2,7 @@ from taskserver import router
 from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.config import TaskConfigUseCase
-from taskserver.utils import HtmxRequest
+from anyserver import HtmxRequest
 
 
 class ConfigValueInput(WebSerializer):

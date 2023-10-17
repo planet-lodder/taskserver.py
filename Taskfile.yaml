@@ -2,7 +2,7 @@ version: 3
 includes:
   core: .task/core/
 env:
-  VERSION: "0.0.0"
+  VERSION: "0.0.1"
 vars:
   PROJECT: '{{ .PROJECT | default "my-project" }}'
 tasks:
@@ -15,19 +15,13 @@ tasks:
       - requirements.txt
     cmds:
       - pip3 install -r requirements.txt
-
   start:
     desc: Bootstrap the server and load from config
-    deps: [init:python]
+    deps: ['init:python']
     cmds:
       - ./main.py --debug
-
-  update: [{ task: "core:update" }]
-  clean: [{ task: "core:clean" }]
-
-  # -------------------------------------------------
-  # Example commands
-  # -------------------------------------------------
+  update: [{task: "core:update"}]
+  clean: [{task: "core:clean"}]
   example:alpha:
     desc: Testing
     sources:
@@ -38,7 +32,6 @@ tasks:
       - mkdir -p ./dist
       - cat Taskfile.yaml > ./dist/lala.txt
       - sleep 3
-
   example:beta:
     vars:
       MESSAGE: Hello World
@@ -47,7 +40,6 @@ tasks:
       - echo "{{ .MESSAGE }}"
       - task: example
       - echo {{ .OUTPUT_PATH }}
-
   example:omega:
     - echo "Updating sources..."
     - task: update

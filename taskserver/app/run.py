@@ -5,7 +5,6 @@ from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.run import TaskRunUseCase
-from taskserver.utils import HtmxRequest
 
 
 class TaskRunInputs(TaskRequest):
