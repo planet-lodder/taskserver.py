@@ -13,7 +13,9 @@ def taskDetails(req, resp):
 
     # Show the task view if the selected node is a task
     if node and node.value:
-        return view.index(node)
+        task = view.repo.findTask(node.key)
+        print(f' -- [ {task} ]')
+        return view.index(task)
 
     # Not a leaf (task) node, so we show the search results instead
     result = view.list(node)

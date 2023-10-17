@@ -21,11 +21,11 @@
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
           <a class="p-2 font-bold">{{ path }}</a>
-          <!-- {% if path != task.path %} -->
-          <span class="p-2 opacity-50"
-            >{% include 'icons/forward.svg' %}</span
-          >
-          <a class="p-2 font-bold">{{ task.path }}</a>
+          <!-- {% if path != task.src %} -->
+          <span class="p-2 opacity-50">
+            {% include 'icons/forward.svg' %}
+          </span>
+          <a class="p-2 font-bold">{{ task.src }}</a>
           <!-- {% endif %} -->
         </div>
 
