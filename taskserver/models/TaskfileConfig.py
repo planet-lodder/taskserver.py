@@ -2,7 +2,7 @@ import os
 import json
 import re
 import subprocess
-from colorama import Style
+from colorama import Style, Fore
 import yaml
 import yq
 
@@ -12,6 +12,7 @@ from taskserver.utils import HtmxRequest, bind, flatten
 
 # In-memory cache of all the taskfiles by path name
 TASKFILE_CACHE = {}
+
 
 class TaskfileConfig(dict):
     version = bind("version")
@@ -141,7 +142,7 @@ class TaskfileConfig(dict):
 
     def breakdown(self, task_name):
         output = self.summary(task_name)
-        
+
         # Strip everything up to the commands
         output = re.sub(r'(?is).*commands:', '', output, flags=re.MULTILINE)
         commands = []
@@ -186,8 +187,12 @@ class TaskfileConfig(dict):
         return output
 
     def exec(self, command, env=None):
-        print(f' > Executes: {command}')
+        clear = Style.RESET_ALL
+        def green(msg): return f"{Fore.GREEN}{Style.BRIGHT}{msg}{clear}"
+        def action(msg): return f"{Fore.MAGENTA}{msg}{clear}"
+        print(f' {green("▶")} {action(command)}{Style.DIM}')
         pop = command.split(" ")
         res = subprocess.run(pop, stdout=subprocess.PIPE)
         output = res.stdout.decode().strip()
+        print(f'{Style.RESET_ALL}', end="")
         return output

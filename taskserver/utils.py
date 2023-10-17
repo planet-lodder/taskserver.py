@@ -67,7 +67,7 @@ class HtmxRequest():
 
     def input(self, name):
         inputs = self.req.body or {}
-        for key in filter(lambda k: k == name, inputs):            
+        for key in filter(lambda k: k == name, inputs):
             return self.req.body[key]  # Key found
         return None  # Not found
 
@@ -85,7 +85,8 @@ class HtmxRequest():
         req = self.req
         fVerb = f'{Style.RESET_ALL}{Style.BRIGHT}{req.verb}{Style.RESET_ALL}{Style.DIM}'
         fPath = f'{Style.RESET_ALL}{Style.BRIGHT}{req.path}{Style.RESET_ALL}{Style.DIM}'
-        print(f'{Style.DIM}----- [ {fVerb} ] {fPath} ------')
+        print(
+            f'{Style.DIM}--- [ {fVerb} {fPath} ] --------------------------------')
         hx_headers = list(
             filter(lambda k: k.lower().startswith("hx-"), req.head))
         if len(hx_headers):

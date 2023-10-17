@@ -1,4 +1,4 @@
-anyserver==0.2.0
+anyserver>=0.2.9
 python-multipart==0.0.6
 Jinja2==3.1.2
 

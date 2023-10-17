@@ -8,8 +8,11 @@ from taskserver.utils import HtmxRequest
 @router.renders('task/single')
 def taskDetails(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
+
+    # TODO: Serialize
     htmx = HtmxRequest(req)
     task = view.root.find(htmx.triggerName)
+
     if task and not task.value:
         # Not a leaf node, so we show the search results instead
         result = view.list(task)

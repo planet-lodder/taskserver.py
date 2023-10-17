@@ -123,7 +123,6 @@ class TaskNode():
 
                 if not len(keys):
                     # Leaf element: This is the node where the task is located
-                    print(f' + Node({node.key}, {key}) = {node}')
                     node.update(task)
 
     def child(self, name):

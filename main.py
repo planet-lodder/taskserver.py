@@ -3,12 +3,11 @@ from anyserver import AnyServer
 from taskserver import router as TASK_ROUTES
 
 app = AnyServer()
+app.register(TASK_ROUTES)
+app.static("./public")
 
 
 def main():
-    # app.config.reloads = "main:app.app"
-    app.register(TASK_ROUTES)
-    app.static("./public")
     app.start()
 
 
