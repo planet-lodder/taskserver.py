@@ -8,7 +8,7 @@ import yq
 
 from copy import deepcopy
 
-from taskserver.utils import bind, flatten
+from taskserver.utils import bind
 
 # In-memory cache of all the taskfiles by path name
 TASKFILE_CACHE = {}
@@ -71,9 +71,20 @@ class TaskfileConfig(dict):
 
         return True
 
+    def flatten(self, values, base=''):
+        mapped = {}
+        for key, val in values.items():
+            subkey = f'{base}.{key}'
+            if type(val) == dict:
+                subvalues = self.flatten(val, subkey)
+                mapped.update(subvalues)
+            else:
+                mapped[subkey] = val
+        return mapped
+
     def diffs(self):
-        oldvalues = flatten(self._orig)
-        newvalues = flatten(self)
+        oldvalues = self.flatten(self._orig)
+        newvalues = self.flatten(self)
         changed = {}
         deleted = {}
         for k, v in newvalues.items():
