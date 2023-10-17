@@ -1,40 +1,36 @@
 from taskserver import router
 from taskserver.domain.use_cases.base import UseCase
+from taskserver.domain.serializers.static import Serialize
+from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.details import TaskDetailUseCase
-from taskserver.utils import HtmxRequest
 
 
 @router.get('/details')
 @router.renders('task/single')
 def taskDetails(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
+    node = Serialize.fromWeb(req, TaskRequest).selected(view.repo)
 
-    # TODO: Serialize
-    htmx = HtmxRequest(req)
-    task = view.root.find(htmx.triggerName)
+    # Show the task view if the selected node is a task
+    if node and node.value:
+        return view.index(node)
 
-    if task and not task.value:
-        # Not a leaf node, so we show the search results instead
-        result = view.list(task)
-        return router.render_template('task/list.html', result)
-
-    # Show the task view
-    return view.index(task)
+    # Not a leaf (task) node, so we show the search results instead
+    result = view.list(node)
+    return router.render_template('task/list.html', result)
 
 
 @router.get('/history')
 @router.renders('task/history')
 def taskRunHistory(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
-    htmx = HtmxRequest(req)
-    task = view.root.find(htmx.triggerName)
-    return view.history(task)
+    node = Serialize.fromWeb(req, TaskRequest).selected(view.repo)
+    return view.history(node)
 
 
 @router.get('/dep-graph')
 @router.renders('task/dep-graph')
 def taskDependencyGraph(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
-    htmx = HtmxRequest(req)
-    task = view.root.find(htmx.triggerName)
-    return view.graph(task)
+    node = Serialize.fromWeb(req, TaskRequest).selected(view.repo)
+    return view.graph(node)

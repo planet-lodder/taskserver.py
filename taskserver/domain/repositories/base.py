@@ -15,3 +15,6 @@ class ATaskfileRepository(ABC):
 
     @abstractmethod
     def searchTasks(self, terms) -> Sequence[Task]: ...
+
+    @abstractmethod
+    def findTask(self, name) -> Optional[Task]: ...

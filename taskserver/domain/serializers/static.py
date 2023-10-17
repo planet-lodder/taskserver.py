@@ -11,4 +11,5 @@ class Serialize(Generic[TSerializer]):
     @staticmethod
     def fromWeb(req, cls: Type[TWebSerializer]) -> TWebSerializer:
         res = cls(req)
+        res.parse()
         return res

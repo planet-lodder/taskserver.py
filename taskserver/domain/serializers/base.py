@@ -12,4 +12,4 @@ class Serializer(ABC):
         # Clear previous validation result
         self.errors = []
         self.data = self.parse()
-        return self.data and len(self.errors) == 0
+        return len(self.errors) == 0

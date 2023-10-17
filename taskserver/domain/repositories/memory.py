@@ -50,3 +50,8 @@ class InMemoryTaskRepository(ATaskfileRepository):
             return match_all
 
         return self.tasks if not len(terms) else list(filter(search, self.tasks))
+
+    def findTask(self, name) -> Optional[Task]:
+        for task in filter(lambda t: t.name == name, self.tasks):
+            return task
+        return None

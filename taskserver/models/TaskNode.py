@@ -67,7 +67,7 @@ class TaskNode():
 
     @property
     def htmx(self):
-        return f'name="{self.key}" hx-get="/task/details" hx-target="main"'
+        return f'hx-target="main" hx-get="/task/details?name={self.key}"'
 
     @property
     def actions(self):
