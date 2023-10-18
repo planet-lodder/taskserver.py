@@ -10,7 +10,7 @@ from taskserver.domain.use_cases.config import TaskConfigUseCase
 @router.renders("task/config")
 def taskConfig(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
-    return view.index()
+    return view.index(trigger_import=req.query.get('import'))
 
 
 @router.post('/config')

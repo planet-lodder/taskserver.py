@@ -1,12 +1,9 @@
 <div
   class="flex flex-0 text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800"
 >
-  <div class="w-1/2 flex flex-row py-3.5 px-4">
+  <div class="w-full flex flex-row py-3.5 px-4">
     {% include 'icons/gears.svg' %}
     <span class="pl-2 py-0.5">Configuration</span>
-  </div>
-  <div class="w-1/2 flex flex-row py-3.5 px-4">
-    {% include "partials/config/includes/header.html" %}
   </div>
 </div>
 <div
@@ -37,9 +34,8 @@
       <div class="w-1/2 flex flex-col relative">
         <!-- ENV Overrides -->
         <div class="flex flex-row mr-8">
-          <label class="p-2 w-32 on inline-block element">Environment:</label>
           <div class="flex-1 align-top">
-            <!-- Environment Vars {% with title="System Overrides (ENV vars)", dest="env", ctx=taskfile.env %} -->
+            <!-- Environment Vars {% with title="System Environment Variables", dest="env", ctx=taskfile.env %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>
@@ -47,9 +43,8 @@
 
         <!-- Global Task Vars -->
         <div class="flex flex-row mr-8">
-          <label class="p-2 w-32 on inline-block element">Taskfile Vars:</label>
           <div class="flex-1 align-top">
-            <!-- Taskfile Variables {% with title="Variables available to all tasks", dest="vars", ctx=taskfile.vars %} -->
+            <!-- Taskfile Variables {% with title="Taskfile Variables (Global)", dest="vars", ctx=taskfile.vars %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>

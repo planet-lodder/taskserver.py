@@ -13,11 +13,12 @@ def _new_id():  # Pseudo random id, to track this edit session
 
 class TaskConfigUseCase(TaskfileUseCase):
 
-    def index(self):
+    def index(self, trigger_import=False):
         return {
             "title": "Configuration",
             "toolbar": "partials/toolbar/config.html",
-            "taskfile": self.taskfile
+            "taskfile": self.taskfile,
+            "trigger_import": trigger_import
         }
 
     def getInclude(self, key, value):

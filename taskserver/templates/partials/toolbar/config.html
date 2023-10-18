@@ -6,6 +6,40 @@
   {% include "icons/back.svg" %}
   <span>Back</span>
 </a>
+<span x-data="{ dropdownOpen: {% if trigger_import %}true{%else%}false{% endif%} }">
+  <button
+    type="button"
+    @click="dropdownOpen = !dropdownOpen"
+    class="flex items-center space-x-2 rounded py-1 px-4 my-4 mx-1 shadow-md bg-gray-500 text-gray-100 disabled:text-gray-400 disabled:bg-gray-500"
+  >
+    {% include "icons/folder-plus.svg" %}
+    <span>Import Tasks</span>
+  </button>  
+  <div style="display: none" x-show="dropdownOpen">
+    <div
+      @click="dropdownOpen = false"
+      class="absolute inset-0 h-full w-full z-10"
+    ></div>
+    <div
+      class="absolute bg-white rounded-md shadow-lg overflow-hidden z-20"
+      style="width: 20rem"
+    >
+      <div class="text-sm font-normal text-gray-400 dark:text-gray-600">
+        <!-- Import local -->
+        {% include "partials/config/includes/menu/local.html" %}
+        <!-- Import Git -->
+        {% include "partials/config/includes/menu/git.html" %}
+        <!-- Upload Taskfile -->
+        {% include "partials/config/includes/menu/upload.html" %}
+      </div>
+      <a
+        class="block bg-gray-700 text-white text-center font-bold py-3 cursor-pointer"
+      >
+        Browse for tasks...
+      </a>
+    </div>
+  </div>
+</span>
 
 <button
   type="submit"
