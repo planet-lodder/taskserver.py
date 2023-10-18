@@ -8,7 +8,7 @@ class WebSearchTerms(WebSerializer):
     terms = ''
 
     def parse(self):
-        self.terms = self.body("search", "")
+        self.terms = self.req.input("search", "")
 
 
 @router.get('/list')

@@ -44,9 +44,9 @@
     <!-- {% block actions %} -->
     <button
       type="button"
-      name="{{key}}"
+      name="action"
       value="edit"
-      hx-post="/task/config/includes"
+      hx-post="/task/config/includes?path={{taskfile._path}}&id={{key}}"
       hx-target="#include_{{key}}"
       hx-swap="outerHTML"
       class="mx-1 opacity-20 hover:opacity-100"
@@ -55,10 +55,8 @@
     </button>
     <button
       type="button"
-      name="{{key}}"
-      value="delete"
       hx-confirm="Are you sure you want to remove '{{key}}'?"
-      hx-delete="/task/config/includes"
+      hx-delete="/task/config/includes?path={{taskfile._path}}&id={{key}}"
       hx-target="#include_{{key}}"
       hx-swap="outerHTML"
       class="mx-1 opacity-20 hover:opacity-100"

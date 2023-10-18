@@ -29,8 +29,8 @@
 <form
   id="include_{{id}}"
   method="post"
-  action="/task/config/includes"
-  hx-post="/task/config/includes"
+  action="/task/config/includes?path={{taskfile._path}}&id={{id}}"
+  hx-post="/task/config/includes?path={{taskfile._path}}&id={{id}}"
   hx-target="self"
   hx-swap="outerHTML"
   class="flex flex-row my-1 text-gray-500 {{ status.style }}"
@@ -45,9 +45,9 @@
     <input
       type="text"
       id="key_{{id}}"
-      name="key.includes.{{id}}"
+      name="key"
       value="{{key}}"
-      placeholder="{{ key | default('prefix', true) }}"
+      placeholder="{{ key | default('name', true) }}"
       class="peer w-24 px-2 py-0.5 flex-1 text-sm block bg-white text-gray-900 border border-gray-300 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white {{extra_style}}"
       required
     />
@@ -70,9 +70,9 @@
     <input
       type="text"
       id="value_{{id}}"
-      name="config.includes.{{id}}"
+      name="value"
       value="{{value}}"
-      placeholder="{{ placeholder | default('/path/to/Taskfile.yaml', true) }}"
+      placeholder="{{placeholder}}"
       class="peer flex flex-1 px-2 py-0.5 text-sm block bg-white text-gray-900 border border-gray-300 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white {{extra_style}}"
       required
     />
@@ -89,9 +89,9 @@
 
     <button
       type="submit"
-      name="{{key}}"
+      name="action"
       value="save"
-      hx-post="/task/config/includes"
+      hx-post="/task/config/includes?path={{taskfile._path}}&id={{id}}"
       hx-target="#include_{{id}}"
       hx-swap="outerHTML"
       class="mx-1 opacity-20 hover:opacity-100"
@@ -100,9 +100,9 @@
     </button>
     <button
       type="button"
-      name="{{key}}"
-      value="close"
-      hx-get="/task/config/includes"
+      name="action"
+      value="save"
+      hx-get="/task/config/includes?path={{taskfile._path}}&id={{id}}"
       hx-confirm="{% if key and not status_raw == 'Unchanged' %}Are you sure? Unsaved changes for '{{key}}' will be lost?{% endif %}"
       hx-target="#include_{{id}}"
       hx-swap="outerHTML"
@@ -116,11 +116,10 @@
 <script>
   (function () {
     // Trigger a focus action on the target input (if not already focussed)    
-    found = document.getElementsByName("{{autofocus}}");
-    input = (found.length && found[0]) || null;
-    isActive = document.activeElement === input;    
-    if (input && !isActive) {
-      input.focus();
+    found = document.getElementById("{{autofocus}}");
+    isActive = document.activeElement === found;    
+    if (found && !isActive) {
+      found.focus();
     }
   })();
 </script>

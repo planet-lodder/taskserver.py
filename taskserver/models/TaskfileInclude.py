@@ -3,7 +3,6 @@ import random
 import string
 
 
-
 class TaskfileInclude(dict):
 
     def __init__(self, taskfile, key, value, raw={}):

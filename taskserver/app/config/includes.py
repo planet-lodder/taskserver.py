@@ -2,50 +2,27 @@ from taskserver import router
 from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.config import TaskConfigUseCase
-from taskserver.models.TaskfileInclude import TaskfileInclude
 
 
 class ConfigIncludeInputs(WebSerializer):
+    path: str = None
+    id: str = ''
+    key: str = ''
+    value: str = ''
+    renamed: str = ''
+    action: str = ''
 
-    def parse(self): return None
+    def parse(self):
+        self.path = self.req.query.get('path', 'Taskfile.yaml')
+        self.id = self.req.query.get('id', '')
+        self.key = self.req.input('key', self.id)
+        self.value = self.req.input('value')
+        self.action = self.req.input('action')
 
-    def resolve(self, taskfile):
-        key = self.findKey(taskfile)
-        value = self.findValue(taskfile, key) if key else ""
-        return TaskfileInclude(taskfile, key, value)
-
-    def findKey(self, taskfile, htmx):
-        htmx = self.htmx
-
-        # Look for request originating from HTMX interactions
-        # Return the requested key (eg: when using add/delete/edit/cancel)
-        if htmx:
-            if requested_key := htmx.prompt or htmx.triggerName:
-                return requested_key
-
-        # Resolve the key name from given inputs
-        # Update key/value pairs (if changed)
-        prefix = f'key.includes.'
-        for k in self.req.inputs(prefix, strip_prefix=True):
-            l = self.req.input(f'{prefix}{k}')
-            v = self.req.input(f'config.includes.{k}')
-            if k != l:
-                print(f' * RENAME [ {k} -> {l} ] == {v}')
-                if k in taskfile.includes:
-                    del taskfile.includes[k]
-                taskfile.includes[l] = v
-                return l
-            else:
-                print(f' * FOUND  [ {k} ] == {v}')
-                return k
-
-    def findValue(self, taskfile, htmx, key):
-        value = None
-        if key and htmx:  # Update they value from the input field
-            value = self.req.input(f'config.includes.{key}')
-        if value == None:  # Try and fetch from cache
-            value = taskfile.includes.get(key, "")
-        return value
+        if not self.key and self.htmx:
+            # Look for request originating from HTMX interactions
+            if requested_key := self.htmx.prompt:
+                self.key = requested_key  # User entered new key name from prompt
 
 
 @router.get('/config/includes')
@@ -53,8 +30,7 @@ class ConfigIncludeInputs(WebSerializer):
 def taskInclude(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigIncludeInputs)
-    include = input.resolve(view.taskfile)
-    return view.getInclude(include.key, include.value)
+    return view.getInclude(input.key, input.value)
 
 
 @router.put('/config/includes')
@@ -62,8 +38,7 @@ def taskInclude(req, resp):
 def taskIncludeAdd(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigIncludeInputs)
-    include = input.resolve(view.taskfile)
-    return view.newInclude(include.id, include.key, include.value)
+    return view.newInclude(input.key, input.value)
 
 
 @router.post('/config/includes')
@@ -71,31 +46,27 @@ def taskIncludeAdd(req, resp):
 def taskIncludeEdit(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigIncludeInputs)
-    include = input.resolve(view.taskfile)
 
-    id = include.id
-    key = include.key
-    value = include.value
-    action = input.htmx.triggerValue
-    hint = value if action != "add" else "Enter new value here"
+    # If the edit action was triggered, we fetch the current value to display
+    if input.action == "edit" and input.key and not input.value:
+        input.value = view.taskfile.includes.get(input.key)
 
-    # Validate input and creaqte data context object
-    errors = include.validate(key, value)
-    valid = not len(errors.keys())
-    result = view.updateInclude(id, key, value, hint, errors)
+    # Validate input and create data context object
+    result = view.updateInclude(input.id, input.key, input.value)
+    errors = result.get("errors", [])
 
-    # Keep in edit mode if not validated
-    if not valid or action in ["edit", "add"]:
+    # Respond with different content according to action and if input was validated
+    if len(errors) or input.action in ["edit", "add"]:
+        # Keep in edit mode if not validated
         return result
-    else:
-        # Value has been updated successfully
-        return router.render_template("partials/config/includes/items/default.html", result)
+
+    # Value has been updated successfully, show the default view and close edit mode
+    return router.render_template("partials/config/includes/items/default.html", result)
 
 
 @router.delete('/config/includes')
 def taskIncludeDelete(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigIncludeInputs)
-    key = input.htmx.triggerName
-    view.deleteInclude(key)
+    view.deleteInclude(input.key)
     return ""  # empty result

@@ -1,5 +1,14 @@
+import random
+import string
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 from taskserver.models.TaskfileConfig import TaskfileConfig
+from taskserver.models.TaskfileInclude import TaskfileInclude
+
+HINT_EMPTY_VALUE = "Enter path to Taskfile.yaml or directory containing one"
+
+
+def _new_id():  # Pseudo random id, to track this edit session
+    return "_new_" + ''.join(random.choice(string.ascii_letters) for i in range(10))
 
 
 class TaskConfigUseCase(TaskfileUseCase):
@@ -20,9 +29,10 @@ class TaskConfigUseCase(TaskfileUseCase):
         }
         return result
 
-    def newInclude(self, id, key, value):
-        hint = value if value and key else "Enter new value here"
-        focus = f'key.includes.{id}' if not key else f'config.includes.{id}'
+    def newInclude(self, key, value):
+        id = key or _new_id()
+        hint = value if value and key else HINT_EMPTY_VALUE
+        focus = f'key_{id}' if not key else f'value_{id}'
         return {
             "id": id,
             "key": key or "",
@@ -32,25 +42,50 @@ class TaskConfigUseCase(TaskfileUseCase):
             "placeholder": hint,
         }
 
-    def updateInclude(self, id, key, value, hint, errors):
-        focus = f'key.includes.{id}' if not key else f'config.includes.{id}'
-        result = {
+    def updateInclude(self, id, key, value):
+        # Validate inputs for the given taskfile include
+        taskfile = self.taskfile
+        errors = TaskfileInclude(taskfile, key, value).validate(key, value)
+        changed = False
+        focus = f'key_{id}' if not key else f'value_{id}'
+
+        if key and not key == id:
+            if key in self.taskfile.includes:
+                # Key is already defined, fail validation
+                errors['key'] = [] if not 'key' in errors else errors['key']
+                errors['key'].append('Key with this name already exists')
+                focus = f'key_{id}'
+                
+            elif id in self.taskfile.includes:
+                print(f' * RENAME [ {id} -> {key} ] == {value}')
+
+                # We are renaming an existing item, so delete the old entry
+                self.taskfile.includes[key] = self.taskfile.includes[id]
+                del self.taskfile.includes[id]
+
+                # Save the key as the new id
+                focus = f'value_{key}'
+                id = key
+
+        # Check for any validation errors
+        if not len(errors):
+            # Only update the value if it changed
+            changed = not key in self.taskfile.includes  # is new entry?
+            changed = changed or self.taskfile.includes[key] != value
+            if changed:
+                print(f' * INCLUDES [ {key} ] == {value}')
+                self.taskfile.includes[key] = value
+
+        # Return the current state values
+        return {
             "id": id,
             "key": key or "",
             "value": value or "",
             "taskfile": self.taskfile,
+            "placeholder": value or HINT_EMPTY_VALUE,
             "autofocus": focus,
-            "placeholder": hint,
             "errors": errors,
         }
-
-        # Check if the value should be updated (in the cache)
-        if not key in self.taskfile.includes or value != self.taskfile.includes[key]:
-            # Update they value from the input field
-            print(f' * INCLUDES [ {key} ] == {value}')
-            self.taskfile.includes[key] = value
-
-        return result
 
     def deleteInclude(self, key):
         if not key:
