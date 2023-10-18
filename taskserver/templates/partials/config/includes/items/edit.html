@@ -101,7 +101,7 @@
     <button
       type="button"
       name="action"
-      value="save"
+      value="close"
       hx-get="/task/config/includes?path={{taskfile._path}}&id={{id}}"
       hx-confirm="{% if key and not status_raw == 'Unchanged' %}Are you sure? Unsaved changes for '{{key}}' will be lost?{% endif %}"
       hx-target="#include_{{id}}"

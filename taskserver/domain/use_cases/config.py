@@ -14,20 +14,22 @@ def _new_id():  # Pseudo random id, to track this edit session
 class TaskConfigUseCase(TaskfileUseCase):
 
     def index(self):
-        result = {
+        return {
             "title": "Configuration",
             "toolbar": "partials/toolbar/config.html",
             "taskfile": self.taskfile
         }
-        return result
 
     def getInclude(self, key, value):
-        result = {
+        if not value and key in self.taskfile.includes:
+            # Load current value from config
+            value = self.taskfile.includes[key]
+        
+        return {
             "key": key or "",
             "value": value or "",
             "taskfile": self.taskfile,
         }
-        return result
 
     def newInclude(self, key, value):
         id = key or _new_id()
@@ -55,7 +57,7 @@ class TaskConfigUseCase(TaskfileUseCase):
                 errors['key'] = [] if not 'key' in errors else errors['key']
                 errors['key'].append('Key with this name already exists')
                 focus = f'key_{id}'
-                
+
             elif id in self.taskfile.includes:
                 print(f' * RENAME [ {id} -> {key} ] == {value}')
 

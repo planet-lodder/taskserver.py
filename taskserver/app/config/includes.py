@@ -19,6 +19,10 @@ class ConfigIncludeInputs(WebSerializer):
         self.value = self.req.input('value')
         self.action = self.req.input('action')
 
+        if not self.action and 'action' in self.req.query:
+            # Get action from the GET query params
+            self.action = self.req.query['action']
+
         if not self.key and self.htmx:
             # Look for request originating from HTMX interactions
             if requested_key := self.htmx.prompt:
@@ -30,6 +34,8 @@ class ConfigIncludeInputs(WebSerializer):
 def taskInclude(req, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     input = Serialize.fromWeb(req, ConfigIncludeInputs)
+    if input.action == 'close' and input.key.startswith('_new'):
+        return ""  # Canceling a new (unsaved) entity, return empty
     return view.getInclude(input.key, input.value)
 
 
