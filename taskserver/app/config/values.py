@@ -5,28 +5,34 @@ from taskserver.domain.use_cases.config import TaskConfigUseCase
 
 
 class ConfigValueInput(WebSerializer):
-    def parse(self): return None
+    path: str = ''
+    key: str = ''
+    value: str = ''
+
+    def parse(self):
+        self.path = self.req.query.get('path', 'Taskfile.yaml')
+        self.key = self.req.query.get('key', '')
+        self.value = self.req.input(f'value', '')
+
+        if not self.key and self.htmx:
+            # Look for request originating from HTMX interactions
+            if requested_key := self.htmx.prompt:
+                self.key = requested_key  # User entered new key name from prompt
+
+        # Ensure that the key is defined before continuing
+        if not self.key:
+            raise Exception('Key required for config value.')
+
 
     def forUpdate(self, dest):
-        htmx = self.htmx
-        if not htmx:
-            raise Exception('Not an htmx request')
-
-        # Resolve key for value that changed
-        key = htmx.prompt or ""
-        if not key and htmx.triggerName:
-            key = htmx.triggerName[len(f'config.{dest}.'):]
-
         # Get the key value
-        value = self.req.input(f'config.{dest}.{key}', '')
+        self.value = self.req.input(f'config.{dest}.{self.key}', '')
 
         # Return relevant information
-        return dest, key, value
+        return dest, self.key, self.value
 
     def forDelete(self, dest):
-        htmx = self.htmx
-        key = htmx.triggerName
-        return dest, key
+        return dest, self.key
 
 
 @router.post('/config/env')
