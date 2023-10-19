@@ -23,18 +23,18 @@
 %}
 {% set status = status_values[status_raw] | default(status_values["Unchanged"])  %} 
 -->
-<a id="include_{{key}}" class="flex flex-row my-1 {{status.style}}">
-  <div class="w-6 mr-1">    
+<a id="include_{{key}}" class="flex flex-row {{status.style}}">
+  <div class="w-6 py-2 mr-1">    
     <!-- {% block icon %} -->
     {% include status.icon %}
     <!-- {% endblock icon %} -->
   </div>
-  <div class="px-2 w-24 font-bold">
+  <div class="p-2 w-24 font-bold">
     <!-- {% block key %} -->
     {{ key }}
     <!-- {% endblock key %} -->
   </div>
-  <div class="flex flex-row flex-1">
+  <div class="py-2 flex flex-row flex-1">
     <!-- {% block value %} -->
     <div class="flex flex-row flex-1 px-2">
       <input type="hidden" name="config.includes.{{key}}" value="{{value}}" />
@@ -49,7 +49,7 @@
       hx-post="/task/config/includes?path={{taskfile._path}}&id={{key}}"
       hx-target="#include_{{key}}"
       hx-swap="outerHTML"
-      class="mx-1 opacity-20 hover:opacity-100"
+      class="mx-1 opacity-50 hover:opacity-100"
     >
       {% include "icons/pencil.svg" %}
     </button>
@@ -59,7 +59,7 @@
       hx-delete="/task/config/includes?path={{taskfile._path}}&id={{key}}"
       hx-target="#include_{{key}}"
       hx-swap="outerHTML"
-      class="mx-1 opacity-20 hover:opacity-100"
+      class="mx-1 opacity-50 hover:opacity-100"
     >
       {% include "icons/trash.svg" %}
     </button>

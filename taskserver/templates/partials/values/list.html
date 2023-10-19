@@ -1,28 +1,32 @@
 <style>
-  #{{dest}}_values tr.htmx-swapping td {
+  .task-variables tr.htmx-swapping td {
     opacity: 0;
     transition: opacity 1s ease-out;
   }
 </style>
+{% set closed = ctx.keys() | length == 0 %}
 <table
   id="{{dest}}_values"
   x-data="{ open: {% if closed %}false{% else %}true{% endif %} }"
-  class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-solid border-0 border-b border-gray-200 dark:border-gray-700"
+  class="task-variables min-w-full"
 >
-  <thead class="bg-gray-50 dark:bg-gray-800">
+  <thead class="font-normal">
     <tr
-      class="font-normal text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+      class="text-left rtl:text-right text-gray-500 dark:text-gray-300"
     >
-      <th class="w-4 py-3.5 px-4 cursor-pointer" @click="open = !open">
+      <th class="w-4 p-2 cursor-pointer" @click="open = !open">
         <span x-show="open">{% include 'icons/chevron-down.svg' %}</span>
         <span x-show="!open">{% include 'icons/chevron-right.svg' %}</span>
       </th>
-      <th class="w-64 py-3.5 px-4">
+      <th class="flex flex-row">
         <!-- Display Name -->
-        {{ title }}
-      </th>
-      <th class="py-3.5 px-4">
-        <div class="flex flex-row">
+        <label @click="open = !open" class="flex-1 py-1.5 font-normal cursor-pointer">
+          {{title}}
+          <!-- {% if ctx and ctx.keys() | length > 0 %} -->
+          ( {{ ctx.keys() | length }} )
+          <!-- {% endif %} -->
+        </label>
+        <div class="flex flex-row flex-0">
           <span class="flex-1"></span>
           <!-- Value Actions (top-right) -->
           {% include 'partials/config/add.html' %}
@@ -32,7 +36,6 @@
   </thead>
   <tbody
     id="config-{{dest}}"
-    class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900"
     style="{% if closed %}display: none{% endif %}"
     x-show="open"
   >

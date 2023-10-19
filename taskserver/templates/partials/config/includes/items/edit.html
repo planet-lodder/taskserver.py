@@ -94,7 +94,7 @@
       hx-post="/task/config/includes?path={{taskfile._path}}&id={{id}}"
       hx-target="#include_{{id}}"
       hx-swap="outerHTML"
-      class="mx-1 opacity-20 hover:opacity-100"
+      class="mx-1 opacity-50 hover:opacity-100"
     >
       {% include "icons/check.svg" %}
     </button>
@@ -106,7 +106,7 @@
       hx-confirm="{% if key and not status_raw == 'Unchanged' %}Are you sure? Unsaved changes for '{{key}}' will be lost?{% endif %}"
       hx-target="#include_{{id}}"
       hx-swap="outerHTML"
-      class="mx-1 opacity-20 hover:opacity-100"
+      class="mx-1 opacity-50 hover:opacity-100"
     >
       {% include "icons/close.svg" %}
     </button>

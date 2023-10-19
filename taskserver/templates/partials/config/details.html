@@ -18,7 +18,9 @@
       <div class="w-1/2 flex flex-col">
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
-          <a class="p-2 font-bold">{{ taskfile._path }}</a>
+          <a class="p-2 font-bold flex flex-row">
+            {{ taskfile._path }}
+          </a>
         </div>
 
         <!-- Task Includes -->
@@ -44,7 +46,7 @@
         <!-- Global Task Vars -->
         <div class="flex flex-row mr-8">
           <div class="flex-1 align-top">
-            <!-- Taskfile Variables {% with title="Taskfile Variables (Global)", dest="vars", ctx=taskfile.vars %} -->
+            <!-- Taskfile Variables {% with title="Global Taskfile Variables", dest="vars", ctx=taskfile.vars %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>
