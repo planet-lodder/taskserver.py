@@ -25,7 +25,7 @@ class TaskfileInclude(dict):
 
         if not key:
             # Key is required
-            error("key", "Key is required")
+            error("key", "Key name is required")
 
         if not value:
             # Value is required

@@ -1,0 +1,7 @@
+<div
+  class="absolute invisible peer-focus:visible mt-8 w-auto text-sm font-normal whitespace-normal break-words bg-white bg-opacity-75 dark:bg-gray-900 text-red-500 border border-red-500 border-opacity-30"
+>
+  {% for error in validations %}
+  <div class="p-1">{{error}}</div>
+  {% endfor %}
+</div>

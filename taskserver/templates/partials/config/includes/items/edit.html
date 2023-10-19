@@ -33,39 +33,34 @@
   hx-post="/task/config/includes?path={{taskfile._path}}&id={{id}}"
   hx-target="self"
   hx-swap="outerHTML"
-  class="flex flex-row my-1 text-gray-500 {{ status.style }}"
+  class="flex flex-row h-10 text-gray-500 {{ status.style }}"
 >
-  <div class="w-6 mr-1">{% include status.icon %}</div>
-  <div class="w-24">
+  <div class="w-6 py-2 mr-1">{% include status.icon %}</div>
+  <div class="w-24 flex flex-0">
     <!--
     {% set target_name = "key"  %} 
     {% set validations = errors[target_name] if target_name in errors else []  %} 
-    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:outline-red-500 dark:focus:outline-0"  %} 
+    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:border-red-600 dark:focus:border-red-500"  %} 
     -->
     <input
       type="text"
       id="key_{{id}}"
       name="key"
       value="{{key}}"
-      placeholder="{{ key | default('name', true) }}"
-      class="peer w-24 px-2 py-0.5 flex-1 text-sm block bg-white text-gray-900 border border-gray-300 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white {{extra_style}}"
+      placeholder="name"
+      class="peer block my-2 px-2 w-full font-normal text-gray-900 bg-transparent border-0 border-b-2 appearance-none dark:text-white border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-0 focus:border-blue-600 dark:focus:border-blue-500 {{extra_style}}"
+      autocomplete="off"
       required
     />
     <!-- {% if validations %} -->
-    <div
-      class="invisible peer-focus:visible p-2 mt-0 text-sm font-normal absolute w-max whitespace-normal break-words border border-red-50 bg-white text-red-500 shadow-lg focus:outline-none"
-    >
-      {% for error in validations %}
-      <div>{{error}}</div>
-      {% endfor %}
-    </div>
+    {% include 'partials/config/includes/items/validations.html' %}
     <!-- {% endif %} -->
   </div>
-  <div class="flex flex-row flex-1">
+  <div class="flex flex-1">
     <!--
     {% set target_name = "value"  %} 
     {% set validations = errors[target_name] if target_name in errors else []  %} 
-    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:outline-red-500 dark:focus:outline-0"  %} 
+    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:border-red-600 dark:focus:border-red-500"  %} 
     -->
     <input
       type="text"
@@ -73,18 +68,13 @@
       name="value"
       value="{{value}}"
       placeholder="{{placeholder}}"
-      class="peer flex flex-1 px-2 py-0.5 text-sm block bg-white text-gray-900 border border-gray-300 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white {{extra_style}}"
-      required
+      class="{{extra_style}} peer block my-2 px-2 w-full font-normal text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600"
+      autocomplete="off"
+      required 
     />
 
     <!-- {% if validations %} -->
-    <div
-      class="invisible peer-focus:visible p-2 mt-6 text-sm font-normal absolute w-max whitespace-normal break-words border border-red-50 bg-white dark:bg-gray-900 text-red-500 shadow-lg focus:outline-none"
-    >
-      {% for error in validations %}
-      <div>{{error}}</div>
-      {% endfor %}
-    </div>
+    {% include 'partials/config/includes/items/validations.html' %}
     <!-- {% endif %} -->
 
     <button

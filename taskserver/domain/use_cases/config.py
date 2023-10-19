@@ -85,7 +85,7 @@ class TaskConfigUseCase(TaskfileUseCase):
             "key": key or "",
             "value": value or "",
             "taskfile": self.taskfile,
-            "placeholder": value or HINT_EMPTY_VALUE,
+            "placeholder": HINT_EMPTY_VALUE,
             "autofocus": focus,
             "errors": errors,
         }
