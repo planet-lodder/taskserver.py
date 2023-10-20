@@ -2,7 +2,7 @@
 from typing import Optional, Sequence
 
 from taskserver.domain.entities.Task import Task
-from taskserver.domain.repositories.base import ATaskfileRepository
+from taskserver.domain.repositories.base import TaskfileRepository
 from taskserver.models.TaskList import TaskList
 from taskserver.models.TaskNode import TaskNode
 from taskserver.models.TaskfileConfig import TaskfileConfig
@@ -18,7 +18,7 @@ class InMemory():
         return InMemory.CACHED_REPOS[file]
 
 
-class InMemoryTaskRepository(ATaskfileRepository):
+class InMemoryTaskRepository(TaskfileRepository):
 
     def __init__(self, filename: str):
         self._path = filename

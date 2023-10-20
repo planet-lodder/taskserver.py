@@ -5,7 +5,7 @@ from typing import List, Optional, Sequence
 from taskserver.domain.entities.Task import Task
 
 
-class ATaskfileRepository(ABC):
+class TaskfileRepository(ABC):
 
     def __init__(self, filename: str):
         self._path = filename
