@@ -7,7 +7,7 @@ from taskserver.domain.repositories.base import ATaskfileRepository
 from taskserver.domain.repositories.memory import InMemory, InMemoryTaskRepository
 
 
-class ATaskfileUseCase(ABC):
+class TaskfileUseCase(ABC):
 
     def __init__(self, repo: ATaskfileRepository):
         self.repo = repo
@@ -17,7 +17,7 @@ class ATaskfileUseCase(ABC):
         return self.repo._path
 
 
-T = TypeVar("T", bound=ATaskfileUseCase)
+T = TypeVar("T", bound=TaskfileUseCase)
 
 
 class UseCase():

@@ -1,9 +1,9 @@
 
-from taskserver.domain.use_cases.base import ATaskfileUseCase
+from taskserver.domain.use_cases.base import TaskfileUseCase
 from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
-class TaskfileUseCase(ATaskfileUseCase):
+class TaskfileUseCase(TaskfileUseCase):
     _root = None
 
     @property
