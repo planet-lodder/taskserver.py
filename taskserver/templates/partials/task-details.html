@@ -42,17 +42,18 @@
       </div>
 
       <!-- Task variables -->
-      <div class="w-1/2 flex relative">
-        <label class="p-2 w-32 on absolute -left-36">Task Variables:</label>
-        <div class="flex-1">
-          <div class="task-vars">
+      <div class="w-1/2 flex flex-col relative">
+        <!-- Global Task Vars -->
+        <div class="flex flex-row mr-8">
+          <div class="flex-1 align-top">
+            {% set vars = {} %}
             <!-- {% if taskfile and name in taskfile.tasks and taskfile.tasks[name].vars %} -->
-            <!-- {% for key,value in taskfile.tasks[name].vars.items() %} -->
-            {% include 'partials/run/vars/item.html' %}
-            <!-- {% endfor %} -->
+            {% set vars = taskfile.tasks[name].vars %}
             <!-- {% endif %} -->
+            <!-- {% with title="Task Variables", dest="vars", ctx=vars %} -->
+            {% include 'partials/values/list.html' %}
+            <!-- {% endwith %} -->
           </div>
-          {% include 'partials/run/vars/add.html' %}
         </div>
       </div>
     </div>
