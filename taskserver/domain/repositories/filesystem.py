@@ -1,7 +1,6 @@
 
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 from taskserver.domain.models.Task import Task
-from taskserver.domain.models.Taskfile import Taskfile
 
 from taskserver.domain.repositories.base import TaskfileRepository
 from taskserver.models.TaskList import TaskList
@@ -9,11 +8,12 @@ from taskserver.models.TaskNode import TaskNode
 from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
-class InMemoryTaskRepository(TaskfileRepository):
+class FilesystemTaskfileRepo(TaskfileRepository):
 
     def __init__(self, filename: str):
         super().__init__(filename)
         self.taskfile = TaskfileConfig.resolve(filename)
+        self.tasks = TaskList.discover(filename)
         self.nodes = TaskNode('', 'Task Actions', task_list=self.tasks)
 
     def listTasks(self) -> Sequence[Task]:

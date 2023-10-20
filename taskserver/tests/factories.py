@@ -1,6 +1,6 @@
 
 
-from taskserver.domain.entities.Task import Task
+from taskserver.domain.models.Task import Task
 
 
 class TaskFactory():

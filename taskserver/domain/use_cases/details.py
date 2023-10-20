@@ -1,5 +1,5 @@
 
-from taskserver.domain.entities.Task import Task
+from taskserver.domain.models.Task import Task
 from taskserver.domain.use_cases.list import TaskListUseCase
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 

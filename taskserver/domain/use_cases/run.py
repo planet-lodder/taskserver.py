@@ -3,7 +3,7 @@ import os
 from ansi2html import Ansi2HTMLConverter
 from ansi2html.style import (get_styles)
 
-from taskserver.domain.entities.Task import Task
+from taskserver.domain.models.Task import Task
 from taskserver.domain.serializers import Serializer
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 from taskserver.models.TaskNode import TaskNode

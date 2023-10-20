@@ -3,7 +3,7 @@ import pytest
 
 from pydantic import ValidationError
 
-from taskserver.domain.entities.Task import Task, TaskVars
+from taskserver.domain.models.Task import Task, TaskVars
 
 
 def test_task_vars():

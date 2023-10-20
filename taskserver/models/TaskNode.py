@@ -1,7 +1,8 @@
 
 # Todo: Implement task thread pool
 from typing import List
-from taskserver.domain.entities.Task import Task
+
+from taskserver.domain.models.Task import Task
 
 
 TASK_THREADS = {
