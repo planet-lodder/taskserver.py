@@ -28,30 +28,33 @@ tasks:
   # -------------------------------------------------
   # Example commands
   # -------------------------------------------------
+  example:
+    desc: A fairly complex example task
+    vars:
+      MESSAGE: '{{ .MESSAGE | default "Hello World" }}'
+      OUTPUT_PATH: ./dist/lala.txt
+    cmds:
+      - echo "{{ .MESSAGE }}"
+      - task: example:alpha
+      - task: example:beta
+      - task: example:omega
+      - echo Done
   example:alpha:
-    desc: Testing
+    desc: First example task
     sources:
       - Taskfile.yaml
     generates:
       - "./dist/lala.txt"
     cmds:
       - mkdir -p ./dist
-      - cat Taskfile.yaml > ./dist/lala.txt
-      - sleep 3
-
+      - cat Taskfile.yaml > ./dist/lala.txt      
   example:beta:
-    vars:
-      MESSAGE: Hello World
-      OUTPUT_PATH: ./some/path
+    desc: Second example task
     cmds:
-      - echo "{{ .MESSAGE }}"
-      - task: example
-      - echo {{ .OUTPUT_PATH }}
+      - sleep 1
 
   example:omega:
     - echo "Updating sources..."
     - task: update
-    - echo "Start Examples..."
-    - task: example
-    - task: example2
+    - sleep 1
     - echo "Done"

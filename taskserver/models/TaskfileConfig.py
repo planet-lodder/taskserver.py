@@ -192,18 +192,21 @@ class TaskfileConfig(dict):
 
         return commands
 
-    def run(self, action, env=None):
-        env = env if env else os.environ.copy()
-        output = self.exec(f"task -t {self._path} {action}")
+    def run(self, action, env=None):        
+        output = self.exec(f"task -t {self._path} {action}", env)
         return output
 
     def exec(self, command, env=None):
+        env = env if env else {}
         clear = Style.RESET_ALL
         def green(msg): return f"{Fore.GREEN}{Style.BRIGHT}{msg}{clear}"
         def action(msg): return f"{Fore.MAGENTA}{msg}{clear}"
         print(f' {green("▶")} {action(command)}{Style.DIM}')
         pop = command.split(" ")
-        res = subprocess.run(pop, stdout=subprocess.PIPE)
+        env_vars = os.environ.copy()
+        env_vars.update(env_vars)
+        print(env)
+        res = subprocess.run(pop, stdout=subprocess.PIPE, env=env_vars)
         output = res.stdout.decode().strip()
         print(f'{Style.RESET_ALL}', end="")
         return output

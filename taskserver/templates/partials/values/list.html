@@ -26,10 +26,10 @@
           ( {{ ctx.keys() | length }} )
           <!-- {% endif %} -->
         </label>
-        <div class="flex flex-row flex-0">
+        <div class="flex flex-row flex-0" @click="open = true">
           <span class="flex-1"></span>
           <!-- Value Actions (top-right) -->
-          {% include 'partials/config/add.html' %}
+          {% include 'partials/values/add.html' %}
         </div>
       </th>
     </tr>
@@ -43,8 +43,6 @@
     {% for key,value in ctx.items() %}
     <!-- Key-value pair -->
     {% include 'partials/values/item.html' %} {% endfor %}
-    <!-- {% else %} Empty: No value defined for context -->
-    {% include 'partials/config/empty.html' %}
     <!-- {% endif %} -->
   </tbody>
 </table>

@@ -75,7 +75,7 @@ class TaskRunUseCase(TaskfileUseCase):
 
         return result
 
-    def tryRun(self, input: Serializer, node: TaskNode):
+    def tryRun(self, input: Serializer, node: TaskNode, vars={}):
         task = self.repo.findTask(node.key)
         result = {
             "title": task.key if task else "unknown",
@@ -83,11 +83,12 @@ class TaskRunUseCase(TaskfileUseCase):
             "taskfile": self.taskfile,
             "task": task,
             "name": task.name,
+            "vars": vars,
         }
         if input.validate():
             try:
                 # Add HEAD and BODY values to ENV vars
-                env = os.environ.copy()
+                env = vars
 
                 # Execute the task command (given the input HEAD and BODY)
                 output = self.taskfile.run(task.name, env)
