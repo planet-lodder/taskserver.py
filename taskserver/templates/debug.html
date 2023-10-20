@@ -236,7 +236,7 @@
         <!-- Side Navigation -->
         <nav
           id="sidenav"
-          class="flex flex-col w-80 border-gray-200 bg-white dark:bg-gray-600"
+          class="w-80 flex flex-col flex-0 overflow-y-auto border-gray-200 bg-white dark:bg-gray-600"
         >
           {% block sidenav %}
           <div class="space-y-2 p-2 text-gray-300 dark:text-gray-700">
@@ -247,7 +247,7 @@
         </nav>
 
         <!-- Main content page -->
-        <main id="main" class="flex flex-col flex-grow">
+        <main id="main" class="flex flex-col flex-1 overflow-y-auto">
           {% block content %}
           <div class="text-gray-300 dark:text-gray-700">
             <span>Target:</span>

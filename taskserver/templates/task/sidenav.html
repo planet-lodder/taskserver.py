@@ -1,9 +1,8 @@
 {% extends 'base.html' %} {% block sidenav %}
-<nav
-  id="sidenav"
-  class="flex flex-col w-80 h-screen overflow-y-auto bg-white dark:bg-gray-900 dark:border-gray-700 border-r dark:border-gray-700"
->  
+<div class="flex flex-col flex-1 bg-white dark:bg-gray-900 dark:border-gray-700 border-r dark:border-gray-700">
+  <!-- Top Navigation -->
   {% include "partials/sidenav/top.html" %}
+  <!-- Main Menu -->
   {% include "partials/sidenav/menu.html" %}
-</nav>
+</div>
 {% endblock sidenav %}
