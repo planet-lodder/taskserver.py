@@ -9,6 +9,7 @@ from taskserver.domain.entities.Task import Task
 
 
 class TaskList():
+
     @staticmethod
     def discover(filename) -> List[Task]:
         try:
@@ -16,8 +17,8 @@ class TaskList():
             res = subprocess.run(pop, stdout=subprocess.PIPE)
             raw = res.stdout.decode().strip()
             obj = json.loads(raw)
-            list = obj["tasks"] if "tasks" in obj else []
-            path = obj["location"] if "location" in obj else ""
+            list = obj.get("tasks", [])
+            path = obj.get("location", "")
             base = os.path.dirname(path) if path else os.getcwd()
             return TaskList.parse(base, list)
         except Exception as e:
@@ -29,8 +30,8 @@ class TaskList():
         tasks = []
         for item in values:
             # Update and normalize paths for all tasks by stripping base folder prefix
-            loc = item["location"] if "location" in item else {}
-            path = loc["taskfile"] if "taskfile" in loc else ""
+            loc = item.get("location", {})
+            path = loc.get("taskfile", '')
             path = path.removeprefix(cwd + "/")
             task = Task(
                 src=path,

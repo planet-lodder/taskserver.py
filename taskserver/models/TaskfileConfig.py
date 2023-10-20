@@ -8,10 +8,22 @@ import yq
 
 from copy import deepcopy
 
-from taskserver.utils import bind
-
 # In-memory cache of all the taskfiles by path name
 TASKFILE_CACHE = {}
+
+
+def bind(key):
+    def get(self, key):
+        self[key] = {} if not key in self else self[key]
+        return self[key]
+
+    def set(self, key, value):
+        self[key] = value
+
+    return property(
+        lambda self: get(self, key),
+        lambda self, value: set(self, key, value),
+    )
 
 
 class TaskfileConfig(dict):
@@ -192,7 +204,7 @@ class TaskfileConfig(dict):
 
         return commands
 
-    def run(self, action, env=None):        
+    def run(self, action, env=None):
         output = self.exec(f"task -t {self._path} {action}", env)
         return output
 

@@ -35,7 +35,7 @@ HX-Request: true'
 HX-Target: config-form'
 HX-Trigger: config-form'
 
-location=Taskfile.yaml
+path=Taskfile.yaml
 &config.env.VERSION=0.0.0
 &config.env.ENV=KOOSZ
 &config.vars.PROJECT=%7B%7B%20.PROJECT%20%7C%20default%20%22my-project%22%20%7D%7D
@@ -47,5 +47,5 @@ curl 'http://127.0.0.1:9999/task/config/includes' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   -H 'HX-Current-URL: http://127.0.0.1:9999/task/config' \
   -H 'HX-Request: true' \
-  --data-raw 'location=Taskfile.yaml&config.env.VERSION=0.0.0&config.env.ENV=KOOSZ&config.vars.PROJECT=%7B%7B%20.PROJECT%20%7C%20default%20%22my-project%22%20%7D%7D&config.vars.VAR=ZZZZZ&config.vars.AAAAA=AAAA' \
+  --data-raw 'path=Taskfile.yaml&config.env.VERSION=0.0.0&config.env.ENV=KOOSZ&config.vars.PROJECT=%7B%7B%20.PROJECT%20%7C%20default%20%22my-project%22%20%7D%7D&config.vars.VAR=ZZZZZ&config.vars.AAAAA=AAAA' \
   --compressed

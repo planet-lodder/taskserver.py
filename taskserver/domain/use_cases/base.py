@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Type, TypeVar
 
+from anyserver import WebRequest
 from taskserver.domain.entities.Task import Task
 from taskserver.domain.repositories.base import ATaskfileRepository
 from taskserver.domain.repositories.memory import InMemory, InMemoryTaskRepository
@@ -12,7 +13,7 @@ class ATaskfileUseCase(ABC):
         self.repo = repo
 
     @property
-    def location(self) -> str:
+    def path(self) -> str:
         return self.repo._path
 
 
@@ -23,17 +24,23 @@ class UseCase():
     default_path = "Taskfile.yaml"
 
     @staticmethod
-    def forWeb(req, cls: Type[T]) -> T:
-        # Resolve the current Taskfile path, if specified in request object
-        body = req.body if req and req.body else {}
-        path = body["location"] if "location" in body else None
-        path = path or UseCase.default_path
-        repo = InMemory.TaskfileRepository(path)
-        res = cls(repo)
-        return res
+    def repo(filename: str) -> ATaskfileRepository:
+        repo = InMemory.TaskfileRepository(filename)
+        return repo
 
     @staticmethod
-    def forFile(filename, cls: Type[T]) -> T:
-        repo = InMemory.TaskfileRepository(filename)
-        res = cls(repo)
-        return res
+    def forWeb(req: WebRequest, cls: Type[T]) -> T:
+        # Resolve the current Taskfile path
+        # It can be specified in request URL or body
+        path = req.input("path")
+        path = path or req.query.get("path")
+        path = path or UseCase.default_path
+
+        # Create use case for specified file
+        repo = UseCase.repo(path)
+        return cls(repo)
+
+    @staticmethod
+    def forFile(filename, cls: Type[T]) -> T:        
+        repo = UseCase.repo(filename)
+        return cls(repo)

@@ -21,7 +21,7 @@ class TaskRunUseCase(TaskfileUseCase):
 
         if task and self.taskfile:
             # Not a leaf node, so show the search results instead
-            config = TaskfileConfig.resolve(self.location)
+            config = TaskfileConfig.resolve(self.path)
             breakdown = config.breakdown(task.key)
 
         # Show the task view

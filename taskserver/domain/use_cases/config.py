@@ -99,7 +99,7 @@ class TaskConfigUseCase(TaskfileUseCase):
             del taskfile.includes[key]  # Soft delete the value from memory
 
     def updatePartial(self, values):
-        taskfile = TaskfileConfig.resolve(self.location)
+        taskfile = TaskfileConfig.resolve(self.path)
         taskfile.update(values)
         taskfile.save(reload=True)
         result = {
