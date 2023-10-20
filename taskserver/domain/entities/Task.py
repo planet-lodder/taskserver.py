@@ -8,7 +8,7 @@ class TaskVars(dict[str, str]):
 
 
 class Task(BaseModel):
-    src: str
+    file: str
     key: str
     name: str
     desc: Optional[str]
@@ -16,3 +16,4 @@ class Task(BaseModel):
     summary: Optional[str]
     sources: Optional[list]
     generates: Optional[list]
+    required: Optional[list]

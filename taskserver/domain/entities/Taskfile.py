@@ -21,7 +21,7 @@ class TaskfileVars(TaskVars):
 
 class Taskfile(BaseModel):
     version: str
-    includes: TaskfileIncludes
     env: TaskfileEnvs
     vars: TaskfileVars
+    includes: TaskfileIncludes
     tasks: List[Task]

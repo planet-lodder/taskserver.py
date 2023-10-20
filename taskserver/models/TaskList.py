@@ -34,7 +34,7 @@ class TaskList():
             path = loc.get("taskfile", '')
             path = path.removeprefix(cwd + "/")
             task = Task(
-                src=path,
+                file=path,
                 key=item["name"],
                 name=item["name"],
                 desc=item["desc"],

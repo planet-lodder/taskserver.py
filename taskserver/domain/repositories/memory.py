@@ -8,17 +8,8 @@ from taskserver.models.TaskNode import TaskNode
 from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
-class InMemory():
-    CACHED_REPOS = {}
-
-    @staticmethod
-    def TaskfileRepository(file: str):
-        if not file in InMemory.CACHED_REPOS:
-            InMemory.CACHED_REPOS[file] = InMemoryTaskRepository(file)
-        return InMemory.CACHED_REPOS[file]
-
-
 class InMemoryTaskRepository(TaskfileRepository):
+    
 
     def __init__(self, filename: str):
         self._path = filename
