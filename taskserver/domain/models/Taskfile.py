@@ -5,6 +5,7 @@ import os
 import subprocess
 from typing import List
 from pydantic import BaseModel
+import yaml
 
 from taskserver.domain.models.Task import Task, TaskVars
 
@@ -26,7 +27,18 @@ class Taskfile(BaseModel):
     env: TaskfileEnvs
     vars: TaskfileVars
     includes: TaskfileIncludes
-    tasks: List[Task]
+    #tasks: List[Task]
+
+    @staticmethod
+    def load(path):
+        if not os.path.isfile(path):
+            raise Exception(f"Taskfile {path} not found!")
+
+        # Load the raw config file for this taskfile
+        with open(path, "r") as stream:
+            raw = yaml.safe_load(stream)
+            res = Taskfile(**raw)
+            return res
 
     @staticmethod
     def run(filename, command, extra_args='') -> [str, str, subprocess.CompletedProcess]:
