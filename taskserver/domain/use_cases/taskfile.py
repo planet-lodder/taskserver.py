@@ -1,6 +1,6 @@
 
+from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.use_cases.base import TaskfileUseCase
-from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
 class TaskfileUseCase(TaskfileUseCase):
@@ -11,5 +11,5 @@ class TaskfileUseCase(TaskfileUseCase):
         return self.repo.nodes
 
     @property
-    def taskfile(self) -> TaskfileConfig:
+    def taskfile(self) -> Taskfile:
         return self.repo.taskfile

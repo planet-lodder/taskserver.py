@@ -11,10 +11,6 @@ class TaskfileUseCase(ABC):
     def __init__(self, repo: TaskfileRepository):
         self.repo = repo
 
-    @property
-    def path(self) -> str:
-        return self.repo._path
-
 
 T = TypeVar("T", bound=TaskfileUseCase)
 

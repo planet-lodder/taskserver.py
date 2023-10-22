@@ -4,7 +4,7 @@
 -->
 <a
   @click="dropdownOpen = false"
-  hx-put="/task/config/includes?path={{taskfile._path}}"
+  hx-put="/task/config/includes?path={{taskfile.path}}"
   hx-target="#add-import-item"
   hx-prompt="Import Name"
   hx-swap="beforebegin"

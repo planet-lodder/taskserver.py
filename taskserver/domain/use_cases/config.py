@@ -112,7 +112,7 @@ class TaskConfigUseCase(TaskfileUseCase):
     def updateValue(self, dest, key, value):
         taskfile = self.taskfile
 
-        print(f'Update config.{dest}: {taskfile._path}')
+        print(f'Update config.{dest}: {taskfile.path}')
         print(f' --> config[{dest}][{key}] == {value}')
 
         values = taskfile[dest] = taskfile[dest] if dest in taskfile else {}

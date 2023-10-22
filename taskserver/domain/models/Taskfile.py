@@ -24,11 +24,15 @@ class TaskfileVars(TaskVars):
 
 
 class Taskfile(BaseModel):
+    path: str
     version: str
     env: TaskfileEnvs
     vars: TaskfileVars
     includes: TaskfileIncludes
     tasks: Dict[str, Any]
+
+    class Config:
+        exclude = ['path']
 
     @staticmethod
     def tryLoad(path):
@@ -46,7 +50,7 @@ class Taskfile(BaseModel):
         # Load the raw config file for this taskfile
         with open(path, "r") as stream:
             raw = yaml.safe_load(stream)
-            res = Taskfile(**raw)
+            res = Taskfile(path=path, **raw)
             return res
 
     @staticmethod

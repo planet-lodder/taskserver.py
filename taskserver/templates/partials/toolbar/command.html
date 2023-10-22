@@ -1,7 +1,7 @@
 <!-- {% if task %} -->
 <!-- 
 {% set name = task.name %}
-{% set path = taskfile._path %}
+{% set path = taskfile.path %}
 {% set cmd = "task " + name %}
 {% if path and path != "Taskfile.yaml" %}
 {% set cmd = "task -f " + path + " " + name %}
