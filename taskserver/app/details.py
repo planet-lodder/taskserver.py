@@ -12,12 +12,11 @@ def taskDetails(req, resp):
     node = Serialize.fromWeb(req, TaskRequest).selected(view.repo)
 
     # Show the task view if the selected node is a task
-    if node and node.task:
-        task = view.repo.findTask(node.name)
-        return view.index(task)
+    if node and node.summary:
+        return view.index(node)
 
     # Not a leaf (task) node, so we show the search results instead
-    result = view.list(node)
+    result = view.list(node.name + ':')
     return router.render_template('task/list.html', result)
 
 

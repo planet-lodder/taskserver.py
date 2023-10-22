@@ -1,5 +1,6 @@
 
 from taskserver.domain.models.Task import Task
+from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.use_cases.list import TaskListUseCase
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 
@@ -20,8 +21,8 @@ class TaskDetailUseCase(TaskfileUseCase):
         })
         return result
 
-    def list(self, task: Task):
-        search = task.name + ':'
+    def list(self, task_prefix: str):
+        search = task_prefix
         result = TaskListUseCase(self.repo).search(search)
         result.update({
             "title": search + '(list)',

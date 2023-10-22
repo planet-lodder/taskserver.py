@@ -5,6 +5,7 @@ from ansi2html.style import (get_styles)
 
 from taskserver.domain.models.Task import Task
 from taskserver.domain.models.TaskNode import TaskNode
+from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.serializers import Serializer
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 from taskserver.models.TaskfileConfig import TaskfileConfig
@@ -12,27 +13,24 @@ from taskserver.models.TaskfileConfig import TaskfileConfig
 
 class TaskRunUseCase(TaskfileUseCase):
 
-    def findTask(self, task_name: str) -> Task:
-        return self.root.find(task_name)
-
     def breakdown(self, task_name: str):
-        task = self.findTask(task_name)
+        taskfile = self.repo.taskfile
+        task = self.repo.findTask(task_name)
         breakdown = []
 
-        if task and self.taskfile:
+        if task and taskfile:
             # Not a leaf node, so show the search results instead
-            config = TaskfileConfig.resolve(self.path)
-            breakdown = config.breakdown(task.key)
+            breakdown = Taskfile.breakdown(taskfile.path, task.name)
 
         # Show the task view
         return {
             "task": task,
-            "taskfile": self.taskfile,
+            "taskfile": taskfile,
             "breakdown": breakdown,
         }
 
     def runDialog(self, task_name: str):
-        task = self.root.find(task_name)
+        task = self.repo.findTask(task_name)
         return {
             "taskfile": self.taskfile,
             "task": task,
@@ -40,7 +38,7 @@ class TaskRunUseCase(TaskfileUseCase):
         }
 
     def runVarDetails(self, task_name, key_name):
-        task = self.root.find(task_name)
+        task = self.repo.findTask(task_name)
         return {
             "taskfile": self.taskfile,
             "task": task,
@@ -76,9 +74,9 @@ class TaskRunUseCase(TaskfileUseCase):
         return result
 
     def tryRun(self, input: Serializer, node: TaskNode, vars={}):
-        task = self.repo.findTask(node.key)
+        task = self.repo.findTask(node.name)
         result = {
-            "title": task.key if task else "unknown",
+            "title": task.name if task else "unknown",
             "toolbar": "partials/toolbar/task.html",
             "taskfile": self.taskfile,
             "task": task,
@@ -91,7 +89,8 @@ class TaskRunUseCase(TaskfileUseCase):
                 env = vars
 
                 # Execute the task command (given the input HEAD and BODY)
-                output = self.taskfile.run(task.name, env)
+                path = self.taskfile.path
+                output, err, res = Taskfile.run(path, task.name, env)
                 output = self.format_output(output)
 
                 # Capture the details to the task that was spawned

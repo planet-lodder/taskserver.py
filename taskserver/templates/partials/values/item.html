@@ -1,6 +1,11 @@
 <!-- 
 {% set item_key = '.' + dest + '.' + key %} 
+
+{% set status_raw = '' %} 
+{% if mode == 'edit' %}
 {% set status_raw = taskfile.status(item_key) %} 
+{% endif %}
+
 {% set status_values = {
   "Unchanged": {
     "icon": "",

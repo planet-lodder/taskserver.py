@@ -45,9 +45,11 @@ class FilesystemTaskfileRepo(TaskfileRepository):
 
     def findTask(self, name) -> Optional[Task]:
         for task in filter(lambda t: t.name == name, self.tasks):
-            #print(f'Found: {task}')
+            print(f'Found [{name}]: {task}')
             return task
         return None
 
-    def getTaskNode(self, task_path: str) -> Optional[TaskNode]:        
+    def getMenu(self, task_path: str = '') -> Optional[TaskNode]:
+        if not task_path:
+            return self.nodes
         return self.nodes.find(task_path)

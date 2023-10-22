@@ -24,7 +24,7 @@ class TaskNode(BaseModel):
     name: str
 
     # Optional state and metadata
-    task: Optional[Task]  # TODO: Renamed from 'value'
+    task: Optional[Task]  
     open: Optional[bool]
 
     # Add collection of child nodes
@@ -127,3 +127,4 @@ class TaskNode(BaseModel):
 
     def update(self, info: TaskSummary):
         self.summary = info
+        

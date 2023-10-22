@@ -14,4 +14,4 @@ class TaskRequest(WebSerializer):
         self.file = self.req.query.get('file', 'Taskfile.yaml')
 
     def selected(self, repo: TaskfileRepository) -> TaskNode:
-        return repo.getTaskNode(self.name)
+        return repo.getMenu(self.name)

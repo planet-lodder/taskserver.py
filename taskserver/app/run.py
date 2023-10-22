@@ -31,9 +31,9 @@ def taskRun(req, resp):
     input = Serialize.fromWeb(req, TaskRunInputs)
 
     # Try and run the task (no additional parameters)
-    task = input.selected(view.repo)
+    node = input.selected(view.repo)
     vars = req.inputs('config.vars.', strip_prefix=True)
-    result = view.tryRun(input, task, vars)
+    result = view.tryRun(input, node, vars)
 
     return result
 
@@ -57,8 +57,8 @@ def taskRun(req, resp):
     input = Serialize.fromWeb(req, TaskRunInputs)
 
     # Run the task with the given parameters supplied by the modal dialog
-    task = input.selected(view.repo)
-    result = view.tryRun(input, task)
+    node = input.selected(view.repo)
+    result = view.tryRun(input, node)
     failed = "error" in result and result["error"]
 
     if failed:
