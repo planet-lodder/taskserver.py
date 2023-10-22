@@ -8,8 +8,7 @@ from typing import Any, List, Dict
 from pydantic import BaseModel
 import yaml
 
-from taskserver.domain.models.Task import Task, TaskBase, TaskVars
-from taskserver.domain.models.TaskSummary import TaskSummary
+from taskserver.domain.models.Task import Task, TaskVars
 
 
 class TaskfileIncludes(dict[str, str]):
@@ -75,8 +74,7 @@ class Taskfile(BaseModel):
         return output
 
     @staticmethod
-    def breakdown(filename, task_name):
-        print('....')
+    def breakdown(filename, task_name):        
         output = Taskfile.summary(filename, task_name)
         print(output)
 
@@ -119,7 +117,7 @@ class Taskfile(BaseModel):
         return commands
 
     @staticmethod
-    def listTasks(filename: str) -> List[TaskSummary]:
+    def listTasks(filename: str) -> List[Task]:
         try:
             # Run: task --list-all --json
             output, err, res = Taskfile.run(filename, '--list-all --json')
@@ -137,11 +135,10 @@ class Taskfile(BaseModel):
                 loc = item.get("location", {})
                 path = loc.get("taskfile", '')
                 path = path.removeprefix(base + "/")
-                task = TaskSummary(
+                task = Task(
                     path=path,
                     name=item.get("name"),
                     desc=item.get("desc"),
-                    summary=item.get('summary', ''),
                     up_to_date=bool(item.get('up_to_date', False)),
                 )
                 tasks.append(task)

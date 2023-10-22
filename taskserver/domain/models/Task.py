@@ -1,7 +1,7 @@
 
 import subprocess
 
-from typing import List, Optional, Required
+from typing import Any, Dict, List, Optional, Required
 from pydantic import BaseModel
 
 
@@ -23,7 +23,10 @@ class TaskBase(BaseModel):
     required: Optional[list]
 
 
-class Task(TaskBase):
+class Task(BaseModel):
     path: str
     name: str
-    key: str
+    desc: str
+    vars: Optional[Dict[str, str]]
+    data: Optional[TaskBase]
+    up_to_date: bool

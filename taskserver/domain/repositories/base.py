@@ -2,9 +2,8 @@
 from abc import ABC, abstractmethod
 from asyncio import Task
 from typing import Dict, List, Optional, Sequence
-from taskserver.domain.models.TaskNode import TaskNode
-from taskserver.domain.models.TaskSummary import TaskSummary
 
+from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.Taskfile import Taskfile
 
 
@@ -17,10 +16,10 @@ class TaskfileRepository(ABC):
         self._path = filename
 
     @abstractmethod
-    def listTasks(self) -> Sequence[TaskSummary]: ...
+    def listTasks(self) -> Sequence[Task]: ...
 
     @abstractmethod
-    def searchTasks(self, terms: str) -> Sequence[TaskSummary]: ...
+    def searchTasks(self, terms: str) -> Sequence[Task]: ...
 
     @abstractmethod
     def findTask(self, task_name: str) -> Optional[Task]: ...

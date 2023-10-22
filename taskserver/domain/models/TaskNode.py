@@ -3,7 +3,6 @@ from typing import Optional, List
 from pydantic import BaseModel
 
 from taskserver.domain.models.Task import Task
-from taskserver.domain.models.TaskSummary import TaskSummary
 
 
 TASK_THREADS = {
@@ -22,20 +21,17 @@ class TaskState(BaseModel):
 class TaskNode(BaseModel):
     path: str
     name: str
+    data: Optional[Task]
 
-    # Optional state and metadata
-    task: Optional[Task]  
+    # Optional state and child nodes
     open: Optional[bool]
-
-    # Add collection of child nodes
-    summary: Optional[TaskSummary]
     children: Optional[dict]
 
     @property
     def state(self) -> TaskState:
         has_child = len(self.children.keys()) > 0 if self.children else False
         running = self.path in TASK_THREADS and self.name in TASK_THREADS[self.path]
-        up_to_date = self.summary.up_to_date if self.summary else False
+        up_to_date = self.data.up_to_date if self.data else False
         return TaskState(
             has_child=has_child,
             running=running,
@@ -80,7 +76,7 @@ class TaskNode(BaseModel):
         # Default actions
         return []
 
-    def populate(self, data: List[TaskSummary], sep=':'):
+    def populate(self, data: List[Task], sep=':'):
         tasks = {t.name: t for t in data}
         path_names = sorted(tasks.keys())
         for name in path_names:
@@ -95,7 +91,7 @@ class TaskNode(BaseModel):
 
                 if not len(keys):
                     # Leaf element: This is the node where the task is located
-                    node.update(task)
+                    node.data = task
 
     def child(self, name):
         if not self.children:
@@ -124,7 +120,3 @@ class TaskNode(BaseModel):
             return self.children[key]
         # Not found
         return None
-
-    def update(self, info: TaskSummary):
-        self.summary = info
-        
