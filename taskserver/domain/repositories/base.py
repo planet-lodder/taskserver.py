@@ -1,24 +1,29 @@
 
 from abc import ABC, abstractmethod
 from asyncio import Task
-from typing import List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
+from taskserver.domain.models.TaskSummary import TaskSummary
 
 from taskserver.domain.models.Taskfile import Taskfile
+from taskserver.models.TaskNode import TaskNode
 
 
-class TaskfileRepository(ABC):    
+class TaskfileRepository(ABC):
     taskfile: Taskfile
+
     _path: str
 
     def __init__(self, filename: str):
         self._path = filename
 
     @abstractmethod
-    def listTasks(self) -> Sequence[Task]: ...
+    def listTasks(self) -> Sequence[TaskSummary]: ...
 
     @abstractmethod
-    def searchTasks(self, terms: str) -> Sequence[Task]: ...
+    def searchTasks(self, terms: str) -> Sequence[TaskSummary]: ...
 
     @abstractmethod
     def findTask(self, task_name: str) -> Optional[Task]: ...
 
+    @abstractmethod
+    def getTaskNodes(self, task_path: str = '') -> Optional[TaskNode]: ...

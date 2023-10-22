@@ -19,8 +19,8 @@ class TaskNode(BaseModel):
     # Add collection of child nodes
     children: Optional[dict]
 
-    def populate(self, data: List[Task], sep = ':'):        
-        tasks = {t.name: t for t in list}
+    def populate(self, data: List[Task], sep=':'):
+        tasks = {t.name: t for t in data}
         path_names = sorted(tasks.keys())
         for name in path_names:
             # Build a hirarchical tree
@@ -40,7 +40,11 @@ class TaskNode(BaseModel):
         if not name in self.children:
             # Create an new child node
             subkey = name if not self.key else self.key + ':' + name
-            self.children[name] = TaskNode(subkey, name)
+            self.children[name] = TaskNode(
+                file=self.file,
+                key=subkey,
+                name=name
+            )
         return self.children[name]
 
     def find(self, key):

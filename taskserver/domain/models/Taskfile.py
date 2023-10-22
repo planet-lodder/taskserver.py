@@ -3,11 +3,12 @@
 import json
 import os
 import subprocess
-from typing import List
+from typing import Any, List, Dict
 from pydantic import BaseModel
 import yaml
 
-from taskserver.domain.models.Task import Task, TaskVars
+from taskserver.domain.models.Task import Task, TaskBase, TaskVars
+from taskserver.domain.models.TaskSummary import TaskSummary
 
 
 class TaskfileIncludes(dict[str, str]):
@@ -27,7 +28,15 @@ class Taskfile(BaseModel):
     env: TaskfileEnvs
     vars: TaskfileVars
     includes: TaskfileIncludes
-    #tasks: List[Task]
+    tasks: Dict[str, Any]
+
+    @staticmethod
+    def tryLoad(path):
+        try:
+            # Try and load existing taskfile
+            return Taskfile.load(path)
+        except:
+            return Taskfile(version=3, vars={}, tasks={})
 
     @staticmethod
     def load(path):
@@ -56,10 +65,11 @@ class Taskfile(BaseModel):
             return None, str(e), None
 
     @staticmethod
-    def listAll(filename) -> List[Task]:
+    def listTasks(filename: str) -> List[TaskSummary]:
         try:
             # Run: task --list-all --json
             output, err, res = Taskfile.run(filename, '--list-all --json')
+
             # Parse the JSON into a list of tasks
             obj = json.loads(output)
 
@@ -73,15 +83,12 @@ class Taskfile(BaseModel):
                 loc = item.get("location", {})
                 path = loc.get("taskfile", '')
                 path = path.removeprefix(base + "/")
-                task = Task(
-                    file=path,
-                    key=item.get("name"),
+                task = TaskSummary(
+                    path=path,
                     name=item.get("name"),
                     desc=item.get("desc"),
                     summary=item.get('summary', ''),
-                    vars=item.get('vars', {}),
-                    sources=item.get('sources', []),
-                    generates=item.get('generates', {}),
+                    up_to_date=bool(item.get('up_to_date', False)),
                 )
                 tasks.append(task)
             return tasks
