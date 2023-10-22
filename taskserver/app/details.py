@@ -12,8 +12,8 @@ def taskDetails(req, resp):
     node = Serialize.fromWeb(req, TaskRequest).selected(view.repo)
 
     # Show the task view if the selected node is a task
-    if node and node.value:
-        task = view.repo.findTask(node.key)
+    if node and node.task:
+        task = view.repo.findTask(node.name)
         return view.index(task)
 
     # Not a leaf (task) node, so we show the search results instead

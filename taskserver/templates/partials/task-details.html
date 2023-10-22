@@ -1,6 +1,6 @@
 <!-- {% if task %} -->
 <!-- 
-{% set name = task.key %}
+{% set name = task.name %}
 {% set path = taskfile._path %}
 -->
 <div
@@ -17,11 +17,11 @@
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
           <a class="p-2 font-bold">{{ path }}</a>
-          <!-- {% if path != task.file %} -->
+          <!-- {% if path != task.path %} -->
           <span class="p-2 opacity-50">
             {% include 'icons/forward.svg' %}
           </span>
-          <a class="p-2 font-bold">{{ task.file }}</a>
+          <a class="p-2 font-bold">{{ task.path }}</a>
           <!-- {% endif %} -->
         </div>
         
@@ -33,8 +33,8 @@
 
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Description:</label>
-          {% if task.value and task.value.desc %}
-          <div class="p-2 flex-grow">{{ task.value.desc }}</div>
+          {% if task.task and task.task.desc %}
+          <div class="p-2 flex-grow">{{ task.task.desc }}</div>
           {% else %}
           <em class="p-2 text-gray-500 opacity-50">No description available</em>
           {% endif %}

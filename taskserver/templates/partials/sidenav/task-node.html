@@ -1,0 +1,26 @@
+<!-- {% if item %} -->
+<!-- 
+{% set name = item.name %} 
+{% set open = item.open %} 
+{% set icon = 'icons/document.svg' %}
+{% set style = 'text-gray-600 dark:text-gray-300' %} 
+{% set htmx = 'hx-target="main" hx-get="/task/details?name='+name+'"' %} 
+{% set actions = item.actions %} 
+{% set children = item.children %} 
+
+{% set state = item.state %} 
+{% if state %}
+  {% if state.running %}
+    {% set style = 'text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 dark:hover:text-blue-200 hover:text-blue-700' %} 
+  {% elif state.up_to_date == True %}
+    {% set icon = 'icons/document-check.svg' %}
+    {% set style = 'text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-800 dark:hover:text-green-200 hover:text-green-700' %} 
+  {% elif state.up_to_date == False %}
+    {% set icon = 'icons/document-text.svg' %}
+  {% endif %}
+{% endif %}
+-->
+<!-- {% endif %} -->
+
+{% include 'partials/sidenav/menu-item.html' %}
+

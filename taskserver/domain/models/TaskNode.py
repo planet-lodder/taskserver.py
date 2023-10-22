@@ -1,25 +1,85 @@
 
-from ast import List
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 from taskserver.domain.models.Task import Task
+from taskserver.domain.models.TaskSummary import TaskSummary
+
+
+TASK_THREADS = {
+    "Taskfile.yaml": {
+        "start": [{"pid": 999}]
+    }
+}
+
+
+class TaskState(BaseModel):
+    has_child: bool
+    running: bool
+    up_to_date: bool
 
 
 class TaskNode(BaseModel):
-    file: str           # TODO: Renamed from 'path'
-    key: str
+    path: str
     name: str
 
     # Optional state and metadata
     task: Optional[Task]  # TODO: Renamed from 'value'
-    info: Optional[dict]  # TODO: Renamed from 'state'
     open: Optional[bool]
 
     # Add collection of child nodes
     children: Optional[dict]
 
-    def populate(self, data: List[Task], sep=':'):
+    @property
+    def state(self) -> TaskState:
+        has_child = len(self.children.keys()) > 0
+        running = self.name in TASK_THREADS["Taskfile.yaml"]
+        up_to_date = self.name == 'clean'
+        return TaskState(
+            has_child=has_child,
+            running=running,
+            up_to_date=up_to_date
+        )
+
+    @property
+    def actions(self):
+        task = self
+
+        if self.name in TASK_THREADS["Taskfile.yaml"]:
+            # Task is being executed or run
+            return [
+                {
+                    "name": "Task Vars",
+                    "icon": "icons/arrow-path.svg",
+                    "href": "/task/start",
+                    "style": "animate-spin"
+                },
+                {
+                    "name": "Run Task",
+                    "icon": "icons/stop.svg",
+                    "href": "/task/build",
+                    "style": "opacity-100"
+                }
+            ]
+
+        if task:
+            return [
+                {
+                    "name": "Task Vars",
+                    "icon": "icons/list.svg",
+                    "htmx": f'hx-target="main" hx-get="/task/details?name={self.name}"'
+                },
+                {
+                    "name": "Run Task",
+                    "icon": "icons/play.svg",
+                    "htmx": f'hx-get="/task/run/dialog?name={self.name}" hx-target="modal" hx-trigger="click" onclick="event.preventDefault()"'
+                }
+            ]
+
+        # Default actions
+        return []
+
+    def populate(self, data: List[TaskSummary], sep=':'):
         tasks = {t.name: t for t in data}
         path_names = sorted(tasks.keys())
         for name in path_names:
@@ -37,13 +97,14 @@ class TaskNode(BaseModel):
                     node.update(task)
 
     def child(self, name):
+        if not self.children:
+            self.children = {}
         if not name in self.children:
             # Create an new child node
-            subkey = name if not self.key else self.key + ':' + name
+            subkey = name if not self.name else self.name + ':' + name
             self.children[name] = TaskNode(
-                file=self.file,
-                key=subkey,
-                name=name
+                path=self.path,
+                name=subkey,
             )
         return self.children[name]
 

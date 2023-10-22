@@ -1,11 +1,11 @@
 
 from typing import Dict, List, Optional, Sequence
 from taskserver.domain.models.Task import Task, TaskBase
+from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.TaskSummary import TaskSummary
 from taskserver.domain.models.Taskfile import Taskfile
 
 from taskserver.domain.repositories.base import TaskfileRepository
-from taskserver.models.TaskNode import TaskNode
 from taskserver.models.TaskfileConfig import TaskfileConfig
 
 

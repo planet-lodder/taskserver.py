@@ -1,16 +1,16 @@
 <!-- {% if menu %} -->
 <div class="flex flex-col justify-start flex-1 py-6 px-3">
   <div class="">
-    <!-- {% with title=menu.name %} -->
+    <!-- {% with title="Task Actions" %} -->
     {% include "partials/sidenav/header.html" %}
     <!-- {% endwith %} -->
   </div>
   <div class="flex flex-col justify-start flex-1">
     <!-- {% for name,item in menu.children.items() %}{% if item.children %} -->
-    {% include "partials/sidenav/menu-item.html" %}    
+    {% include "partials/sidenav/task-node.html" %}    
     <!-- {% endif %}{% endfor %} -->
-    <!-- {% for name,item in menu.children.items() %}{% if not item.children %} -->
-    {% include "partials/sidenav/menu-item.html" %}    
+    <!-- {% for name,item in menu.children.items() %}{% if not item.children %} -->    
+    {% include "partials/sidenav/task-node.html" %}    
     <!-- {% endif %}{% endfor %} -->
   </div>
 </div>

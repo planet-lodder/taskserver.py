@@ -16,12 +16,12 @@ class TaskDetailUseCase(TaskfileUseCase):
         result = self.base(task)
         result.update({
             "toolbar": "partials/toolbar/task.html",
-            "title": task.key if task else "(unknown)",
+            "title": task.name if task else "(unknown)",
         })
         return result
 
     def list(self, task: Task):
-        search = task.key + ':'
+        search = task.name + ':'
         result = TaskListUseCase(self.repo).search(search)
         result.update({
             "title": search + '(list)',
@@ -33,13 +33,13 @@ class TaskDetailUseCase(TaskfileUseCase):
     def history(self, task: Task):
         result = self.base(task)
         result.update({
-            "title": f'{task.key} - Run History',
+            "title": f'{task.name} - Run History',
         })
         return result
 
     def graph(self, task: Task):
         result = self.base(task)
         result.update({
-            "title": f'{task.key} - Dependency Graph',
+            "title": f'{task.name} - Dependency Graph',
         })
         return result

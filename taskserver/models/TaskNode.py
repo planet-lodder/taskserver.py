@@ -5,14 +5,9 @@ from typing import List
 from taskserver.domain.models.Task import Task
 
 
-TASK_THREADS = {
-    "Taskfile.yaml": {
-        "serve": [{"pid": 999}]
-    }
-}
 
 
-class TaskNode():
+class TaskOldNode():
     def __init__(self, key, name, value=None, state='', open=False, task_list=[]):
         self.key = key
         self.name = name
@@ -55,9 +50,9 @@ class TaskNode():
     def style(self):
         task = self.value
 
-        if self.key in TASK_THREADS["Taskfile.yaml"]:
-            # Task is being executed or run
-            return "text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 dark:hover:text-blue-200 hover:text-blue-700"
+        #if self.key in TASK_THREADS["Taskfile.yaml"]:
+        #    # Task is being executed or run
+        #    return "text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 dark:hover:text-blue-200 hover:text-blue-700"
 
         # Check the current state
         if task and "up_to_date" in task and task["up_to_date"]:
@@ -131,7 +126,7 @@ class TaskNode():
             # Create an new child node
             subkey = name if not self.key else self.key + ':' + name
 
-            self.children[name] = TaskNode(subkey, name)
+            self.children[name] = TaskOldNode(subkey, name)
         return self.children[name]
 
     def find(self, key):

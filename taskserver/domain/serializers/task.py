@@ -1,4 +1,4 @@
-from taskserver.models.TaskNode import TaskNode
+from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.serializers.web import WebSerializer
 from taskserver.domain.repositories.base import TaskfileRepository
 
@@ -14,4 +14,4 @@ class TaskRequest(WebSerializer):
         self.file = self.req.query.get('file', 'Taskfile.yaml')
 
     def selected(self, repo: TaskfileRepository) -> TaskNode:
-        return repo.nodes.find(self.name)
+        return repo.getTaskNode(self.name)

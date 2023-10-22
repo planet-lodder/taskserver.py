@@ -1,26 +1,30 @@
 <!-- {% if item %} -->
 <!-- 
-{% set key = item.key %} 
-{% set name = item.name %} 
-{% set open = item.open %} 
-{% set icon = item.icon %}
-{% set style = item.style %} 
-{% set htmx = item.htmx %} 
-{% set actions = item.actions %} 
-{% set children = item.children %} 
+{% set name = name or item.name %} 
+{% set open = open or item.open %} 
+{% set icon = icon or item.icon %}
+{% set style = style or item.style %} 
+{% set htmx = htmx or item.htmx %} 
+{% set actions = actions or item.actions %} 
+{% set children = children or item.children %} 
 -->
 <!-- {% endif %} -->
+
 <!-- {% if children and children.keys() %} -->
 <!-- 
-{% set icon_htmx = 'hx-post="/task/sidenav/toggle?name='+key+'" hx-target="closest .menu-item" hx-swap="outerHTML"' %} 
-{% set icon_style = 'cursor-pointer' %} 
+  {% set icon = 'icons/folder-minus.svg' if open else 'icons/folder-plus.svg' %}
+  {% set icon_htmx = 'hx-post="/task/sidenav/toggle?name='+name+'" hx-target="closest .menu-item" hx-swap="outerHTML"' %} 
+  {% set icon_style = 'cursor-pointer' %} 
 -->
 <!-- {% endif %} -->
-<div class="menu-item">
+
+<div
+  class="menu-item {{ style | default('text-gray-600 dark:text-gray-300') }}"
+>
   <div
-    class="{{ style | default('text-gray-600 dark:text-gray-300') }} flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+    class="flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
   >
-    <span class="w-6 h-6 {{icon_style}}" {{icon_htmx}}>
+    <span class="w-6 h-6 cursor-pointer" {{ icon_htmx or htmx }}>
       {% if icon %}{% include icon %}{% endif %}
       <input type="hidden" name="open" value="{{open}}" />
     </span>
@@ -55,14 +59,18 @@
     </span>
     <!-- {% endif %} -->
   </div>
+
   <!-- {% if children and open %} -->
   <div class="flex flex-col ml-7">
     <!-- {% for name,item in children.items() %}{% if item.children %} -->
-    {% include "partials/sidenav/menu-item.html" %}    
+    <!-- Sort by folders first -->
+    {% include "partials/sidenav/task-node.html" %}
     <!-- {% endif %}{% endfor %} -->
     <!-- {% for name,item in children.items() %}{% if not item.children %} -->
-    {% include "partials/sidenav/menu-item.html" %}    
+    <!-- Show leaf nodes after all folders -->
+    {% include "partials/sidenav/task-node.html" %}
     <!-- {% endif %}{% endfor %} -->
   </div>
   <!-- {% endif %} -->
+  
 </div>

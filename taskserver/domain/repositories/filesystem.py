@@ -1,11 +1,11 @@
 
 from typing import Optional, Sequence
 from taskserver.domain.models.Task import Task
+from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.TaskSummary import TaskSummary
 from taskserver.domain.models.Taskfile import Taskfile
 
 from taskserver.domain.repositories.base import TaskfileRepository
-from taskserver.models.TaskNode import TaskNode
 from taskserver.models.TaskfileConfig import TaskfileConfig
 
 
@@ -18,7 +18,9 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         self.taskfile = Taskfile.tryLoad(filename)
         self.tasks = Taskfile.listTasks(filename)
 
-        self.nodes = TaskNode('', 'Task Actions', task_list=self.tasks)
+        # Generate the node list for the side navigation
+        self.nodes = TaskNode(path=filename, name='')
+        self.nodes.populate(self.tasks)
 
     def listTasks(self) -> Sequence[TaskSummary]:
         return self.tasks
@@ -43,8 +45,9 @@ class FilesystemTaskfileRepo(TaskfileRepository):
 
     def findTask(self, name) -> Optional[Task]:
         for task in filter(lambda t: t.name == name, self.tasks):
+            print(f'Found: {task}')
             return task
         return None
 
-    def getTaskNodes(self, task_path: str = '') -> Optional[TaskNode]: 
+    def getTaskNode(self, task_path: str) -> Optional[TaskNode]:        
         return self.nodes.find(task_path)
