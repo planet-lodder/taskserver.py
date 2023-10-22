@@ -28,13 +28,14 @@ class TaskNode(BaseModel):
     open: Optional[bool]
 
     # Add collection of child nodes
+    summary: Optional[TaskSummary]
     children: Optional[dict]
 
     @property
     def state(self) -> TaskState:
-        has_child = len(self.children.keys()) > 0
-        running = self.name in TASK_THREADS["Taskfile.yaml"]
-        up_to_date = self.name == 'clean'
+        has_child = len(self.children.keys()) > 0 if self.children else False
+        running = self.path in TASK_THREADS and self.name in TASK_THREADS[self.path]
+        up_to_date = self.summary.up_to_date if self.summary else False
         return TaskState(
             has_child=has_child,
             running=running,
@@ -124,5 +125,5 @@ class TaskNode(BaseModel):
         # Not found
         return None
 
-    def update(self, data: Task):
-        self.task = data
+    def update(self, info: TaskSummary):
+        self.summary = info

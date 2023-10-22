@@ -24,6 +24,6 @@ class TaskBase(BaseModel):
 
 
 class Task(TaskBase):
-    file: str
-    key: str
+    path: str
     name: str
+    key: str

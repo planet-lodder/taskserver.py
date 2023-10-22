@@ -45,7 +45,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
 
     def findTask(self, name) -> Optional[Task]:
         for task in filter(lambda t: t.name == name, self.tasks):
-            print(f'Found: {task}')
+            #print(f'Found: {task}')
             return task
         return None
 
