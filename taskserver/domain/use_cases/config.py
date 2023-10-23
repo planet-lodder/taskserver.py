@@ -1,8 +1,8 @@
+import os
 import random
 import string
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 from taskserver.models.TaskfileConfig import TaskfileConfig
-from taskserver.models.TaskfileInclude import TaskfileInclude
 
 HINT_EMPTY_VALUE = "Enter path to Taskfile.yaml or directory containing one"
 
@@ -25,7 +25,7 @@ class TaskConfigUseCase(TaskfileUseCase):
         if not value and key in self.taskfile.includes:
             # Load current value from config
             value = self.taskfile.includes[key]
-        
+
         return {
             "key": key or "",
             "value": value or "",
@@ -45,18 +45,53 @@ class TaskConfigUseCase(TaskfileUseCase):
             "placeholder": hint,
         }
 
+    def validateInclude(self, old_key, key, value):
+        errors = {}
+
+        def error(key, message):
+            errors[key] = errors[key] if key in errors else []
+            errors[key].append(message)
+
+        if not key:
+            # Key is required
+            error("key", "Key name is required")
+
+        if not value:
+            # Value is required
+            error("value", "Value is required")
+
+        if len(errors.keys()):
+            # Basic validation failed, no need to run additional checks
+            return errors
+
+        if key and not key == old_key:
+            if key in self.taskfile.includes:
+                # Key is already defined, fail validation
+                error("key", 'Key with this name already exists')
+
+        # Check that the path exists
+        basepath = os.path.dirname(self.taskfile._path)
+        filepath = os.path.join(basepath, value)
+        if not os.path.exists(filepath):
+            # File or folder does not exists
+            error("value", "File or folder path does not point to a taskfile")
+
+        if os.path.isdir(filepath) and not os.path.isfile(filepath + "Taskfile.yaml"):
+            # Cannot find a valid taskfile
+            error(
+                "value", f"Cannot resolve `{filepath}Taskfile.yaml` to a valid file.")
+
+        return errors
+
     def updateInclude(self, id, key, value):
         # Validate inputs for the given taskfile include
-        taskfile = self.taskfile
-        errors = TaskfileInclude(taskfile, key, value).validate(key, value)
+        errors = self.validateInclude(id, key, value)
         changed = False
         focus = f'key_{id}' if not key else f'value_{id}'
 
-        if key and not key == id:
-            if key in self.taskfile.includes:
-                # Key is already defined, fail validation
-                errors['key'] = [] if not 'key' in errors else errors['key']
-                errors['key'].append('Key with this name already exists')
+        if key != id:
+            if errors.get('key'):
+                # Key validation vailed
                 focus = f'key_{id}'
 
             elif id in self.taskfile.includes:

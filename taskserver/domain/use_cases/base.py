@@ -6,13 +6,13 @@ from taskserver.domain.repositories import Repository
 from taskserver.domain.repositories.base import TaskfileRepository
 
 
-class TaskfileUseCase(ABC):
+class BaseUseCase(ABC):
 
     def __init__(self, repo: TaskfileRepository):
         self.repo = repo
 
 
-T = TypeVar("T", bound=TaskfileUseCase)
+T = TypeVar("T", bound=BaseUseCase)
 
 
 class UseCase():
