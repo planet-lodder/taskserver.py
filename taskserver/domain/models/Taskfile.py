@@ -40,7 +40,7 @@ class Taskfile(BaseModel):
             # Try and load existing taskfile
             return Taskfile.load(path)
         except:
-            return Taskfile(version=3, vars={}, tasks={})
+            return Taskfile(path=path, includes={}, version=3, env={}, vars={}, tasks={})
 
     @staticmethod
     def load(path):
@@ -54,16 +54,27 @@ class Taskfile(BaseModel):
             return res
 
     @staticmethod
-    def run(filename, command, extra_args='') -> [str, str, subprocess.CompletedProcess]:
+    def run(filename, command, vars={}, extra_args='') -> [str, str, subprocess.CompletedProcess]:
         try:
+
+            # Set the ENV vars to pass to the process
+            env = os.environ.copy()
+            env.update(vars)
+
+            # Build the command and run as sub process
             pop = f"task -t {filename} {command} -- {extra_args}".split(" ")
             res = subprocess.run(
                 pop,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
+                env=env
             )
+
+            # Get the output and error streams
             out = res.stdout.decode().strip()
             err = res.stderr.decode().strip()
+
+            # Return the execution details
             return out, err, res
         except Exception as e:
             return None, str(e), None
@@ -74,9 +85,8 @@ class Taskfile(BaseModel):
         return output
 
     @staticmethod
-    def breakdown(filename, task_name):        
+    def breakdown(filename, task_name):
         output = Taskfile.summary(filename, task_name)
-        print(output)
 
         # Strip everything up to the commands
         output = re.sub(r'(?is).*commands:', '', output, flags=re.MULTILINE)

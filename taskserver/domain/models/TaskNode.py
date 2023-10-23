@@ -42,7 +42,7 @@ class TaskNode(BaseModel):
     def actions(self):
         task = self
 
-        if self.name in TASK_THREADS[self.path]:
+        if self.state.running:
             # Task is being executed or run
             return [
                 {

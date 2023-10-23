@@ -12,7 +12,7 @@ from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 
 class TaskRunUseCase(TaskfileUseCase):
 
-    def breakdown(self, task_name: str):
+    def taskBreakdown(self, task_name: str):
         taskfile = self.repo.taskfile
         task = self.repo.findTask(task_name)
         breakdown = []
@@ -57,7 +57,7 @@ class TaskRunUseCase(TaskfileUseCase):
                 env = os.environ.copy()
 
                 # Execute the task command (given the input HEAD and BODY)
-                output = self.taskfile.run(task.name, env)
+                output, _, _ = Taskfile.run(self.taskfile.path, task.name, env)
                 output = self.format_output(output)
 
                 # Capture the details to the task that was spawned
@@ -115,8 +115,8 @@ class TaskRunUseCase(TaskfileUseCase):
         all_styles = get_styles(dark_bg)
         backgrounds = all_styles[:5]
         used_styles = filter(
-            lambda e: e.klass.lstrip(
-                ".") in formatted["styles"], all_styles
+            lambda e: e.klass.lstrip(".") in formatted["styles"],
+            all_styles
         )
         style = "\n".join(
             list(map(str, backgrounds + list(used_styles))))
