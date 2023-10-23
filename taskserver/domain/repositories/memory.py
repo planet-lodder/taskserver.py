@@ -13,20 +13,34 @@ class InMemoryTaskRepository(TaskfileRepository):
     menu: TaskNode
 
     def __init__(self, filename: str):
-        super().__init__(filename)
-
+        super().__init__(filename)  # Init base class
         # Get an in memory cache for the taskfile info
-        self.taskfile = Taskfile.tryLoad(filename)
-        self.tasks = Taskfile.listTasks(filename)
-
-        # Keep track if all the task nodes
+        self.taskfile = Taskfile(
+            path=filename,
+            includes={},
+            version=3,
+            env={},
+            vars={},
+            tasks={}
+        )
+        self.tasks = []
         self.menu = TaskNode(name='', path=filename)
-        self.menu.populate(self.tasks)
 
-    def listTasks(self) -> Sequence[Task]:
-        return self.tasks
+    # Return cached taskfile
+    def getConfig(self) -> Taskfile: return self.taskfile
 
+    # Just return config (in-memory editing)
+    def getConfigEdits(self) -> Taskfile: return self.getConfig()
+
+    # Try and save the in-memory taskfile to disk
+    def saveConfig(self) -> Taskfile: raise Exception('TODO: Save...')
+
+    # List all available tasks in the in-memory cache
+    def listTasks(self) -> Sequence[Task]: return self.tasks
+
+    # Filter tasks on the search terms
     def searchTasks(self, terms) -> Sequence[Task]:
+        # In-memory search, match on name or desc
         def matches(val, term):
             return term.lower() in val.lower()
 
@@ -37,18 +51,16 @@ class InMemoryTaskRepository(TaskfileRepository):
                 for term in terms.split(' '):
                     found = False
                     found = found or matches(task.name, term)
-                    found = found or matches(task.desc, term)                    
+                    found = found or matches(task.desc, term)
                     match_all = match_all and found
             return match_all
-
         return self.tasks if not len(terms) else list(filter(search, self.tasks))
 
+    # Try and find a task from the current in-memory cache, or return None
     def findTask(self, name) -> Optional[Task]:
-        for task in filter(lambda t: t.name == name, self.tasks.items()):
-            return task
-        return None
+        found = filter(lambda t: t.name == name, self.tasks.items())
+        return next(found, None)
 
+    # Get the menu item associated with the task
     def getMenu(self, task_path: str = '') -> Optional[TaskNode]:
-        if not task_path:
-            return self.menu
-        return self.menu.find(task_path)
+        return self.menu if not task_path else self.menu.find(task_path)

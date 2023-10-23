@@ -1,11 +1,11 @@
 <!-- {% if key %} -->
 <!-- 
 {% set item_key = '.includes.' + key %} 
-{% set status_raw = taskfile.status(item_key) %} 
+{% set status = status if not errors else "Error" %} 
 {% set status_values = {
   "Unchanged": {
     "icon": "icons/document.svg",
-    "style": "text-gray-500",
+    "style": "text-gray-600 dark:text-gray-300",
   },
   "Changed": {
     "icon": "icons/document-text.svg",
@@ -15,18 +15,20 @@
     "icon": "icons/document-minus.svg",
     "style": "text-red-500 line-through",
   },
-  "Added": {
+  "New": {
     "icon": "icons/document-plus.svg",
     "style": "text-green-500",
   }
 }
 %}
-{% set status = status_values[status_raw] | default(status_values["Unchanged"])  %} 
+{% set status_obj = status_values[status] | default(status_values["Unchanged"])  %} 
+{% set icon = status_obj.icon %} 
+{% set style = status_obj.style %} 
 -->
-<a id="include_{{key}}" class="flex flex-row {{status.style}}">
+<a id="include_{{key}}" class="flex flex-row {{style}}">
   <div class="w-6 py-2 mr-1">    
     <!-- {% block icon %} -->
-    {% include status.icon %}
+    {% include icon %}
     <!-- {% endblock icon %} -->
   </div>
   <div class="p-2 w-24 font-bold">

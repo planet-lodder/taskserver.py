@@ -1,4 +1,5 @@
 
+from copy import deepcopy
 from typing import Optional, Sequence
 from taskserver.domain.models.Task import Task
 from taskserver.domain.models.TaskNode import TaskNode
@@ -7,6 +8,8 @@ from taskserver.domain.repositories.base import TaskfileRepository
 
 
 class FilesystemTaskfileRepo(TaskfileRepository):
+    taskfile: Taskfile
+    edits: Taskfile = None  # Keep track of changed values
 
     def __init__(self, filename: str):
         super().__init__(filename)
@@ -18,6 +21,17 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         # Generate the node list for the side navigation
         self.menu = TaskNode(path=filename, name='')
         self.menu.populate(self.tasks)
+
+    # Return the cached taskfile config
+    def getConfig(self) -> Taskfile: return self.taskfile
+
+    # Create a copy of the originals, for editing
+    def getConfigEdits(self) -> Taskfile:
+        self.edits = self.edits or deepcopy(self.taskfile)
+        return self.edits
+
+    def saveConfig(self) -> Taskfile:
+        raise Exception('TODO: Save...')
 
     def listTasks(self) -> Sequence[Task]:
         return self.tasks

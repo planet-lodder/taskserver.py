@@ -76,7 +76,7 @@ class TaskfileConfig(dict):
                 if not new and old:
                     return "Deleted"
                 if new and not old:
-                    return "Added"
+                    return "New"
                 if new and old and json.dumps(new) != json.dumps(old):
                     return "Changed"
                 return "Unchanged"

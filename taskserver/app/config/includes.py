@@ -13,18 +13,19 @@ class ConfigIncludeInputs(WebSerializer):
     action: str = ''
 
     def parse(self):
+        # Extract the relevant inputs from the request
         self.path = self.req.query.get('path', 'Taskfile.yaml')
         self.id = self.req.query.get('id', '')
         self.key = self.req.input('key', self.id)
         self.value = self.req.input('value')
         self.action = self.req.input('action')
 
+        # Get action from the GET query params (if defined)
         if not self.action and 'action' in self.req.query:
-            # Get action from the GET query params
             self.action = self.req.query['action']
 
+        # Look for request originating from HTMX interactions (if HTMX request)
         if not self.key and self.htmx:
-            # Look for request originating from HTMX interactions
             if requested_key := self.htmx.prompt:
                 self.key = requested_key  # User entered new key name from prompt
 
@@ -55,7 +56,7 @@ def taskIncludeEdit(req, resp):
 
     # If the edit action was triggered, we fetch the current value to display
     if input.action == "edit" and input.key and not input.value:
-        input.value = view.taskfile.includes.get(input.key)
+        input.value = view.taskfile.includes.get(input.key)        
 
     # Validate input and create data context object
     result = view.updateInclude(input.id, input.key, input.value)
