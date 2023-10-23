@@ -40,7 +40,7 @@ class TaskNode(BaseModel):
 
     @property
     def actions(self):
-        task = self
+        task = self.data
 
         if self.state.running:
             # Task is being executed or run
