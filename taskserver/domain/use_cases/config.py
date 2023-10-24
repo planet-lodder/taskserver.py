@@ -2,6 +2,7 @@ from functools import reduce
 import os
 import random
 import string
+from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 
 HINT_EMPTY_VALUE = "Enter path to Taskfile.yaml or directory containing one"
@@ -17,12 +18,11 @@ class TaskConfigUseCase(TaskfileUseCase):
     def edits(self): return self.repo.getConfigEdits()
 
     def index(self, trigger_import=False):
-        taskfile = self.edits  # Load a shadow copy of the config for editing
+        # Load a shadow copy of the config for editing
+        taskfile = self.edits
 
-        # Detect any changed values
-        changes = {}
-        for key in taskfile.includes.keys():
-            changes[key] = self.getStatusChange('includes', key)
+        # Build a list of all status changes in config values
+        changes = self.getStatusForConfigValues(taskfile)
 
         return {
             "title": "Configuration",
@@ -31,6 +31,17 @@ class TaskConfigUseCase(TaskfileUseCase):
             "changes": changes,
             "trigger_import": trigger_import
         }
+
+    def getStatusForConfigValues(self, taskfile: Taskfile):
+        # Build a list of all status changes
+        changes = {}
+        for key in taskfile.includes.keys():
+            changes[f'includes.{key}'] = self.getStatusChange('includes', key)
+        for key in taskfile.env.keys():
+            changes[f'env.{key}'] = self.getStatusChange('env', key)
+        for key in taskfile.vars.keys():
+            changes[f'vars.{key}'] = self.getStatusChange('vars', key)
+        return changes
 
     def getStatusChange(self, property, key):
         # Get property values
@@ -42,7 +53,7 @@ class TaskConfigUseCase(TaskfileUseCase):
         updated = new.get(key) if type(new) == dict else None
 
         # Compare and return the status
-        if value == None and updated:
+        if value == None and updated != None:
             return "New"  # New value detected
         elif updated == None:
             return "Deleted"  # Delete the existing value
@@ -167,6 +178,7 @@ class TaskConfigUseCase(TaskfileUseCase):
     def saveConfig(self, partial_updates: dict[str, str] = {}):
         # Apply partial values to edited taskfile (if not already set)
         for update_path, value in partial_updates.items():
+            self.updateSubPath(self.edits, update_path, value)
             # Split the key
             target, subkey = update_path.split('.', 1)
             match target:
@@ -184,26 +196,27 @@ class TaskConfigUseCase(TaskfileUseCase):
         }
         return result
 
-    # -----------------------------------------------------------------------
-    # TODO: Deprecate the partial logic in favour of explicit
-    # -----------------------------------------------------------------------
+    def updateSubPath(self, source: Taskfile, update_path: str, value):
+        target, subkey = update_path.split('.', 1)
+        match target:
+            case 'includes': self.edits.includes[subkey] = value
+            case 'env': self.edits.env[subkey] = value
+            case 'vars': self.edits.vars[subkey] = value
+            case _: raise Exception(f'Partial update "{update_path}" not supported.')
 
     def updateValue(self, dest, key, value):
-        taskfile = self.taskfile
+        taskfile = self.edits
 
-        print(f'Update config.{dest}: {taskfile.path}')
-        print(f' --> config[{dest}][{key}] == {value}')
-
-        values = taskfile[dest] = taskfile[dest] if dest in taskfile else {}
-        if not key in values or not value == values[key]:
-            # Update the value that is stored in memory
-            values[key] = value
-
+        # Add the (updated) value to the (edited) taskfile
+        self.updateSubPath(taskfile, f'{dest}.{key}', value)
+        status = self.getStatusChange(dest, key)
+        print(f' * {status}: {dest}.{key} = {value}')
         result = {
             "dest": dest,
             "key": key,
             "value": value,
             "focus": True,
+            "status": status,
             "taskfile": taskfile,
             "placeholder": "Enter value here",
         }
@@ -211,9 +224,11 @@ class TaskConfigUseCase(TaskfileUseCase):
         return result
 
     def deleteValue(self, dest, key):
+        taskfile = self.edits
         if not key:
             raise Exception("Expected 'hx-trigger-name' header.")
-
-        taskfile = self.taskfile
-        if dest in taskfile and key in taskfile[dest]:
-            del taskfile[dest][key]
+        match dest:
+            case 'includes': del (taskfile.includes[key])
+            case 'env': del (taskfile.env[key])
+            case 'vars': del (taskfile.vars[key])
+            case _: raise Exception(f'Partial delete "{dest}" not supported.')

@@ -50,7 +50,7 @@
             <!-- {% if taskfile and name in taskfile.tasks and taskfile.tasks[name].vars %} -->
             {% set vars = taskfile.tasks[name].vars %}
             <!-- {% endif %} -->
-            <!-- {% with title="Task Variables", dest="vars", mode='run', ctx=vars %} -->
+            <!-- {% with title="Task Variables", dest="vars", mode='run', values=vars %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>

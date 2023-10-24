@@ -1,11 +1,6 @@
 <!-- 
 {% set item_key = '.' + dest + '.' + key %} 
-
-{% set status_raw = '' %} 
-{% if mode == 'edit' %}
-{% set status_raw = taskfile.status(item_key) %} 
-{% endif %}
-
+{% set status = status if status else "Unchanged" %} 
 {% set status_values = {
   "Unchanged": {
     "icon": "",
@@ -25,14 +20,16 @@
   }
 }
 %}
-{% set status = status_values[status_raw] | default(status_values["Unchanged"])  %} 
+{% set status_obj = status_values[status] | default(status_values["Unchanged"])  %} 
+{% set icon = status_obj.icon %} 
+{% set style = status_obj.style %} 
 -->
 
 {% with key=key, value=value, placeholder=placeholder %}
-<tr id="values_{{dest}}_{{key}}" class="h-10 text-sm {{status.style}}">
+<tr id="values_{{dest}}_{{key}}" class="h-10 text-sm {{style}}">
   <td class="px-2 whitespace-nowrap">
-    <!-- {% if status.icon %} -->
-    <span class="opacity-50">{% include status.icon %}</span>
+    <!-- {% if icon %} -->
+    <span class="opacity-50">{% include icon %}</span>
     <!-- {% endif %} -->
   </td>
   <td class="flex flex-row whitespace-nowrap">
@@ -42,7 +39,7 @@
         name="config.{{dest}}.{{key}}"
         value="{{value|e}}"
         placeholder=""
-        class="{{status.style}} block my-1 py-1 px-4 w-full text-sm font-bold text-gray-900 bg-transparent border-0 border-b border-gray-200 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+        class="{{style}} block my-1 py-1 px-4 w-full text-sm font-bold text-gray-900 bg-transparent border-0 border-b border-gray-200 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
         hx-post="/task/config/{{dest}}?key={{key}}"
         hx-target="#values_{{dest}}_{{key}}"
         hx-trigger="keyup changed delay:1s"
@@ -50,7 +47,7 @@
       />
       <label
         for="config.{{dest}}.{{key}}"
-        class="{{status.style}} absolute text-sm text-gray-500 dark:text-gray-600 duration-300 transform -translate-y-4 scale-75 top-2 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4"
+        class="{{style}} absolute text-sm text-gray-500 dark:text-gray-600 duration-300 transform -translate-y-4 scale-75 top-2 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4"
         >{{key}}</label
       >
     </div>
@@ -75,7 +72,7 @@
       hx-delete="/task/config/{{dest}}?key={{key}}"
       hx-confirm="Delete '{{dest}}.{{key}}'. Are you sure?"
       hx-target="closest tr"
-      hx-swap="outerHTML swap:1s"
+      hx-swap="outerHTML swap:0.5s"
       onclick="event.stopPropagation()"
     >
       {% include "icons/trash.svg" %}

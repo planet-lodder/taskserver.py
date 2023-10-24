@@ -37,7 +37,7 @@
         <!-- ENV Overrides -->
         <div class="flex flex-row mr-8">
           <div class="flex-1 align-top">
-            <!-- Environment Vars {% with title="System Environment Variables", dest="env", ctx=taskfile.env %} -->
+            <!-- Environment Vars {% with title="System Environment Variables", dest="env", values=taskfile.env %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>
@@ -46,7 +46,7 @@
         <!-- Global Task Vars -->
         <div class="flex flex-row mr-8">
           <div class="flex-1 align-top">
-            <!-- Taskfile Variables {% with title="Global Taskfile Variables", dest="vars", ctx=taskfile.vars %} -->
+            <!-- Taskfile Variables {% with title="Global Taskfile Variables", dest="vars", values=taskfile.vars %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>
