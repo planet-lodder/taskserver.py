@@ -5,7 +5,6 @@ env:
   VERSION: "0.0.0"
 vars:
   PROJECT: '{{ .PROJECT | default "my-project" }}'
-  LALA: ZZZ
 tasks:
   init:
     - task: core:init
@@ -16,13 +15,19 @@ tasks:
       - requirements.txt
     cmds:
       - pip3 install -r requirements.txt
+
   start:
     desc: Bootstrap the server and load from config
-    deps: ['init:python']
+    deps: [init:python]
     cmds:
       - ./main.py --debug
-  update: [{task: "core:update"}]
-  clean: [{task: "core:clean"}]
+
+  update: [{ task: "core:update" }]
+  clean: [{ task: "core:clean" }]
+
+  # -------------------------------------------------
+  # Example commands
+  # -------------------------------------------------
   example:
     desc: A fairly complex example task
     vars:
@@ -42,11 +47,12 @@ tasks:
       - "./dist/lala.txt"
     cmds:
       - mkdir -p ./dist
-      - cat Taskfile.yaml > ./dist/lala.txt
+      - cat Taskfile.yaml > ./dist/lala.txt      
   example:beta:
     desc: Second example task
     cmds:
       - sleep 1
+
   example:omega:
     - echo "Updating sources..."
     - task: update
