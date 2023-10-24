@@ -3,7 +3,6 @@ import os
 import random
 import string
 from taskserver.domain.use_cases.taskfile import TaskfileUseCase
-from taskserver.models.TaskfileConfig import TaskfileConfig
 
 HINT_EMPTY_VALUE = "Enter path to Taskfile.yaml or directory containing one"
 
@@ -172,8 +171,8 @@ class TaskConfigUseCase(TaskfileUseCase):
             target, subkey = update_path.split('.', 1)
             match target:
                 case 'includes': self.edits.includes[subkey] = value
-                case 'env': self.edits.includes[subkey] = value
-                case 'vars': self.edits.includes[subkey] = value
+                case 'env': self.edits.env[subkey] = value
+                case 'vars': self.edits.vars[subkey] = value
                 case _: raise Exception(f'Partial update "{update_path}" not supported.')
 
         # Save the (updated) config to disk and reload

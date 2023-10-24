@@ -1,8 +1,11 @@
 
-from copy import deepcopy
-import json
 import os
+import yaml
+import json
+import yq
+from copy import deepcopy
 from typing import List, Optional, Sequence
+
 from taskserver.domain.models.Task import Task
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.Taskfile import Taskfile
@@ -23,7 +26,6 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         self.taskfile = self.tryLoadTaskfile(filename)
 
     # Try and load existing taskfile (if it exists)
-
     def tryLoadTaskfile(self, path) -> Taskfile:
         try:
             return Taskfile.load(path)
@@ -39,13 +41,58 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         self.edits = self.edits or deepcopy(self.taskfile)
         return self.edits
 
+    # Save the given taskfile to disk
     def saveConfig(self, taskfile: Taskfile, reload=False) -> Taskfile:
+        # Save the diffs back to the original taskfile
+        # Note: We use diffs to preserve original file's YAML formatting
+        self.saveDiffsOnly(taskfile.path, self.taskfile, taskfile)
+        # Alternatively, if formatting is not an issue, we could simplify this to:
+        # with open(taskfile.path) as f: f.write(yaml.safe_dump(taskfile))
 
         # After saving the taskfile, update the local caches
         self.taskfile = Taskfile.load(taskfile.path) if reload else taskfile
         self.edits = None
 
         return self.taskfile
+
+    # Compares old and new values, to selectively update only changed values
+    def saveDiffsOnly(self, filename: str, old: Taskfile, new: Taskfile):
+        def flatten(values: dict, base=''):
+            mapped = {}
+            for key, val in values.items():
+                subkey = f'{base}.{key}'
+                if type(val) == dict:
+                    subvalues = flatten(val, subkey)
+                    mapped.update(subvalues)
+                else:
+                    mapped[subkey] = val
+            return mapped
+
+        # Get the mappings for all changed values
+        oldvalues = flatten(old.dict())
+        newvalues = flatten(new.dict())
+        changed = {}
+        deleted = {}
+        for k, v in newvalues.items():
+            if not k in oldvalues or oldvalues[k] != v:
+                changed[k] = v
+        for k, v in oldvalues.items():
+            if not k in newvalues:
+                deleted[k] = v
+        diffs = {
+            "changed": changed,
+            "deleted": deleted
+        }
+
+        # Using the computed diffs, we will do partial updates
+        for k, v in diffs["changed"].items():
+            # Apply new and/or updated values
+            print(f' * {k} = {v} (update)')
+            yq.cli(['-iY', f'{k}={json.dumps(v)}', filename])
+        for k, v in diffs["deleted"].items():
+            # Delete removed values
+            print(f' - {k} (delete)')
+            yq.cli(['-iY', f'del({k})', filename])
 
     def listTasks(self) -> Sequence[Task]:
         if self.tasks:
