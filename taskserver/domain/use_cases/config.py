@@ -83,7 +83,7 @@ class TaskConfigUseCase(TaskfileUseCase):
         # Validate inputs for the given taskfile include
         errors = self.validateInclude(id, key, value)
         focus = f'key_{id}' if not key else f'value_{id}'
-        changed = False        
+        changed = False
 
         # Ckeck for key changes and validation errors
         if errors.get('key'):
@@ -165,22 +165,29 @@ class TaskConfigUseCase(TaskfileUseCase):
         if key in self.edits.includes:
             del self.edits.includes[key]  # Soft delete the value from memory
 
-    # -----------------------------------------------------------------------
-    # TODO: Deprecate the partial logic in favour of explicit
-    # -----------------------------------------------------------------------
+    def saveConfig(self, partial_updates: dict[str, str] = {}):
+        # Apply partial values to edited taskfile (if not already set)
+        for update_path, value in partial_updates.items():
+            # Split the key
+            target, subkey = update_path.split('.', 1)
+            match target:
+                case 'includes': self.edits.includes[subkey] = value
+                case 'env': self.edits.includes[subkey] = value
+                case 'vars': self.edits.includes[subkey] = value
+                case _: raise Exception(f'Partial update "{update_path}" not supported.')
 
-    def updatePartial(self, values):
-        taskfile = self.taskfile
-        # TODO: Re-enable update and save functionality
-        # taskfile = TaskfileConfig.resolve(self.path)
-        # taskfile.update(values)
-        # taskfile.save(reload=True)
+        # Save the (updated) config to disk and reload
+        taskfile = self.repo.saveConfig(self.edits, reload=True)
         result = {
             "title": "Configuration",
             "toolbar": "partials/toolbar/config.html",
             "taskfile": taskfile,
         }
         return result
+
+    # -----------------------------------------------------------------------
+    # TODO: Deprecate the partial logic in favour of explicit
+    # -----------------------------------------------------------------------
 
     def updateValue(self, dest, key, value):
         taskfile = self.taskfile

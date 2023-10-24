@@ -36,14 +36,6 @@ class Taskfile(BaseModel):
         exclude = ['path']
 
     @staticmethod
-    def tryLoad(path):
-        try:
-            # Try and load existing taskfile
-            return Taskfile.load(path)
-        except:
-            return Taskfile(path=path, includes={}, version=3, env={}, vars={}, tasks={})
-
-    @staticmethod
     def load(path):
         if not os.path.isfile(path):
             raise Exception(f"Taskfile {path} not found!")
@@ -135,34 +127,3 @@ class Taskfile(BaseModel):
                 output = output[end:]
 
         return commands
-
-    @staticmethod
-    def listTasks(filename: str) -> List[Task]:
-        try:
-            # Run: task --list-all --json
-            output, err, res = Taskfile.run(filename, '--list-all --json')
-
-            # Parse the JSON into a list of tasks
-            obj = json.loads(output)
-
-            # Parse the items into a list
-            list = obj.get("tasks", [])
-            path = obj.get("location", "")
-            base = os.path.dirname(path) if path else os.getcwd()
-            tasks = []
-            for item in list:
-                # Update and normalize paths for all tasks by stripping base folder prefix
-                loc = item.get("location", {})
-                path = loc.get("taskfile", '')
-                path = path.removeprefix(base + "/")
-                task = Task(
-                    path=path,
-                    name=item.get("name"),
-                    desc=item.get("desc"),
-                    up_to_date=bool(item.get('up_to_date', False)),
-                )
-                tasks.append(task)
-            return tasks
-        except Exception as e:
-            raise Exception(
-                f'{e}\n\nWARNING: Failed to load and parse the taskfile: {filename}.')

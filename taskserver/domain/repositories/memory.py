@@ -33,7 +33,9 @@ class InMemoryTaskRepository(TaskfileRepository):
     def getConfigEdits(self) -> Taskfile: return self.getConfig()
 
     # Try and save the in-memory taskfile to disk
-    def saveConfig(self) -> Taskfile: raise Exception('TODO: Save...')
+    def saveConfig(self, taskfile: Taskfile, reload=False) -> Taskfile:
+        self.taskfile = taskfile
+        return taskfile
 
     # List all available tasks in the in-memory cache
     def listTasks(self) -> Sequence[Task]: return self.tasks

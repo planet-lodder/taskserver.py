@@ -18,4 +18,4 @@ def taskConfig(req, resp):
 def taskUpdateConfig(req: WebRequest, resp):
     view = UseCase.forWeb(req, TaskConfigUseCase)
     values = req.inputs('config.', strip_prefix=True)
-    return view.updatePartial(values)
+    return view.saveConfig(values)
