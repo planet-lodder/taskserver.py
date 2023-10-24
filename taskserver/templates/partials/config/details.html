@@ -18,9 +18,7 @@
       <div class="w-1/2 flex flex-col">
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
-          <a class="p-2 font-bold flex flex-row">
-            {{ taskfile.path }}
-          </a>
+          <a class="p-2 font-bold flex flex-row"> {{ taskfile.path }} </a>
         </div>
 
         <!-- Task Includes -->
@@ -37,7 +35,7 @@
         <!-- ENV Overrides -->
         <div class="flex flex-row mr-8">
           <div class="flex-1 align-top">
-            <!-- Environment Vars {% with title="System Environment Variables", dest="env", values=taskfile.env %} -->
+            <!-- Environment Vars {% with title="System Environment Variables", values=taskfile.env, dest="env" %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>
@@ -46,7 +44,7 @@
         <!-- Global Task Vars -->
         <div class="flex flex-row mr-8">
           <div class="flex-1 align-top">
-            <!-- Taskfile Variables {% with title="Global Taskfile Variables", dest="vars", values=taskfile.vars %} -->
+            <!-- Taskfile Variables {% with title="Global Taskfile Variables", values=taskfile.vars, dest="vars" %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>
