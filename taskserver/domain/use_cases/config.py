@@ -79,17 +79,17 @@ class TaskConfigUseCase(TaskfileUseCase):
             "status": self.getStatusChange('includes', key),
         }
 
-    def updateInclude(self, id, key, value):
+    def updateInclude(self, id, key, value, action=None):
         # Validate inputs for the given taskfile include
         errors = self.validateInclude(id, key, value)
         focus = f'key_{id}' if not key else f'value_{id}'
-        changed = False
+        changed = False        
 
         # Ckeck for key changes and validation errors
         if errors.get('key'):
             # Focus on key validation error(s)
             focus = f'key_{id}'
-        elif key != id and id in self.taskfile.includes:
+        elif key != id and id in self.edits.includes:
             # Include has been renamed
             print(f' * INCLUDES [ {id} -> {key} ] == {value} (renamed)')
 
@@ -103,8 +103,8 @@ class TaskConfigUseCase(TaskfileUseCase):
         # Check for any validation errors
         if not len(errors):
             # Only update the value if it changed
-            changed = not key in self.taskfile.includes  # is new entry?
-            changed = changed or self.taskfile.includes[key] != value
+            changed = not key in self.edits.includes  # is new entry?
+            changed = changed or self.edits.includes[key] != value
             if changed:
                 print(f' * INCLUDES [ {key} ] == {value} (updated)')
                 self.edits.includes[key] = value

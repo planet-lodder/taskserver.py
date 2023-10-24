@@ -56,10 +56,16 @@ def taskIncludeEdit(req, resp):
 
     # If the edit action was triggered, we fetch the current value to display
     if input.action == "edit" and input.key and not input.value:
-        input.value = view.taskfile.includes.get(input.key)        
+        includes = view.repo.getConfigEdits().includes or {}
+        input.value = includes.get(input.key)
 
     # Validate input and create data context object
-    result = view.updateInclude(input.id, input.key, input.value)
+    result = view.updateInclude(
+        input.id, 
+        input.key, 
+        input.value, 
+        action=input.action
+    )
     errors = result.get("errors", [])
 
     # Respond with different content according to action and if input was validated
