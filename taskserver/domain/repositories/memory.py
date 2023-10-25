@@ -1,7 +1,8 @@
 
+import os
 from typing import Dict, List, Optional, Sequence
 
-from taskserver.domain.models.Task import Task, TaskBase
+from taskserver.domain.models.Task import Task, TaskBase, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories.base import TaskfileRepository
@@ -62,6 +63,13 @@ class InMemoryTaskRepository(TaskfileRepository):
     def findTask(self, name) -> Optional[Task]:
         found = filter(lambda t: t.name == name, self.tasks.items())
         return next(found, None)
+
+    # Resolve the task variables in current environment
+    def getTaskValues(self, task: Task) -> TaskVars:
+        vars = TaskVars()
+        for key in (task.vars or {}):
+            vars[key] = os.getenv(key, task.vars[key])
+        return vars
 
     # Get the menu item associated with the task
     def getMenu(self, task_path: str = '') -> Optional[TaskNode]:

@@ -1,4 +1,5 @@
 
+import yaml
 from taskserver.domain.models.Task import Task
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.use_cases.list import TaskListUseCase
@@ -8,9 +9,13 @@ from taskserver.domain.use_cases.taskfile import TaskfileUseCase
 class TaskDetailUseCase(TaskfileUseCase):
 
     def base(self, task: Task):
+        # Load additional task details if needed (like interpolated vars)
+        vars = self.repo.getTaskValues(task) if task else {}
+        
         return {
             "taskfile": self.taskfile,
             "task": task,
+            "vars": vars,
         }
 
     def index(self, task: Task):

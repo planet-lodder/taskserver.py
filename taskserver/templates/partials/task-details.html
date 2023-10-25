@@ -17,11 +17,11 @@
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
           <a class="p-2 font-bold">{{ path }}</a>
-          <!-- {% if path != task.path %} -->
+          <!-- {% if path != task.src %} -->
           <span class="p-2 opacity-50">
             {% include 'icons/forward.svg' %}
           </span>
-          <a class="p-2 font-bold">{{ task.path }}</a>
+          <a class="p-2 font-bold">{{ task.src }}</a>
           <!-- {% endif %} -->
         </div>
         
@@ -46,11 +46,7 @@
         <!-- Global Task Vars -->
         <div class="flex flex-row mr-8">
           <div class="flex-1 align-top">
-            {% set vars = {} %}
-            <!-- {% if taskfile and name in taskfile.tasks and taskfile.tasks[name].vars %} -->
-            {% set vars = taskfile.tasks[name].vars %}
-            <!-- {% endif %} -->
-            <!-- {% with title="Task Variables", dest="vars", mode='run', values=vars %} -->
+            <!-- {% with title="Task Variables", values=vars, dest="task" %} -->
             {% include 'partials/values/list.html' %}
             <!-- {% endwith %} -->
           </div>

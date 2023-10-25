@@ -1,12 +1,15 @@
 
 import os
+import random
+import string
+import subprocess
 import yaml
 import json
 import yq
 from copy import deepcopy
 from typing import List, Optional, Sequence
 
-from taskserver.domain.models.Task import Task
+from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories.base import TaskfileRepository
@@ -18,6 +21,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
     tasks: List[Task] = None
     edits: Taskfile = None  # Keep track of changed values
     menu: TaskNode = None
+    
 
     def __init__(self, filename: str):
         super().__init__(filename)
@@ -111,13 +115,15 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             list = obj.get("tasks", [])
             path = obj.get("location", "")
             base = os.path.dirname(path) if path else os.getcwd()
+            path = path.removeprefix(base + "/")
             tasks = []
             for item in list:
                 # Update and normalize paths for all tasks by stripping base folder prefix
                 loc = item.get("location", {})
-                path = loc.get("taskfile", '')
-                path = path.removeprefix(base + "/")
+                src = loc.get("taskfile", '')
+                src = src.removeprefix(base + "/")
                 task = Task(
+                    src=src,
                     path=path,
                     name=item.get("name"),
                     desc=item.get("desc"),
@@ -155,6 +161,98 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         for task in filter(lambda t: t.name == name, self.listTasks()):
             return task
         return None
+
+    def command(self, command, env={}) -> str:
+        try:
+            # Set the ENV vars to pass to the process
+            env = os.environ.copy()
+            env.update(env)
+
+            # Build the command and run as sub process
+            pop = command if type(command) == list else command.split(" ")
+            res = subprocess.run(
+                pop,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=env
+            )
+
+            # Get the output and error streams
+            return res.stdout.decode()
+        except Exception as e:
+            print('ERROR!', e)
+            return None
+
+    def runShadowTask(self, path, task_raw):
+        rand = ''.join(random.choice(string.ascii_letters) for i in range(10))
+        temp_file = f'{path}.{rand}'
+
+        # Read the original taskfile contents
+        input = ""
+        with open(path, 'r') as f:
+            input = f.read()
+
+        # Add the temp task to the manifest
+        data = yaml.safe_load(input)
+        data['tasks'] = data.get('tasks', {})
+        data['tasks']['__env'] = task_raw
+
+        # Create a shadow copy of the taskfile
+        with open(temp_file, 'w') as f:
+            f.write(yaml.dump(data))
+
+        # Run the command to parse the values
+        output = self.command(['task', '-t', temp_file, '__env'])
+
+        # Remove the temp taskfile
+        os.remove(temp_file)
+
+        return output
+
+    def getTaskValues(self, task: Task) -> TaskVars:
+        if not task:
+            return TaskVars() # No task was provided
+        
+        # Keep track of the evaluated task variables
+        values = TaskVars()
+
+        # Define a new (raw) task that will print each var value (to a file)
+        rand = ''.join(random.choice(string.ascii_letters) for i in range(10))
+        temp_path = f'.task/temp/vars/{rand}'
+        cmds = [f'mkdir -p {temp_path}']  # Create folder if not exist
+
+        # Get the raw task data
+        data = self.taskfile.dict().get('tasks', {}).get(task.name)
+        if not data:
+            includes = filter(lambda x: x, self.taskfile.includes.keys())
+            print(f'INCLUDE --=> {includes}')
+
+        if not data or type(data) == list:
+            # This task has no vars defined (or does ot exists)
+            return values
+
+        # Now that we have the raw task data, lets check for any custom vars to resolve
+        vars = data.get('vars', {})
+        for key in vars:
+            values.raw[key] = vars[key]
+            cmds.append(f'echo -n {"{{ ."+key+" }}"} > {temp_path}/{key}.txt')
+
+        # Using the target vars, resolve their current value
+        self.runShadowTask(task.path, {
+            "vars": vars,
+            "cmds": cmds
+        })
+        for var in vars:
+            val = ''
+            file = f'{temp_path}/{var}.txt'
+            with open(file, 'r') as f:
+                val = f.read()
+                values[var] = val
+                values.orig[key] = val
+            os.remove(file)  # Clean up temp files
+        os.rmdir(temp_path)  # Clean up temp files
+
+        return values
 
     def getMenu(self, task_path: str = '') -> Optional[TaskNode]:
         if not self.menu:

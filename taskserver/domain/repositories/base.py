@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Sequence
-from taskserver.domain.models.Task import Task
+from taskserver.domain.models.Task import Task, TaskVars
 
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.Taskfile import Taskfile
@@ -29,6 +29,9 @@ class TaskfileRepository(ABC):
 
     @abstractmethod
     def findTask(self, task_name: str) -> Optional[Task]: ...
+
+    @abstractmethod
+    def getTaskValues(self, task: Task) -> TaskVars: ...
 
     @abstractmethod
     def getMenu(self, task_path: str = '') -> Optional[TaskNode]: ...

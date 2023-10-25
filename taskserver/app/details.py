@@ -13,7 +13,7 @@ def taskDetails(req, resp):
 
     # Show the task view if the selected node is a task
     if node and node.data:
-        return view.index(node)
+        return view.index(node.data)
 
     # Not a leaf (task) node, so we show the search results instead
     result = view.list(node.name + ':')
@@ -25,7 +25,7 @@ def taskDetails(req, resp):
 def taskRunHistory(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
     node = Serialize.fromWeb(req, TaskRequest).selected(view.repo)
-    return view.history(node)
+    return view.history(node.data)
 
 
 @router.get('/dep-graph')
@@ -33,4 +33,4 @@ def taskRunHistory(req, resp):
 def taskDependencyGraph(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
     node = Serialize.fromWeb(req, TaskRequest).selected(view.repo)
-    return view.graph(node)
+    return view.graph(node.data)
