@@ -10,27 +10,27 @@
 curl {{target-url}}
 
 ### Check for custom route
-curl {{target-url}}/task/list
+curl {{target-url}}/taskserver/list
 
 
 ### Get hetml formatted
-GET {{target-url}}/task/list
+GET {{target-url}}/taskserver/list
 Hx-Request: true
 accpet: text/html
 
 ### Get YAML content
-GET {{target-url}}/task/list
+GET {{target-url}}/taskserver/list
 accept: application/yaml
 
 ### Get as CSV content
-GET {{target-url}}/task/list
+GET {{target-url}}/taskserver/list
 accept: text/csv
 
 
 ### Post CONFIG updates
-POST {{target-url}}/task/config
+POST {{target-url}}/taskserver/config
 Content-Type: application/x-www-form-urlencoded
-HX-Current-URL: http://127.0.0.1:9999/task/config'
+HX-Current-URL: http://127.0.0.1:9999/taskserver/config'
 HX-Request: true'
 HX-Target: config-form'
 HX-Trigger: config-form'
@@ -42,10 +42,10 @@ path=Taskfile.yaml
 &config.vars.AAAAA=AAAA
 
 ### Test Delete
-curl 'http://127.0.0.1:9999/task/config/includes' \
+curl 'http://127.0.0.1:9999/taskserver/config/includes' \
   -X 'DELETE' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  -H 'HX-Current-URL: http://127.0.0.1:9999/task/config' \
+  -H 'HX-Current-URL: http://127.0.0.1:9999/taskserver/config' \
   -H 'HX-Request: true' \
   --data-raw 'path=Taskfile.yaml&config.env.VERSION=0.0.0&config.env.ENV=KOOSZ&config.vars.PROJECT=%7B%7B%20.PROJECT%20%7C%20default%20%22my-project%22%20%7D%7D&config.vars.VAR=ZZZZZ&config.vars.AAAAA=AAAA' \
   --compressed

@@ -37,7 +37,7 @@
         value="{{search}}"
         placeholder="Find a task by name"
         class="block w-full py-1.5 pr-5 text-gray-700 bg-white border dark:border-gray-700 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 dark:bg-gray-900 dark:text-gray-300 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
-        hx-post="/task/list"
+        hx-post="/taskserver/list"
         hx-trigger="keyup changed delay:250ms"
         hx-indicator=".htmx-indicator"
         hx-target="next .task-list"
@@ -52,7 +52,7 @@
 </span>
 
 <a
-  hx-get="/task/config"
+  hx-get="/taskserver/config"
   hx-target="main"
   class="flex items-center space-x-2 rounded py-1 px-4 my-4 mx-1 shadow-md bg-gray-500 text-gray-200 cursor-pointer"
 >

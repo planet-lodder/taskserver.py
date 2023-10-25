@@ -16,11 +16,11 @@ class TaskRunInputs(TaskRequest):
         if not self.name:
             error = 'Please specify a task name'
             self.errors.append(error)
-        
-        #if not self._task:
+
+        # if not self._task:
         #    error = f'Task "{self.name}" could not be found.'
         #    self.errors.append(error)
-            
+
         return self._task
 
 
@@ -83,7 +83,7 @@ def taskRunDialog(req, resp):
 @router.renders('partials/run/list')
 def taskBreakdown(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
-    input = Serialize.fromWeb(req, TaskRunInputs)    
+    input = Serialize.fromWeb(req, TaskRunInputs)
 
     # Do a breakdown of the current task
     result = view.taskBreakdown(input.name)

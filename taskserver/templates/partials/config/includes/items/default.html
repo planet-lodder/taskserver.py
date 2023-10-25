@@ -48,7 +48,7 @@
       type="button"
       name="action"
       value="edit"
-      hx-post="/task/config/includes?path={{taskfile.path}}&id={{key}}"
+      hx-post="/taskserver/config/includes?path={{taskfile.path}}&id={{key}}"
       hx-target="#include_{{key}}"
       hx-swap="outerHTML"
       class="mx-1 opacity-50 hover:opacity-100"
@@ -58,7 +58,7 @@
     <button
       type="button"
       hx-confirm="Are you sure you want to remove '{{key}}'?"
-      hx-delete="/task/config/includes?path={{taskfile.path}}&id={{key}}"
+      hx-delete="/taskserver/config/includes?path={{taskfile.path}}&id={{key}}"
       hx-target="#include_{{key}}"
       hx-swap="outerHTML"
       class="mx-1 opacity-50 hover:opacity-100"

@@ -48,13 +48,13 @@ class TaskNode(BaseModel):
                 {
                     "name": "Task Vars",
                     "icon": "icons/arrow-path.svg",
-                    "href": "/task/start",
+                    "href": "/taskserver/start",
                     "style": "animate-spin"
                 },
                 {
                     "name": "Run Task",
                     "icon": "icons/stop.svg",
-                    "href": "/task/build",
+                    "href": "/taskserver/build",
                     "style": "opacity-100"
                 }
             ]
@@ -64,12 +64,12 @@ class TaskNode(BaseModel):
                 {
                     "name": "Task Vars",
                     "icon": "icons/list.svg",
-                    "htmx": f'hx-target="main" hx-get="/task/details?name={self.name}"'
+                    "htmx": f'hx-target="main" hx-get="/taskserver/details?name={self.name}"'
                 },
                 {
                     "name": "Run Task",
                     "icon": "icons/play.svg",
-                    "htmx": f'hx-get="/task/run/dialog?name={self.name}" hx-target="modal" hx-trigger="click" onclick="event.preventDefault()"'
+                    "htmx": f'hx-get="/taskserver/run/dialog?name={self.name}" hx-target="modal" hx-trigger="click" onclick="event.preventDefault()"'
                 }
             ]
 
