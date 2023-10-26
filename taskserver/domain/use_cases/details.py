@@ -3,20 +3,11 @@ import yaml
 from taskserver.domain.models.Task import Task
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.use_cases.list import TaskListUseCase
-from taskserver.domain.use_cases.taskfile import TaskfileUseCase
+from taskserver.domain.use_cases.base import TaskfileUseCase
+from taskserver.domain.use_cases.task import TaskUseCase
 
 
-class TaskDetailUseCase(TaskfileUseCase):
-
-    def base(self, task: Task):
-        # Load additional task details if needed (like interpolated vars)
-        vars = self.repo.getTaskValues(task) if task else {}
-        
-        return {
-            "taskfile": self.taskfile,
-            "task": task,
-            "vars": vars,
-        }
+class TaskDetailUseCase(TaskUseCase):
 
     def index(self, task: Task):
         result = self.base(task)
@@ -28,7 +19,7 @@ class TaskDetailUseCase(TaskfileUseCase):
 
     def list(self, task_prefix: str):
         search = task_prefix
-        result = TaskListUseCase(self.repo).search(search)
+        result = TaskListUseCase(self.repo, self.session).search(search)
         result.update({
             "title": search + '(list)',
             "search": search,

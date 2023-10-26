@@ -6,11 +6,11 @@ from pydantic import BaseModel
 
 
 class TaskVars(dict[str, str]):
-    orig = {}
     raw = {}
+    eval = {}
 
     class Config:
-        exclude = ['orig', 'value']
+        exclude = ['raw', 'eval']
 
 
 class TaskCmd(str):

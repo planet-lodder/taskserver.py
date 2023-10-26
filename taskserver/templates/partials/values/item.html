@@ -23,6 +23,8 @@
 {% set status_obj = status_values[status] | default(status_values["Unchanged"])  %} 
 {% set icon = status_obj.icon %} 
 {% set style = status_obj.style %} 
+{% set htmx_base = htmx_base or "/taskserver/config/"+dest %}
+{% set htmx_query = htmx_query or "?key="+key %}
 -->
 
 {% with key=key, value=value, placeholder=placeholder %}
@@ -40,7 +42,7 @@
         value="{{value|e}}"
         placeholder=""
         class="{{style}} block my-1 py-1 px-4 w-full text-sm bg-transparent border-0 border-b border-gray-200 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-        hx-post="/taskserver/config/{{dest}}?key={{key}}"
+        hx-post="{{htmx_base}}{{htmx_query}}"
         hx-target="#values_{{dest}}_{{key}}"
         hx-trigger="keyup changed delay:1s"
         hx-swap="outerHTML"
@@ -55,7 +57,7 @@
       type="button"
       title="Delete key: {{key}}"
       class="flex-0 -ml-8 -mt-3 z-20 cursor-pointer text-gray-300 dark:text-gray-700 hover:text-gray-500 dark:hover:text-gray-300 opacity-75 hover:opacity-100"
-      hx-delete="/taskserver/config/{{dest}}?key={{key}}"
+      hx-delete="{{htmx_base}}{{htmx_query}}"
       hx-confirm="Delete '{{dest}}.{{key}}'. Are you sure?"
       hx-target="closest tr"
       hx-swap="outerHTML swap:0.5s"

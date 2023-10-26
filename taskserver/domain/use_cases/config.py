@@ -3,7 +3,7 @@ import os
 import random
 import string
 from taskserver.domain.models.Taskfile import Taskfile
-from taskserver.domain.use_cases.taskfile import TaskfileUseCase
+from taskserver.domain.use_cases.base import TaskfileUseCase
 
 HINT_EMPTY_VALUE = "Enter path to Taskfile.yaml or directory containing one"
 

@@ -1,18 +1,43 @@
 from abc import ABC, abstractmethod
-from typing import Type, TypeVar
+from typing import Dict, Type, TypeVar
 
 from anyserver import WebRequest
+from taskserver.domain.models.Task import Task, TaskVars
+from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories import Repository
 from taskserver.domain.repositories.base import TaskfileRepository
 
+IN_MEMORY_SESSIONS = {}
 
-class BaseUseCase(ABC):
 
-    def __init__(self, repo: TaskfileRepository):
+class Session(dict):
+    username: str
+    runVars: Dict[str, TaskVars] = {}
+
+    def __init__(self, username: str):
+        self.username = username
+
+    @classmethod
+    def forUser(cls, username: str):
+        if not username in IN_MEMORY_SESSIONS:
+            IN_MEMORY_SESSIONS[username] = cls(username)
+        return IN_MEMORY_SESSIONS[username]
+
+
+class TaskfileUseCase(ABC):
+    repo: TaskfileRepository
+    session: Session
+
+    def __init__(self, repo: TaskfileRepository, session: Session):
         self.repo = repo
+        self.session = session
+
+    @property
+    def taskfile(self) -> Taskfile:
+        return self.repo.taskfile
 
 
-T = TypeVar("T", bound=BaseUseCase)
+T = TypeVar("T", bound=TaskfileUseCase)
 
 
 class UseCase():
@@ -26,11 +51,17 @@ class UseCase():
         path = path or req.query.get("path")
         path = path or UseCase.default_path
 
-        # Create use case for specified file
+        # Load the repository for the target Taskfile
         repo = Repository.forTaskfile(path)
-        return cls(repo)
+
+        # TODO: Implement user-based sessions in the future
+        session = Session.forUser('localhost')
+
+        # Create use case for specified file
+        return cls(repo, session)
 
     @staticmethod
     def forFile(filename, cls: Type[T]) -> T:
         repo = Repository.forTaskfile(filename)
-        return cls(repo)
+        session = Session.forUser('localhost')  # Load from file as local user
+        return cls(repo, session)

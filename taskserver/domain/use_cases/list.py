@@ -1,4 +1,4 @@
-from taskserver.domain.use_cases.taskfile import TaskfileUseCase
+from taskserver.domain.use_cases.base import TaskfileUseCase
 
 
 class TaskListUseCase(TaskfileUseCase):

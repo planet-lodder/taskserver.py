@@ -7,7 +7,7 @@ import yaml
 import json
 import yq
 from copy import deepcopy
-from typing import List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence
 
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
@@ -21,7 +21,6 @@ class FilesystemTaskfileRepo(TaskfileRepository):
     tasks: List[Task] = None
     edits: Taskfile = None  # Keep track of changed values
     menu: TaskNode = None
-    
 
     def __init__(self, filename: str):
         super().__init__(filename)
@@ -234,7 +233,8 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         # Now that we have the raw task data, lets check for any custom vars to resolve
         vars = data.get('vars', {})
         for key in vars:
-            values.raw[key] = vars[key]
+            val = vars[key]
+            values.raw[key] = val
             cmds.append(f'echo -n {"{{ ."+key+" }}"} > {temp_path}/{key}.txt')
 
         # Using the target vars, resolve their current value
@@ -242,13 +242,15 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             "vars": vars,
             "cmds": cmds
         })
-        for var in vars:
+
+        for key in vars:
             val = ''
-            file = f'{temp_path}/{var}.txt'
+            file = f'{temp_path}/{key}.txt'
             with open(file, 'r') as f:
                 val = f.read()
-                values[var] = val
-                values.orig[key] = val
+                print(f' --> {key} == {val}')
+                values[key] = val
+                values.eval[key] = val
             os.remove(file)  # Clean up temp files
         os.rmdir(temp_path)  # Clean up temp files
 

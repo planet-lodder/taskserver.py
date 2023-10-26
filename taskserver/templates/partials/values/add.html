@@ -1,7 +1,8 @@
+{% set htmx_base = htmx_base or "/taskserver/config/"+dest %}
 <button
   name="action"
   value="add"
-  hx-post="/taskserver/config/{{dest}}?path={{taskfile.path}}"
+  hx-post="{{htmx_base}}?path={{taskfile.path}}"
   hx-prompt="Key Name"
   hx-target="#config-{{dest}}"
   hx-swap="beforeend"

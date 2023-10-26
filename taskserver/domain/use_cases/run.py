@@ -7,10 +7,11 @@ from taskserver.domain.models.Task import Task
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.serializers import Serializer
-from taskserver.domain.use_cases.taskfile import TaskfileUseCase
+from taskserver.domain.use_cases.base import TaskfileUseCase
+from taskserver.domain.use_cases.task import TaskUseCase
 
 
-class TaskRunUseCase(TaskfileUseCase):
+class TaskRunUseCase(TaskUseCase):
 
     def taskBreakdown(self, task_name: str):
         taskfile = self.repo.taskfile
