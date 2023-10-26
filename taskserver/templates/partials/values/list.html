@@ -45,7 +45,6 @@
     <!-- {% if values %} List values for the current context -->
     {% for key,value in values.items() %}
     <!-- {% set status = changes[key] if changes and key in changes else "Unchanged" %} -->
-    <!-- {% set htmx_query = "?name="+task.name+"&key="+key %} -->
     {% include 'partials/values/item.html' %} {% endfor %}
     <!-- {% endif %} -->
   </tbody>

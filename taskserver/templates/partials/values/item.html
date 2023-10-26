@@ -24,7 +24,11 @@
 {% set icon = status_obj.icon %} 
 {% set style = status_obj.style %} 
 {% set htmx_base = htmx_base or "/taskserver/config/"+dest %}
+
 {% set htmx_query = htmx_query or "?key="+key %}
+{% if task %}
+{% set htmx_query = htmx_query + "&name="+task.name %} 
+{% endif %}
 -->
 
 {% with key=key, value=value, placeholder=placeholder %}

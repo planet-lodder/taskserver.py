@@ -248,7 +248,6 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             file = f'{temp_path}/{key}.txt'
             with open(file, 'r') as f:
                 val = f.read()
-                print(f' --> {key} == {val}')
                 values[key] = val
                 values.eval[key] = val
             os.remove(file)  # Clean up temp files

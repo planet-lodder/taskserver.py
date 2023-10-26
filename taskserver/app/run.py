@@ -57,7 +57,7 @@ def taskRun(req, resp):
 
     # Try and run the task (no additional parameters)
     node = input.selected(view.repo)
-    vars = req.inputs('config.vars.', strip_prefix=True)
+    vars = req.inputs('config.task.', strip_prefix=True)
     result = view.tryRun(input, node, vars)
 
     return result
