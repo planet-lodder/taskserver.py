@@ -29,6 +29,8 @@
 {% if task %}
 {% set htmx_query = htmx_query + "&name="+task.name %} 
 {% endif %}
+
+{% set attr_disabled = "disabled" if disabled else "" %} 
 -->
 
 {% with key=key, value=value, placeholder=placeholder %}
@@ -50,6 +52,7 @@
         hx-target="#values_{{dest}}_{{key}}"
         hx-trigger="keyup changed delay:1s"
         hx-swap="outerHTML"
+        {{attr_disabled}}
       />
       <label
         for="config.{{dest}}.{{key}}"
@@ -57,6 +60,7 @@
         >{{key}}</label
       >
     </div>
+    <!-- {% if not disabled %} -->
     <button
       type="button"
       title="Delete key: {{key}}"
@@ -65,10 +69,11 @@
       hx-confirm="Delete '{{dest}}.{{key}}'. Are you sure?"
       hx-target="closest tr"
       hx-swap="outerHTML swap:0.5s"
-      onclick="event.stopPropagation()"
+      onclick="event.stopPropagation()"      
     >
       {% include "icons/trash.svg" %}
     </button>
+    <!-- {% endif %} -->
   </td>
 </tr>
 {% if focus %}

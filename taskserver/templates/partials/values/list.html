@@ -32,7 +32,9 @@
         <div class="flex flex-row flex-0" @click="open = true">
           <span class="flex-1"></span>
           <!-- Value Actions (top-right) -->
+          {% if not disabled %}
           {% include 'partials/values/add.html' %}
+          {% endif %}
         </div>
       </th>
     </tr>

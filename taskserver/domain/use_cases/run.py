@@ -45,8 +45,9 @@ class TaskRunUseCase(TaskUseCase):
                 # Capture the details to the task that was spawned
                 result.update({
                     "run": run,
-                    "vars": vars, # Show run vars (pinned)
-                    "changes": {}, # Clear the change status
+                    "vars": vars,  # Show run vars (pinned)
+                    "changes": {},  # Clear the change status
+                    "disabled": True,  # Clear the change status
                     "output": output,
                 })
             except Exception as ex:

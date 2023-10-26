@@ -13,7 +13,6 @@
     <div class="flex flex-row">
       <!-- Task main details -->
       <div class="w-1/2 flex flex-col">
-
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
           <a class="p-2 font-bold">{{ path }}</a>
@@ -24,12 +23,11 @@
           <a class="p-2 font-bold">{{ task.src }}</a>
           <!-- {% endif %} -->
         </div>
-        
+
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Task Name:</label>
           <a class="p-2 font-bold">{{ name }}</a>
         </div>
-
 
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Description:</label>
@@ -54,11 +52,27 @@
       </div>
     </div>
 
-    <!-- Task breakdown -->
+    <!-- {% if run %} -->
+
+    <!-- Task run is attached -->
     <div class="flex flex-row mr-4">
-      <label class="p-2 w-32 on inline-block element">Executes:</label>
+      <label class="p-2 w-32 on inline-block element">Running Task:</label>
+      {{run.key}}
+    </div>
+    <div class="flex flex-row mr-4">
+      <label class="p-2 w-32 on inline-block element">Run Progress:</label>
       {% include 'partials/run/index.html' %}
     </div>
+
+    <!-- {% else %} -->
+
+    <!-- Task breakdown -->
+    <div class="flex flex-row mr-4">
+      <label class="p-2 w-32 on inline-block element">Task Executes:</label>
+      {% include 'partials/run/index.html' %}
+    </div>
+
+    <!-- {% endif %} -->
   </div>
 </div>
 <!-- {% endif %} -->
