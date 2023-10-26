@@ -5,39 +5,25 @@ from ansi2html.style import (get_styles)
 
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
+from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.serializers import Serializer
 from taskserver.domain.use_cases.base import TaskfileUseCase
 from taskserver.domain.use_cases.task import TaskUseCase
 
 
-class TaskRun():
-    key: str
-    task: Task
-    vars: TaskVars
-    pid: int
-
-    stdout: str
-    stderr: str
-
-    def start(self):
-        path = self.task.path
-        name = self.task.name
-        vars = self.vars
-        print(f'Run task: {name} {vars}')
-        output, err, res = Taskfile.run(path, name, vars)
-        self.stdout = output
-        self.stderr = err
-
-
 class TaskRunUseCase(TaskUseCase):
 
     def createRun(self, task: Task, vars: dict):
-        info = TaskRun()
-        info.task = task
-        info.vars = self.getRunVars(task)
-        for key in vars:
-            info.vars[key] = vars[key]
+        # Create a new object to track the process and its output
+        info = TaskRun(
+            task=task,
+            vars=self.getRunVars(task)
+        )
+
+        # Now that the task has been started, clear run vars and reload details
+        self.clearRunVars(task)
+
         return info
 
     def tryRun(self, input: Serializer, node: TaskNode, vars={}):
@@ -53,19 +39,14 @@ class TaskRunUseCase(TaskUseCase):
                 run = self.createRun(task, vars)
                 run.start()
 
-                # Now that the task has been started, clear run vars and reload details
-                self.clearRunVars(task)
-                vars = self.getRunVars(task)
-                changes = self.getRunVarStatusMap(vars)
-
                 # TODO: Format the terminal output to HTML
-                output = self.format_output(run.stdout)
+                output = self.format_output(run.stdout) if run.stdout else ''
 
                 # Capture the details to the task that was spawned
                 result.update({
                     "run": run,
-                    "vars": vars,
-                    "changes": changes,
+                    "vars": vars, # Show run vars (pinned)
+                    "changes": {}, # Clear the change status
                     "output": output,
                 })
             except Exception as ex:
