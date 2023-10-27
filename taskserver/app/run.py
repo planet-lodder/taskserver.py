@@ -97,9 +97,7 @@ def taskRunDialog(req, resp):
     input = Serialize.fromWeb(req, TaskRunInputs)
 
     # Open a modal dialog to run task with parameters
-    result = view.runDialog(input.name)
-
-    return result
+    return view.runDialog(input.name)
 
 
 @router.post('/run/dialog')
@@ -111,7 +109,7 @@ def taskRunDialogUpdate(req, resp):
     # Run the task with the given parameters supplied by the modal dialog
     node = input.selected(view.repo)
     result = view.tryRun(input, node)
-    failed = "error" in result and result["error"]
+    failed = result.get("error") != None
 
     if failed:
         return result  # Validation failed or runtime invalid

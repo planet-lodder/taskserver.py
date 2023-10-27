@@ -27,7 +27,7 @@
     hx-target="modal"
     hx-indicator=".task-tools,.task-starting,.task-validation"
     class="relative py-8 px-5 md:px-10 bg-white text-gray-800 shadow-md rounded border border-gray-400"
-    x-data="{ showOptions: false }"
+    x-data="{ showOptions: {{ open | default('false') }} }"
   >
     <div class="w-full flex flex-row justify-start text-gray-600 mb-3">
       {% include 'icons/document-plus.svg' %}
@@ -59,48 +59,36 @@
     <!-- {% endif %} -->
 
     <div class="flex flex-col" style="display: none" x-show="showOptions">
-      <label
-        for=".vars.test"
-        class="flex flex-row text-gray-800 text-sm font-bold leading-tight tracking-normal"
-      >
-        Task Variables
-      </label>
-      <div class="relative mb-5 mt-2">
-        <div
-          class="absolute text-gray-600 flex items-center px-4 border-r h-full"
-        >
-          {% include 'icons/tools.svg' %}
-        </div>
-        <div
-          class="absolute right-0 text-gray-600 opacity-25 flex items-center pr-3 h-full cursor-pointer"
-        >
-          {% include 'icons/close.svg' %}
-        </div>
-        <input
-          id=".vars.test"
-          class="text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-16 text-sm border-gray-300 rounded border"
-          placeholder="Enter value or default"
-        />
+      <!-- {% if vars %} -->
+      <div class="relative mb-5 -mt-2 -ml-2">
+        <!-- {% with title="Task Variables", values=vars, dest="task", style_head='text-gray-300 dark:text-gray-700' %} -->
+        {% include 'partials/values/list.html' %}
+        <!-- {% endwith %} -->
       </div>
+      <!-- {% endif %} -->
 
       <label
-        for="args"
+        for="cli_args"
         class="text-gray-800 text-sm font-bold leading-tight tracking-normal"
         >Extra Arguments</label
       >
       <div class="relative mb-5 mt-2">
         <input
-          id=".cli_args"
+          type="text"
+          name="cli_args"
+          value="{{cli_args}}"
           class="text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border"
           placeholder="(to be passed to the underlying process)"
         />
       </div>
     </div>
+
     <div class="w-full flex items-center justify-end space-x-2">
       <div
         class="flex flex-1 items-center justify-start text-gray-400 text-sm cursor-pointer"
         @click="showOptions = !showOptions"
       >
+        <input name="open" type="hidden" x-bind:value="showOptions" />
         <span class="flex" x-show="showOptions">
           {% include 'icons/chevron-up.svg' %}
           <span class="pl-2">Hide Options</span>

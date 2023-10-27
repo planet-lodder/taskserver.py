@@ -64,7 +64,7 @@ class TaskNode(BaseModel):
                 {
                     "name": "Task Vars",
                     "icon": "icons/list.svg",
-                    "htmx": f'hx-target="main" hx-get="/taskserver/details?name={self.name}"'
+                    "htmx": f'hx-target="main" hx-get="/taskserver/task?name={self.name}"'
                 },
                 {
                     "name": "Run Task",

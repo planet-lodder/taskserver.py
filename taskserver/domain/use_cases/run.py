@@ -9,90 +9,81 @@ from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.serializers import Serializer
+from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.base import TaskfileUseCase
 from taskserver.domain.use_cases.task import TaskUseCase
 
 
 class TaskRunUseCase(TaskUseCase):
 
-    def createRun(self, task: Task, vars: dict):
+    def createRun(self, task: Task, vars: dict, cli_args=''):
         # Create a new object to track the process and its output
-        info = TaskRun(
-            task=task,
-            vars=self.getRunVars(task)
-        )
+        vars = self.getRunVars(task)
+        info = TaskRun(task=task, vars=vars, cli_args=cli_args)
 
         # Now that the task has been started, clear run vars and reload details
         self.clearRunVars(task)
 
         return info
 
-    def tryRun(self, input: Serializer, node: TaskNode, vars={}):
-        task = self.repo.findTask(node.name)
-        result = self.base(task)
+    def tryRun(self, input: TaskRequest, node: TaskNode, vars={}):
+        task = self.repo.findTask(input.name) if node else None
+        result = self.base(task) if task else {
+            "taskfile": self.taskfile,
+            "task": task,
+            "name": input.name,
+        }
         result.update({
             "title": task.name if task else "unknown",
             "toolbar": "partials/toolbar/task.html",
+            "open": input.req.input('open'),
+            "cli_args": input.req.input('cli_args', ''),
         })
-        if input.validate():
-            try:
-                # Create a new run session and spawn the task
-                run = self.createRun(task, vars)
-                #run.started = datetime.datetime.now()
-                #run.exitCode = 1
-                run.start()
-                
 
-                # TODO: Format the terminal output to HTML
-                output = self.format_output(run.stdout) if run.stdout else ''
-
-                # Capture the details to the task that was spawned
-                result.update({
-                    "run": run,
-                    "vars": vars,  # Show run vars (pinned)
-                    "changes": {},  # Clear the change status
-                    "disabled": True,  # Clear the change status
-                    "output": output,
-                })
-            except Exception as ex:
-                # The task failed to launch
-                print(f'Something went wrong: {ex}')
-                result.update({"error": str(ex)})
-        else:
+        # Check for validation issues
+        if not input.validate():
             result.update({"error": '\n'.join(input.errors)})
+            return result
+        if not task:
+            result.update({"error": 'Task not found'})
+            return result
 
-        return result
+        try:
+            # Create a new run session and spawn the task
+            run = self.createRun(task, vars, result.get("cli_args", ''))
+            run.start()
 
-    def tryRunDialog(self, input: Serializer, task: Task):
-        result = self.base(task)
-        if input.validate():
-            try:
-                # Add HEAD and BODY values to ENV vars
-                env = os.environ.copy()
+            # TODO: Format the terminal output to HTML
+            output = self.format_output(run.stdout) if run.stdout else ''
 
-                # Execute the task command (given the input HEAD and BODY)
-                output, _, _ = Taskfile.run(self.taskfile.path, task.name, env)
-                output = self.format_output(output)
-
-                # Capture the details to the task that was spawned
-                result.update({"output": output})
-
-            except Exception as ex:
-                # The task failed to launch
-                print(f'Something went wrong: {ex}')
-                result.update({"error": str(ex)})
-        else:
-            result.update({"error": '\n'.join(input.errors)})
+            # Capture the details to the task that was spawned
+            result.update({
+                "run": run,
+                "vars": vars,  # Show run vars (pinned)
+                "changes": {},  # Clear the change status
+                "disabled": True,  # Clear the change status
+                "output": output,
+            })
+        except Exception as ex:
+            # The task failed to launch
+            print(f'Something went wrong: {ex}')
+            result.update({"error": str(ex)})
 
         return result
 
     def runDialog(self, task_name: str):
         task = self.repo.findTask(task_name)
-        return {
+        result = self.base(task) if task else {
             "taskfile": self.taskfile,
             "task": task,
             "name": task_name,
         }
+        if not task and task_name:
+            result.update({"error": 'No Task with that name'})
+        elif not task:
+            result.update({"error": 'Please enter a task name'})
+
+        return result
 
     def runVarDetails(self, task_name, key_name):
         task = self.repo.findTask(task_name)

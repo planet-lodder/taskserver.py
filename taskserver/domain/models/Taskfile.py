@@ -47,10 +47,10 @@ class Taskfile(BaseModel):
             return res
 
     @staticmethod
-    def run(filename, action, vars={}, extra_args='') -> [str, str, subprocess.CompletedProcess]:
+    def run(filename, action, vars={}, cli_args='') -> [str, str, subprocess.CompletedProcess]:
         try:
             command = f"task -t {filename} {action}"
-            command = f'{command} -- {extra_args}' if extra_args else command
+            command = f'{command} -- {cli_args}' if cli_args else command
 
             clear = Style.RESET_ALL
             def green(msg): return f"{Fore.GREEN}{Style.BRIGHT}{msg}{clear}"

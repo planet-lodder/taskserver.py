@@ -34,7 +34,7 @@
 -->
 
 {% with key=key, value=value, placeholder=placeholder %}
-<tr id="values_{{dest}}_{{key}}" class="h-10 text-sm {{style}}">
+<tr class="h-10 text-sm {{style}}" hx-target="this">
   <td class="px-2 whitespace-nowrap">
     <!-- {% if icon %} -->
     <span class="opacity-50">{% include icon %}</span>
@@ -49,7 +49,6 @@
         placeholder=""
         class="{{style}} block my-1 py-1 px-4 w-full text-sm bg-transparent border-0 border-b border-gray-200 appearance-none dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
         hx-post="{{htmx_base}}{{htmx_query}}"
-        hx-target="#values_{{dest}}_{{key}}"
         hx-trigger="keyup changed delay:1s"
         hx-swap="outerHTML"
         {{attr_disabled}}
@@ -67,9 +66,8 @@
       class="flex-0 -ml-8 -mt-3 z-20 cursor-pointer text-gray-300 dark:text-gray-700 hover:text-gray-500 dark:hover:text-gray-300 opacity-75 hover:opacity-100"
       hx-delete="{{htmx_base}}{{htmx_query}}"
       hx-confirm="Delete '{{dest}}.{{key}}'. Are you sure?"
-      hx-target="closest tr"
       hx-swap="outerHTML swap:0.5s"
-      onclick="event.stopPropagation()"      
+      onclick="event.stopPropagation()"
     >
       {% include "icons/trash.svg" %}
     </button>

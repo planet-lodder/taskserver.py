@@ -13,7 +13,7 @@
   class="task-variables min-w-full"
 >
   <thead class="font-normal">
-    <tr class="text-left rtl:text-right text-gray-500 dark:text-gray-300">
+    <tr class="{{style_head}} text-left text-gray-500 dark:text-gray-300">
       <th class="w-4 p-2 cursor-pointer" @click="open = !open">
         <span style="display: block" x-show="open"
           >{% include 'icons/chevron-down.svg' %}</span
@@ -50,7 +50,7 @@
     </tr>
   </thead>
   <tbody
-    id="config-{{dest}}"
+    class="config-{{dest}}"
     style="{% if closed %}display: none{% endif %}"
     x-show="open"
   >

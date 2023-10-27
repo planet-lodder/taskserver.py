@@ -18,6 +18,7 @@ class TaskRun(BaseModel):
     id: str
     task: Task
     vars: TaskVars
+    cli_args: Optional[str]
     pid: Optional[int]
     started: Optional[datetime]
     finished: Optional[datetime]
@@ -42,9 +43,10 @@ class TaskRun(BaseModel):
             path = self.task.path
             name = self.task.name
             vars = self.vars
+            cli_args = self.cli_args
 
             # TODO: This should be async
-            print(f'Run task: {name} {vars}')
+            print(f'Run task: {name} {vars} -- {cli_args}')
             output, err, res = Taskfile.run(path, name, vars)
             self.finished = datetime.now()
 

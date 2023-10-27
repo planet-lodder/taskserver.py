@@ -5,7 +5,7 @@ from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.details import TaskDetailUseCase
 
 
-@router.get('/details')
+@router.get('/task')
 @router.renders('task/single')
 def taskDetails(req, resp):
     view = UseCase.forWeb(req, TaskDetailUseCase)
