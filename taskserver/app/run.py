@@ -63,17 +63,6 @@ def taskRun(req, resp):
     return result
 
 
-@router.get('/run/var')
-@router.renders('partials/run/vars/item')
-def taskRunVar(req, resp):
-    view = UseCase.forWeb(req, TaskRunUseCase)
-    input = Serialize.fromWeb(req, TaskRunInputs)
-
-    # Get the task variable details
-    key = input.htmx.prompt if input.htmx else ''
-    return view.runVarDetails(input.name, key)
-
-
 @router.post('/run/var')
 @router.renders("partials/values/item")
 def taskUpdateRunVar(req, resp):
