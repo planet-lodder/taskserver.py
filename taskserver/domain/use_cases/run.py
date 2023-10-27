@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from ansi2html import Ansi2HTMLConverter
@@ -37,7 +38,10 @@ class TaskRunUseCase(TaskUseCase):
             try:
                 # Create a new run session and spawn the task
                 run = self.createRun(task, vars)
+                #run.started = datetime.datetime.now()
+                #run.exitCode = 1
                 run.start()
+                
 
                 # TODO: Format the terminal output to HTML
                 output = self.format_output(run.stdout) if run.stdout else ''

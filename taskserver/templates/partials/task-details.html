@@ -56,8 +56,8 @@
 
     <!-- Task run is attached -->
     <div class="flex flex-row mr-4">
-      <label class="p-2 w-32 on inline-block element">Running Task:</label>
-      {{run.key}}
+      <label class="p-2 w-32 on inline-block element">Run Status:</label>
+      {% include 'partials/run/status.html' %}
     </div>
     <div class="flex flex-row mr-4">
       <label class="p-2 w-32 on inline-block element">Run Progress:</label>
@@ -68,7 +68,7 @@
 
     <!-- Task breakdown -->
     <div class="flex flex-row mr-4">
-      <label class="p-2 w-32 on inline-block element">Task Executes:</label>
+      <label class="p-2 w-32 on inline-block element">Run Executes:</label>
       {% include 'partials/run/index.html' %}
     </div>
 

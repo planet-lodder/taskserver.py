@@ -65,7 +65,7 @@ def taskRun(req, resp):
 
 @router.get('/run/var')
 @router.renders('partials/run/vars/item')
-def taskRunDialog(req, resp):
+def taskRunVar(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
 
@@ -76,14 +76,14 @@ def taskRunDialog(req, resp):
 
 @router.post('/run/var')
 @router.renders("partials/values/item")
-def taskEditConfigEnv(req, resp):
+def taskUpdateRunVar(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunVar)
     return view.updateRunVar(*input.forUpdate(f'task'))
 
 
 @router.delete('/run/var')
-def taskRemoveConfigEnv(req, resp):
+def taskDeleteRunVar(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunVar)
     view.deleteRunVar(*input.forDelete(f'task'))

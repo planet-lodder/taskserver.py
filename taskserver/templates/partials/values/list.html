@@ -15,8 +15,12 @@
   <thead class="font-normal">
     <tr class="text-left rtl:text-right text-gray-500 dark:text-gray-300">
       <th class="w-4 p-2 cursor-pointer" @click="open = !open">
-        <span style="display: block" x-show="open">{% include 'icons/chevron-down.svg' %}</span>
-        <span style="display: none" x-show="!open">{% include 'icons/chevron-right.svg' %}</span>
+        <span style="display: block" x-show="open"
+          >{% include 'icons/chevron-down.svg' %}</span
+        >
+        <span style="display: none" x-show="!open"
+          >{% include 'icons/chevron-right.svg' %}</span
+        >
       </th>
       <th class="flex flex-row">
         <!-- Display Name -->
@@ -29,12 +33,18 @@
           ( {{ values.keys() | length }} )
           <!-- {% endif %} -->
         </label>
+        <!-- Value Actions (top-right) -->
         <div class="flex flex-row flex-0" @click="open = true">
           <span class="flex-1"></span>
-          <!-- Value Actions (top-right) -->
-          {% if not disabled %}
-          {% include 'partials/values/add.html' %}
-          {% endif %}
+          {% if run %}
+          <!-- {% if run.started %} Task was already started -->
+          <div class="m-1 font-light italic text-gray-500 opacity-75">
+            Spawned: {{ run.started.strftime('%l:%M %p %Z on %b %d, %Y') }}
+          </div>
+          <!-- {% endif %} -->
+          {% else %}
+          <!-- Show tools for spawning new task -->
+          {% include 'partials/values/add.html' %} {% endif %}
         </div>
       </th>
     </tr>
