@@ -1,5 +1,7 @@
 
+import re
 from taskserver.domain.models.Task import Task, TaskVars
+from taskserver.domain.models.TaskBreakdown import TaskBreakdown
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.use_cases.base import TaskfileUseCase
 
@@ -22,6 +24,7 @@ class TaskUseCase(TaskfileUseCase):
             "dest": f'task',
             "vars": vars,
             "changes": changes,
+            "breakdown": self.taskBreakdown(task.name),
             "htmx_base": "/taskserver/run/var",
         })
 
@@ -101,18 +104,22 @@ class TaskUseCase(TaskfileUseCase):
         if runVars and key in runVars:
             del runVars[key]  # Update run var value
 
-    def taskBreakdown(self, task_name: str):
-        taskfile = self.repo.taskfile
-        task = self.repo.findTask(task_name)
-        breakdown = []
+    def getRunBreakdown(self, task_name: str):
+        result = self.defaults()
 
-        if task and taskfile:
-            # Not a leaf node, so show the search results instead
-            breakdown = Taskfile.breakdown(taskfile.path, task.name)
+        # Add task details
+        result.update({"breakdown": self.taskBreakdown(task_name)})
+
+        return result
+
+    def taskBreakdown(self, task_name: str):
+        session = self.session
+        breakdown = session.breakdown.get(task_name)
+
+        if not breakdown:
+            # Generate the task breakdown for current this session
+            breakdown = TaskBreakdown.forTask(self.taskfile.path, task_name)
+            session.breakdown[task_name] = breakdown
 
         # Show the task view
-        return {
-            "task": task,
-            "taskfile": taskfile,
-            "breakdown": breakdown,
-        }
+        return breakdown

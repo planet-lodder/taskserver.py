@@ -3,16 +3,17 @@ from typing import Dict, Type, TypeVar
 
 from anyserver import WebRequest
 from taskserver.domain.models.Task import Task, TaskVars
+from taskserver.domain.models.TaskBreakdown import TaskBreakdown
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories import Repository
 from taskserver.domain.repositories.base import TaskfileRepository
 
 IN_MEMORY_SESSIONS = {}
 
-
 class Session(dict):
     username: str
     runVars: Dict[str, TaskVars] = {}
+    breakdown: Dict[str, TaskBreakdown] = {}
 
     def __init__(self, username: str):
         self.username = username

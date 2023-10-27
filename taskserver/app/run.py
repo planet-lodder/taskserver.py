@@ -133,5 +133,5 @@ def taskBreakdown(req, resp):
     input = Serialize.fromWeb(req, TaskRunInputs)
 
     # Do a breakdown of the current task
-    result = view.taskBreakdown(input.name)
+    result = view.getRunBreakdown(input.name)
     return result
