@@ -1,7 +1,8 @@
 <div hx-swap-oob="innerHTML:main">
   <!-- Async reload the main contents-->
   <em
-    hx-get="/taskserver/task?name={{task.name}}"
+    hx-get="/taskserver/run?job_id={{run.id}}"
+    hx-replace-url="true"
     hx-target="main"
     hx-swap="main"
     hx-trigger="click, load, reveal"
