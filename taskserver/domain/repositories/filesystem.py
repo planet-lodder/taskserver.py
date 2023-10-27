@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Sequence
 
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
+from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories.base import TaskfileRepository
 
@@ -96,6 +97,25 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             # Delete removed values
             print(f' - {k} (delete)')
             yq.cli(['-iY', f'del({k})', filename])
+
+    def getTaskRun(self, id: str) -> Optional[TaskRun]:
+        cache_path = '.task/temp/runs'
+        file_path = f'{cache_path}/{id}.yaml'
+        if os.path.isfile(file_path):
+            with open(file_path, 'r') as f:
+                input = f.read()
+                data = yaml.safe_load(input)
+                run = TaskRun(**data)
+                return run
+        return None
+
+    def saveTaskRun(self, run: TaskRun):
+        cache_path = '.task/temp/runs'
+        output = yaml.safe_dump(run.dict())
+        if not os.path.isdir(cache_path):
+            os.mkdir(cache_path)
+        with open(f'{cache_path}/{run.id}.yaml', 'w') as f:
+            f.write(output)
 
     def listTasks(self) -> Sequence[Task]:
         if self.tasks:
@@ -210,8 +230,8 @@ class FilesystemTaskfileRepo(TaskfileRepository):
 
     def getTaskValues(self, task: Task) -> TaskVars:
         if not task:
-            return TaskVars() # No task was provided
-        
+            return TaskVars()  # No task was provided
+
         # Keep track of the evaluated task variables
         values = TaskVars()
 

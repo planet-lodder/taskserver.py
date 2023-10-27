@@ -1,5 +1,7 @@
 
 
+from anyserver import WebRequest
+
 from taskserver import router
 from taskserver.domain.serializers import Serialize, WebSerializer
 from taskserver.domain.serializers.task import TaskRequest
@@ -8,13 +10,14 @@ from taskserver.domain.use_cases.run import TaskRunUseCase
 
 
 class TaskRunInputs(TaskRequest):
+    job_id: str
 
     def parse(self):
+        # Check if the job key was provided
+        self.job_id = self.req.query.get('job_id')
+
         super().parse()  # Parse task properties
 
-        if not self.name:
-            error = 'Please specify a task name'
-            self.errors.append(error)
 
 
 class TaskRunVar(WebSerializer):
@@ -49,7 +52,7 @@ class TaskRunVar(WebSerializer):
         return self.task, dest, self.key
 
 
-@router.post('/run')
+@router.get('/run')
 @router.renders('task/single')
 def taskRun(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
@@ -57,8 +60,24 @@ def taskRun(req, resp):
 
     # Try and run the task (no additional parameters)
     node = input.selected(view.repo)
+    result = view.runIndex(input, node, input.job_id)
+
+    return result
+
+@router.post('/run')
+@router.renders('task/single')
+def taskRun(req: WebRequest, resp):
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+
+    # Try and run the task (no additional parameters)
+    node = input.selected(view.repo)
     vars = req.inputs('config.task.', strip_prefix=True)
     result = view.tryRun(input, node, vars)
+
+    if run := result.get("run"):        
+        new_url = f'{req.path}?job_id={run.id}'
+        resp.head['HX-Replace-Url'] = new_url
 
     return result
 

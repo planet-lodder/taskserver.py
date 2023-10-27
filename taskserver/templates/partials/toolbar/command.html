@@ -24,6 +24,7 @@
   <button
     hx-post="/taskserver/run?name={{name}}"
     hx-target="main"
+    hx-replace-url="true"
     onclick="event.preventDefault()"
     class="flex items-center space-x-2 cursor-pointer rounded py-1 px-4 mx-2 mr-5 shadow-md bg-blue-500 text-gray-100"
   >

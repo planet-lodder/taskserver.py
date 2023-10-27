@@ -4,8 +4,13 @@ from typing import Dict, List, Optional, Sequence
 
 from taskserver.domain.models.Task import Task, TaskBase, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
+from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories.base import TaskfileRepository
+
+
+class InMemoryCache():
+    TASK_RUNS: Dict[str, TaskRun] = {}
 
 
 class InMemoryTaskRepository(TaskfileRepository):
@@ -37,6 +42,14 @@ class InMemoryTaskRepository(TaskfileRepository):
     def saveConfig(self, taskfile: Taskfile, reload=False) -> Taskfile:
         self.taskfile = taskfile
         return taskfile
+
+    def getTaskRun(self, id: str) -> Optional[TaskRun]:
+        if id in InMemoryCache.TASK_RUNS:
+            return InMemoryCache.TASK_RUNS[id]
+        return None
+
+    def saveTaskRun(self, run: TaskRun):
+        InMemoryCache.TASK_RUNS[run.id] = run
 
     # List all available tasks in the in-memory cache
     def listTasks(self) -> Sequence[Task]: return self.tasks

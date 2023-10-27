@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional, Sequence
 from taskserver.domain.models.Task import Task, TaskVars
 
 from taskserver.domain.models.TaskNode import TaskNode
+from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.Taskfile import Taskfile
 
 
@@ -20,6 +21,12 @@ class TaskfileRepository(ABC):
 
     @abstractmethod
     def saveConfig(self, taskfile: Taskfile, reload=False) -> Taskfile: ...
+
+    @abstractmethod
+    def getTaskRun(self, id: str) -> Optional[TaskRun]: ...
+    
+    @abstractmethod
+    def saveTaskRun(self, run: TaskRun): ...
 
     @abstractmethod
     def listTasks(self) -> Sequence[Task]: ...

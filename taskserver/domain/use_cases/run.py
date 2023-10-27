@@ -3,6 +3,7 @@ import os
 
 from ansi2html import Ansi2HTMLConverter
 from ansi2html.style import (get_styles)
+from colorama import Fore, Style
 
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
@@ -16,15 +17,34 @@ from taskserver.domain.use_cases.task import TaskUseCase
 
 class TaskRunUseCase(TaskUseCase):
 
+    def runIndex(self, input: TaskRequest, node: TaskNode, job_id: str):
+        run = self.repo.getTaskRun(job_id) if job_id else None
+        name = run.task.name if run and run.task else input.name
+        task = self.repo.findTask(name) if name else None
+        result = self.base(task) if task else {
+            "taskfile": self.taskfile,
+            "task": task,
+        }
+        result.update({
+            "title": task.name if task else "unknown",
+            "toolbar": "partials/toolbar/task.html",
+            "disabled": True,  # Clear the change status
+            "output": self.format_output(run.stdout) if run else '',
+            "run": run,
+        })
+
+        return result
+
     def createRun(self, task: Task, vars: dict, cli_args=''):
         # Create a new object to track the process and its output
         vars = self.getRunVars(task)
-        info = TaskRun(task=task, vars=vars, cli_args=cli_args)
+        run = TaskRun(task=task, vars=vars, cli_args=cli_args)
 
         # Now that the task has been started, clear run vars and reload details
+        self.repo.saveTaskRun(run)
         self.clearRunVars(task)
 
-        return info
+        return run
 
     def tryRun(self, input: TaskRequest, node: TaskNode, vars={}):
         task = self.repo.findTask(input.name) if node else None
@@ -52,6 +72,7 @@ class TaskRunUseCase(TaskUseCase):
             # Create a new run session and spawn the task
             run = self.createRun(task, vars, result.get("cli_args", ''))
             run.start()
+            self.repo.saveTaskRun(run)
 
             # TODO: Format the terminal output to HTML
             output = self.format_output(run.stdout) if run.stdout else ''
@@ -66,7 +87,7 @@ class TaskRunUseCase(TaskUseCase):
             })
         except Exception as ex:
             # The task failed to launch
-            print(f'Something went wrong: {ex}')
+            print(f'{Fore.RED}{ex}{Style.RESET_ALL}')
             result.update({"error": str(ex)})
 
         return result
