@@ -1,6 +1,6 @@
 
 
-from anyserver import WebRequest
+from anyserver import WebRequest, WebResponse
 
 from taskserver import router
 from taskserver.domain.serializers import Serialize, WebSerializer
@@ -66,7 +66,7 @@ def taskRun(req, resp):
 
 @router.post('/run')
 @router.renders('task/single')
-def taskRun(req: WebRequest, resp):
+def taskRun(req: WebRequest, resp: WebResponse):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
 

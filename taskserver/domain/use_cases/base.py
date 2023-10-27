@@ -36,6 +36,12 @@ class TaskfileUseCase(ABC):
     def taskfile(self) -> Taskfile:
         return self.repo.taskfile
 
+    def defaults(self):
+        return {
+            "taskfile": self.taskfile,
+            "menu": self.repo.getMenu()
+        }
+
 
 T = TypeVar("T", bound=TaskfileUseCase)
 

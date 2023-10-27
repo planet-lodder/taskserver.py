@@ -5,13 +5,11 @@ from taskserver.domain.use_cases.base import TaskfileUseCase
 class TaskSideNavUseCase(TaskfileUseCase):
 
     def index(self):
-        menu = self.repo.getMenu()
-        result = {
+        result = self.defaults()
+        result.update({
             "title": "Show All",
-            "toolbar": "partials/toolbar/list.html",
-            "taskfile": self.taskfile,
-            "menu": menu,
-        }
+            "toolbar": "partials/toolbar/list.html",            
+        })
         return result
 
     def toggle(self, key: str):

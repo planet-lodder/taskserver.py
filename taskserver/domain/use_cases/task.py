@@ -13,9 +13,8 @@ class TaskUseCase(TaskfileUseCase):
         # Get the task vars and their current status
         vars = self.getRunVars(task)
         changes = self.getRunVarStatusMap(vars)
-
-        return {
-            "taskfile": self.taskfile,
+        results = self.defaults()
+        results.update({
             "task": task,
             "name": task.name if task else None,
 
@@ -24,7 +23,9 @@ class TaskUseCase(TaskfileUseCase):
             "vars": vars,
             "changes": changes,
             "htmx_base": "/taskserver/run/var",
-        }
+        })
+
+        return results
 
     def getRunVars(self, task: Task):
         # Get the current run variables (if they are cached in the session)

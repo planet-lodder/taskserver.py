@@ -23,14 +23,15 @@ class TaskConfigUseCase(TaskfileUseCase):
 
         # Build a list of all status changes in config values
         changes = self.getStatusForConfigValues(taskfile)
-
-        return {
+        results = self.defaults()
+        results.update({
             "title": "Configuration",
             "toolbar": "partials/toolbar/config.html",
             "taskfile": taskfile,
             "changes": changes,
             "trigger_import": trigger_import
-        }
+        })
+        return results
 
     def getStatusForConfigValues(self, taskfile: Taskfile):
         # Build a list of all status changes

@@ -13,10 +13,11 @@ class TaskListUseCase(TaskfileUseCase):
 
     def list(self, values=None):
         values = values or self.repo.listTasks()
-        return {
-            "taskfile": self.taskfile,
+        results = self.defaults()
+        results.update({
             "list": values
-        }
+        })
+        return results
 
     def search(self, terms: str):
         found = self.repo.searchTasks(terms)
