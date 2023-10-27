@@ -48,6 +48,7 @@ class TaskRunUseCase(TaskUseCase):
 
     def tryRun(self, input: TaskRequest, node: TaskNode, vars={}):
         task = self.repo.findTask(input.name) if node else None
+        vars = self.getRunVars(task) if task and not len(vars.keys()) else vars
         result = self.base(task) if task else {
             "taskfile": self.taskfile,
             "task": task,
