@@ -7,9 +7,28 @@
 {% set cmd = "task -f " + path + " " + name %}
 {% endif %}
 -->
+<style>
+  .task-run-btn {
+    display: flex;
+  }
+  .task-loading {
+    display: none;
+  }
+  /* Show loader during HTMX request */
+  .htmx-request .task-loading,
+  .htmx-request.task-loading {
+    display: flex;
+  }
+  /* Hide previously loaded content during HTMX request */
+  .htmx-request .task-run-btn,
+  .htmx-request.task-run-btn {
+    display: none;
+  }
+</style>
 <div
   class="flex flex-row items-center bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
 >
+  <!-- Parsed command in the retminal -->
   <span class="font-bold pl-4 pr-2 py-3.5">
     {% include 'icons/terminal.svg' %}
   </span>
@@ -21,12 +40,25 @@
     class="block flex-1 px-4 py-1.5 m-1.5 text-gray-700 bg-white border dark:border-gray-700 rounded-lg placeholder-gray-400/70 dark:bg-gray-900 dark:text-gray-300"
     readonly
   />
+
+  <!-- Loading placeholder -->
+  <span
+    class="task-loading flex items-center space-x-2 cursor-pointer rounded py-1 px-4 mx-2 mr-5 shadow-md text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 cursor-pointer"
+  >
+    <span class="w-6 h-6 animate-spin"
+      >{% include "icons/arrow-path.svg" %}</span
+    >
+    <span>Starting</span>
+  </span>
+
+  <!-- Run button -->
   <button
     hx-post="/taskserver/run?name={{name}}"
     hx-target="main"
     hx-replace-url="true"
+    hx-indicator=".task-loading,.task-run-btn"
     onclick="event.preventDefault()"
-    class="flex items-center space-x-2 cursor-pointer rounded py-1 px-4 mx-2 mr-5 shadow-md bg-blue-500 text-gray-100"
+    class="task-run-btn flex items-center space-x-2 cursor-pointer rounded py-1 px-4 mx-2 mr-5 shadow-md bg-blue-500 text-gray-100"
   >
     {% include 'icons/play.svg' %}
     <span>Run Task</span>
