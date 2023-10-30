@@ -23,8 +23,10 @@
   <!-- {% if run.exitCode %} -->
   <div class="flex text-red-500">
     {% include 'icons/error.svg' %}
-    <span class="mx-2 font-normal">
-        Task failed to run with exit code [{{ run.exitCode }}]
+    <span class="mx-2 font-normal">Task failed to run!</span>
+    <span class="font-thin">
+      Returned with exit code [
+      <span class="font-bold">{{ run.exitCode }}</span> ]
     </span>
     <span class="font-thin">
       -

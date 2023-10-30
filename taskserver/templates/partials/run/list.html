@@ -17,9 +17,22 @@
 }
 %}
 {% set values = item_types[item_type] | default(item_types["cmd"])  %} 
+{% set icon = values.icon  %} 
+{% set style = values.style  %} 
+
+{% if run and run.finished and run.exitCode == 0 %}
+{% set icon = 'icons/document-check.svg'  %} 
+{% set style = 'text-green-500'  %} 
+{% endif %}
+
+{% if run and run.exitCode %}
+{% set icon = 'icons/error.svg'  %} 
+{% set style = 'text-red-500'  %} 
+{% endif %}
+
 -->
-  <li class="p-1 flex items-top {{values.style}}">
-    {% include values.icon %}
+  <li class="p-1 flex items-top {{style}}">
+    {% include icon %}
     <!-- {% if item_type == "task" %}-->
     <pre class="pl-2 flex item-center">task {{ item.message }}</pre>
     <!-- {% else %}-->
