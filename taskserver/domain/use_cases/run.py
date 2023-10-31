@@ -68,7 +68,7 @@ class TaskRunUseCase(TaskUseCase):
         if not task:
             result.update({"error": 'Task not found'})
             return result
-
+        
         try:
             # Create a new run session and spawn the task
             run = self.createRun(task, vars, result.get("cli_args", ''))

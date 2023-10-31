@@ -1,16 +1,27 @@
 
+import json
 import os
 import random
 import string
 import subprocess
+import threading
+import time
+import asyncio
 
-from typing import Optional, List
+from typing import Any, Callable, Coroutine, Optional, List
 from datetime import datetime
 from colorama import Fore, Style
 from pydantic import BaseModel
 
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.Taskfile import Taskfile
+
+
+def bold(msg): return f"{Style.BRIGHT}{msg}{Style.NORMAL}"
+def red(msg): return f"{Fore.RED}{bold(msg)}{Style.RESET_ALL}"
+def green(msg): return f"{Fore.GREEN}{msg}{Style.RESET_ALL}"
+def action(msg): return f"{Fore.MAGENTA}{msg}{Style.RESET_ALL}"
+def debug(msg): return f"{Style.DIM}{msg}{Style.RESET_ALL}"
 
 
 def _new_id(size: int = 32):  # Pseudo random id, to track this edit session
@@ -29,6 +40,11 @@ class TaskRun(BaseModel):
     stdout: Optional[str]
     stderr: Optional[str]
 
+    # proc: Optional[subprocess.Popen]
+
+    class Config:
+        exclude = ['proc']
+
     def __init__(self, **kwargs):
         kwargs["id"] = kwargs.get("id", _new_id())
         super().__init__(**kwargs)
@@ -42,58 +58,99 @@ class TaskRun(BaseModel):
         else:
             return 0
 
+    @property
+    def arguments(self):
+        args = [self.task.name]
+        if self.task.path != "Taskfile.yaml":
+            # Custome taskfile provided
+            args = ['-t', self.task.path, self.task.name]
+        if extra := self.cli_args:
+            # Add extra CLI args for sub process
+            args.append(['--'] + extra if type(extra) == list else [])
+        # Return combined arguments
+        return args
+
+    @property
+    def command(self):
+        command = ''
+        sep = ''
+        args = ['task'] + self.arguments
+        for arg in args:
+            arg = arg if not " " in arg else json.dumps(arg)
+            command += sep + arg
+            sep = ' '
+        return command
+
     def start(self):
         self.started = datetime.now()
         try:
-            path = self.task.path
-            name = self.task.name
-            vars = self.vars
-            cli_args = self.cli_args
-
-            # TODO: This should be async
-            print(f'Run task: {name} {vars} -- {cli_args}')
-            output, err, res = self.run(path, name, vars, cli_args)
-            self.finished = datetime.now()
-
-            self.stdout = output
-            self.stderr = err
-        except Exception as ex:
-            # Record the time the task failed to finished
-            print(f'{Fore.RED}ERROR: {str(e)}{Style.RESET_ALL}')
-            self.finished = datetime.now()
-            self.stderr = self.stderr or str(ex)
-
-    def run(self, filename, action, vars={}, cli_args='') -> [str, str, subprocess.CompletedProcess]:
-        try:
-            command = f"task -t {filename} {action}"
-            command = f'{command} -- {cli_args}' if cli_args else command
-
-            clear = Style.RESET_ALL
-            def green(msg): return f"{Fore.GREEN}{Style.BRIGHT}{msg}{clear}"
-            def action(msg): return f"{Fore.MAGENTA}{msg}{clear}"
-            print(f'{green("▶")} {action(command)}{Style.DIM}')
-
             # Set the ENV vars to pass to the process
             env = os.environ.copy()
-            env.update(vars)
+            env.update(self.vars)
 
-            # Build the command and run as sub process
-            pop = command.split(" ")
-            res = subprocess.run(
-                pop,
+            self.stdout = f'{self.id}/stdout.log'
+            self.stderr = f'{self.id}/stderr.log'
+
+            # Print the executed command to stdout
+            self.trace(self.command)
+
+            # Start the process (non-blocking)
+            proc = subprocess.Popen(
+                ['task'] + self.arguments,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 env=env
             )
+            self.pid = proc.pid
 
-            # Get the output and error streams
-            out = res.stdout.decode().strip()
-            err = res.stderr.decode().strip()
+            # Run the (deferred, async) action in a new thread, to make it non-blocking
+            def deferred():
+                result = asyncio.run(self.trackChanges(proc))
+                self.runCompleted(result, proc)
 
-            # Return the execution details
-            print(f'{Style.RESET_ALL}', end="")
-            return out, err, res
-        except Exception as e:
-            print(f'{Fore.RED}ERROR: {str(e)}{Style.RESET_ALL}')
-            print(f'{Style.RESET_ALL}', end="")
-            return None, str(e), None
+            # Spawn task in new tread, but do not wait...
+            threading.Thread(target=deferred).start()
+
+        except Exception as ex:
+            self.finished = datetime.now()
+            # Record the time the task failed to finished
+            print(f'{Fore.RED}ERROR: {str(ex)}{Style.RESET_ALL}')
+
+    async def trackChanges(self, proc: subprocess.Popen):
+        # Wait for a return code
+        while proc.poll() == None:
+            time.sleep(.5)
+        return proc.returncode
+
+    def runCompleted(self, result: int, proc: subprocess.Popen):
+        # Stop timer and set the exit code that was returned
+        self.finished = datetime.now()
+        self.exitCode = result
+
+        # Check the exit condition (success/fail)
+        if result == 0:
+            # Run completed successfully
+            self.traceDone(self.command)
+        elif result > 0:
+            # Run failed with an exit code
+            self.traceError(self.command)
+
+    def timed(self) -> str:
+        timed = self.ellapsed
+        return timed
+
+    def trace(self, command: str):
+        extra = debug(f'# --> {self.id}')
+        print(f'{green("▶")} {action(command)} {extra}{Style.RESET_ALL}')
+
+    def traceDone(self, command: str):
+        glyph = green("◀")
+        command = green(command)
+        extra = debug(f'# <-- {self.id} ( {self.timed()} )')
+        print(f'{glyph} {command} {extra}{Style.RESET_ALL}')
+
+    def traceError(self, command: str):
+        glyph = red("■")
+        command = red(command + f" [ {self.exitCode} ]")
+        extra = debug(f'# <-- {self.id} ( {self.timed()} )')
+        print(f'{glyph} {command} {extra}{Style.RESET_ALL}')

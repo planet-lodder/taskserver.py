@@ -1,6 +1,8 @@
-{% extends 'base.html' %} {% block content %} {% include 'partials/toolbar.html'
-%}
-<div class="h-full flex flex-col">
+{% extends 'base.html' %} {% block content %} 
+<!-- Add Toolbar -->
+{% include 'partials/toolbar.html'%}
+
+<div class="h-full flex flex-col justify-stretch bg-white dark:bg-gray-900">
   <form class="flex flex-col flex-0 resize-y overflow-hidden">
     <input type="hidden" name="name" value="{{task.name}}" />
     <input type="hidden" name="path" value="{{taskfile.path}}" />
@@ -13,7 +15,7 @@
   <!-- Terminal Output -->
   <!-- {% if output %} -->
   <div
-    class="terminal-output min-h-64 overflow-y-auto flex flex-col flex-1 text-sm p-4 text-gray-500 bg-gray-900 dark:bg-gray-900 opacity-75 dark:opacity-100"
+    class="terminal-output min-h-64 overflow-y-auto flex flex-col flex-1 text-sm p-4 text-gray-500 bg-gray-900 dark:bg-gray-900 opacity-75 dark:opacity-100 border-t border-gray-200 dark:border-gray-700"
   >
     {{output}}
   </div>
