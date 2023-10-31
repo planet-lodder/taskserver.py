@@ -27,7 +27,7 @@
   <body>
     <!-- Main template -->
     <div
-      class="flex flex-col min-h-screen w-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+      class="flex flex-col h-screen w-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
     >
       <!-- App Toolbar -->
       <header
@@ -232,17 +232,17 @@
         </div>
       </header>
 
-      <div class="flex flex-grow flex-row">
+      <div class="flex flex-1 h-full">
         <!-- Side Navigation -->
         <nav
           id="sidenav"
-          class="w-80 flex flex-col flex-0 overflow-y-auto border-gray-200 bg-white dark:bg-gray-600"
+          class="w-80 h-full overflow-y-auto flex flex-col flex-0 border-gray-200 bg-white dark:bg-gray-600"
         >
           {% block sidenav %}{% endblock sidenav %}
         </nav>
 
         <!-- Main content page -->
-        <main id="main" class="flex flex-col flex-1 overflow-y-auto">
+        <main id="main" class="w-full h-full flex flex-col flex-1 overflow-y-auto">
           {% block content %}
           <div class="text-gray-300 dark:text-gray-700">
             <span>Target:</span>

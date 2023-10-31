@@ -12,7 +12,6 @@
   <a
     hx-get="/taskserver/task?name={{name}}"
     hx-target="main"
-    hx-swap="outerHTML"
     hx-replace-url="true"
     class="font-medium cursor-pointer text-gray-800 dark:text-white"
   >
@@ -31,7 +30,6 @@
   <a
     hx-get="/taskserver/task?name={{name}}"
     hx-target="main"
-    hx-swap="outerHTML"
     class="flex items-center cursor-pointer space-x-2 rounded py-1 px-4 mx-1 text-gray-300 dark:text-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
   >
     {% include "icons/list.svg" %}
