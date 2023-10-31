@@ -2,10 +2,7 @@
 <!-- 
 {% set name = task.name %}
 {% set path = taskfile.path %}
-{% set cmd = "task " + name %}
-{% if path and path != "Taskfile.yaml" %}
-{% set cmd = "task -f " + path + " " + name %}
-{% endif %}
+{% set cmd = run.command if run else "task " + name %}
 -->
 <style>
   .task-run-btn {

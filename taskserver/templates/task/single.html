@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block content %} 
+{% extends 'base.html' %} {% block content %}
 <!-- Add Toolbar -->
 {% include 'partials/toolbar.html'%}
 
@@ -13,12 +13,8 @@
   </form>
 
   <!-- Terminal Output -->
-  <!-- {% if output %} -->
-  <div
-    class="terminal-output min-h-64 overflow-y-auto flex flex-col flex-1 text-sm p-4 text-gray-500 bg-gray-900 dark:bg-gray-900 opacity-75 dark:opacity-100 border-t border-gray-200 dark:border-gray-700"
-  >
-    {{output}}
-  </div>
+  <!-- {% if run %} -->
+  {% include 'partials/terminal/output.html' %}
   <!-- {% endif %} -->
 </div>
 {% endblock content %}
