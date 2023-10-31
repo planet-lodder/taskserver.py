@@ -2,7 +2,7 @@
 <!-- 
 {% set name = task.name %}
 {% set path = taskfile.path %}
-{% set cmd = run.command if run else "task " + name %}
+{% set cmd = run.command if run else ("task " + name) %}
 -->
 <style>
   .task-run-btn {
@@ -33,7 +33,7 @@
   <input
     type="text"
     name="command"
-    value="{{cmd}}"
+    value="{{cmd|e}}"
     class="block flex-1 px-4 py-1.5 m-1.5 text-gray-700 bg-white border dark:border-gray-700 rounded-lg placeholder-gray-400/70 dark:bg-gray-900 dark:text-gray-300"
     readonly
   />

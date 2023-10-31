@@ -60,23 +60,33 @@ class TaskRun(BaseModel):
 
     @property
     def arguments(self):
-        args = [self.task.name]
+        args = []
+
         if self.task.path != "Taskfile.yaml":
-            # Custome taskfile provided
-            args = ['-t', self.task.path, self.task.name]
+            args = ['-t', self.task.path]  # Specify custom taskfile
+
+        # Add overrides for task vars
+        for var in self.vars:
+            if self.vars[var] != self.vars.eval[var]:
+                args += [f'{var}={json.dumps(self.vars[var])}']
+
+        # Add the task by name
+        args += [self.task.name]
+
+        # Add extra CLI args for sub process
         if extra := self.cli_args:
-            # Add extra CLI args for sub process
             args.append(['--'] + extra if type(extra) == list else [])
+
         # Return combined arguments
         return args
 
     @property
     def command(self):
         command = ''
-        sep = ''
         args = ['task'] + self.arguments
+        sep = ''
         for arg in args:
-            arg = arg if not " " in arg else json.dumps(arg)
+            arg = json.dumps(arg) if " " in arg and not '"' in arg else arg
             command += sep + arg
             sep = ' '
         return command
