@@ -10,13 +10,8 @@
     htmx && htmx.trigger(htmx.find("body"), "{{name}}");
   </script>
   <!-- {% endif %} -->
-  <!--
-  <span
-    hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}&job_id={{run.id}}"
-    hx-trigger="load"
-  ></span>
-  -->
   <!-- {% endif %} -->
+
   <!-- {% if not run %} -->
   <em class="text-gray-500 opacity-50">Cannot find any run details</em>
   <!-- {% elif not run.started and not run.finished %} -->
@@ -37,6 +32,7 @@
       </span>
     </span>
   </div>
+  
   <!-- {% elif run.started and run.finished %} -->
   <!-- {% if run.exitCode %} -->
   <div class="flex text-red-500">
