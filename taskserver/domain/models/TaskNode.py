@@ -5,13 +5,6 @@ from pydantic import BaseModel
 from taskserver.domain.models.Task import Task
 
 
-TASK_THREADS = {
-    "Taskfile.yaml": {
-        "start": [{"pid": 999}]
-    }
-}
-
-
 class TaskState(BaseModel):
     has_child: bool
     running: bool
@@ -22,15 +15,19 @@ class TaskNode(BaseModel):
     path: str
     name: str
     data: Optional[Task]
+    children: Optional[dict]
 
     # Optional state and child nodes
     open: Optional[bool]
-    children: Optional[dict]
+    runs: Optional[dict]
+
+    class Config:
+        exclude = ['runs']
 
     @property
     def state(self) -> TaskState:
         has_child = len(self.children.keys()) > 0 if self.children else False
-        running = self.path in TASK_THREADS and self.name in TASK_THREADS[self.path]
+        running = True if self.runs and len(self.runs.keys()) else False
         up_to_date = self.data.up_to_date if self.data else False
         return TaskState(
             has_child=has_child,

@@ -57,6 +57,18 @@ tasks:
     cmds:
       - echo "Crashing this task..." 1>&2
       - exit 2
+  example:infinite:
+    desc: Run this task indefinately
+    cmds:
+      - echo "Starting infinite loop"
+      - |-
+        count=1
+        while true; 
+        do 
+          echo $count
+          sleep 2
+          count=$(( $count + 1 ))
+        done
 
   example:omega:
     - echo "Updating sources..."

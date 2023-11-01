@@ -44,7 +44,7 @@ class TaskRunUseCase(TaskUseCase):
         self.repo.saveTaskRun(run)
         self.clearRunVars(task)
 
-        return run
+        return self.repo.startTaskRun(run)
 
     def tryRun(self, input: TaskRequest, node: TaskNode, vars={}):
         task = self.repo.findTask(input.name) if node else None
@@ -72,7 +72,6 @@ class TaskRunUseCase(TaskUseCase):
         try:
             # Create a new run session and spawn the task
             run = self.createRun(task, vars, result.get("cli_args", ''))
-            run.start(lambda: self.repo.saveTaskRun(run))
 
             # TODO: Format the terminal output to HTML
             output = self.format_output(run.stdout) if run.stdout else ''

@@ -1,13 +1,18 @@
 
+import asyncio
 import os
 import random
 import string
 import subprocess
+import threading
+import time
 import yaml
 import json
 import yq
+
 from copy import deepcopy
-from typing import Dict, List, Optional, Sequence
+from datetime import datetime
+from typing import Callable, Dict, List, Optional, Sequence
 
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
@@ -97,25 +102,6 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             # Delete removed values
             print(f' - {k} (delete)')
             yq.cli(['-iY', f'del({k})', filename])
-
-    def getTaskRun(self, id: str) -> Optional[TaskRun]:
-        cache_path = '.task/temp/runs'
-        file_path = f'{cache_path}/{id}.yaml'
-        if os.path.isfile(file_path):
-            with open(file_path, 'r') as f:
-                input = f.read()
-                data = yaml.safe_load(input)
-                run = TaskRun(**data)
-                return run
-        return None
-
-    def saveTaskRun(self, run: TaskRun):
-        cache_path = '.task/temp/runs'
-        output = yaml.safe_dump(run.dict())
-        if not os.path.isdir(cache_path):
-            os.mkdir(cache_path)
-        with open(f'{cache_path}/{run.id}.yaml', 'w') as f:
-            f.write(output)
 
     def listTasks(self) -> Sequence[Task]:
         if self.tasks:
@@ -285,3 +271,99 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             return self.menu
         # Search for the node by task path
         return self.menu.find(task_path)
+
+    def startTaskRun(self, run: TaskRun) -> Optional[TaskRun]:
+
+        def saveChanges():
+            self.saveTaskRun(run)
+
+        def withTaskNode(callback: Callable):
+            if node := self.getMenu(run.task.name):
+                # Create run instance (if not exists)
+                node.runs = node.runs or {}
+                # Trigger the callback if node was found
+                callback(node)
+
+        # Track status of a running process and wait for it to exit
+        async def trackChanges(proc: subprocess.Popen):
+            # Wait for a return code
+            while proc.poll() == None:
+                time.sleep(.5)
+            return proc.returncode
+
+        def setRunActive(node): node.runs[run.id] = run.pid
+        def setRunClosed(node): del(node.runs[run.id])
+
+        def runCompleted(result: int):
+            # Stop timer and set the exit code that was returned
+            run.finished = datetime.now()
+            run.exitCode = result
+            saveChanges()
+
+            # Check the exit condition (success/fail)
+            if result == 0:
+                # Run completed successfully
+                run.traceDone(run.command)
+            elif result > 0:
+                # Run failed with an exit code
+                run.traceError(run.command)
+
+        # Run the (deferred, async) action in a new thread, to make it non-blocking
+        def newProcess(env):
+            # Create and open a new process (async)
+            run.started = datetime.now()
+            proc = subprocess.Popen(
+                ['task'] + run.arguments,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=env
+            )
+            run.stdout = f'{run.id}/stdout.log'
+            run.stderr = f'{run.id}/stderr.log'
+            run.pid = proc.pid
+
+            # Save the current running process
+            saveChanges()
+            withTaskNode(setRunActive)
+
+            # Run the process and wait for exit
+            result = asyncio.run(trackChanges(proc))
+
+            # Save the updated state for this process
+            runCompleted(result)
+            withTaskNode(setRunClosed)
+
+        try:
+            # Set the ENV vars to pass to the process
+            env = os.environ.copy()
+            env.update(run.vars)
+
+            # Print the executed command to stdout
+            run.trace(run.command)
+
+            # Spawn task in new tread, but do not wait...
+            threading.Thread(target=lambda: newProcess(env)).start()
+        except Exception as ex:
+            run.finished = datetime.now()
+            raise ex
+
+        return run
+
+    def getTaskRun(self, id: str) -> Optional[TaskRun]:
+        cache_path = '.task/temp/runs'
+        file_path = f'{cache_path}/{id}.yaml'
+        if os.path.isfile(file_path):
+            with open(file_path, 'r') as f:
+                input = f.read()
+                data = yaml.safe_load(input)
+                run = TaskRun(**data)
+                return run
+        return None
+
+    def saveTaskRun(self, run: TaskRun):
+        cache_path = '.task/temp/runs'
+        output = yaml.safe_dump(run.dict())
+        if not os.path.isdir(cache_path):
+            os.mkdir(cache_path)
+        with open(f'{cache_path}/{run.id}.yaml', 'w') as f:
+            f.write(output)

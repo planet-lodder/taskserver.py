@@ -1,14 +1,9 @@
 
 import json
-import os
 import random
 import string
-import subprocess
-import threading
-import time
-import asyncio
 
-from typing import Any, Callable, Coroutine, Optional, List
+from typing import Optional
 from datetime import datetime
 from colorama import Fore, Style
 from pydantic import BaseModel
@@ -40,10 +35,8 @@ class TaskRun(BaseModel):
     stdout: Optional[str]
     stderr: Optional[str]
 
-    # proc: Optional[subprocess.Popen]
-
     class Config:
-        exclude = ['proc']
+        exclude = []
 
     def __init__(self, **kwargs):
         kwargs["id"] = kwargs.get("id", _new_id())
@@ -90,65 +83,6 @@ class TaskRun(BaseModel):
             command += sep + arg
             sep = ' '
         return command
-
-    def start(self, saveChanges: Callable):
-        self.started = datetime.now()
-        try:
-            # Set the ENV vars to pass to the process
-            env = os.environ.copy()
-            env.update(self.vars)
-
-            self.stdout = f'{self.id}/stdout.log'
-            self.stderr = f'{self.id}/stderr.log'
-
-            # Print the executed command to stdout
-            self.trace(self.command)
-
-            # Start the process (non-blocking)
-            proc = subprocess.Popen(
-                ['task'] + self.arguments,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=env
-            )
-            self.pid = proc.pid
-            saveChanges()  # Save the current running process
-
-            # Run the (deferred, async) action in a new thread, to make it non-blocking
-            def deferred():
-                # Run the process and wait for exit
-                result = asyncio.run(self.trackChanges(proc))
-
-                # Save the updated state for this process
-                self.runCompleted(result)
-                saveChanges()  
-
-            # Spawn task in new tread, but do not wait...
-            threading.Thread(target=deferred).start()
-
-        except Exception as ex:
-            self.finished = datetime.now()
-            # Record the time the task failed to finished
-            print(f'{Fore.RED}ERROR: {str(ex)}{Style.RESET_ALL}')
-
-    async def trackChanges(self, proc: subprocess.Popen):
-        # Wait for a return code
-        while proc.poll() == None:
-            time.sleep(.5)
-        return proc.returncode
-
-    def runCompleted(self, result: int):
-        # Stop timer and set the exit code that was returned
-        self.finished = datetime.now()
-        self.exitCode = result
-
-        # Check the exit condition (success/fail)
-        if result == 0:
-            # Run completed successfully
-            self.traceDone(self.command)
-        elif result > 0:
-            # Run failed with an exit code
-            self.traceError(self.command)
 
     def timed(self) -> str:
         timed = self.ellapsed
