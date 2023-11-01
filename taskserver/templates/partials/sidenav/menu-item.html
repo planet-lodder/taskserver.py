@@ -18,17 +18,20 @@
 -->
 <!-- {% endif %} -->
 
-<div
-  class="menu-item"
->
+<div class="menu-item">
   <div
     class="flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 {{ style | default('text-gray-600 dark:text-gray-300') }}"
   >
     <span class="w-6 h-6 cursor-pointer" {{ icon_htmx or htmx }}>
-      {% if icon %}{% include icon %}{% endif %}
-      <input type="hidden" name="open" value="{{open}}" />
+      {% block icon %}
+      <!-- {% if icon %} -->
+      {% include icon %}
+      <!-- {% endif %} -->
+      {% endblock icon %}
     </span>
 
+    <!-- Define the menu label -->
+    {% block label %}
     <!-- {% if href %} -->
     <a
       href="{{ href }}"
@@ -41,36 +44,19 @@
       >{{name}}</label
     >
     <!-- {% endif %} -->
+    {% endblock label %}
 
-    <!-- {% if actions %} -->
-    <span class="flex flex-row">
-      <!-- {% for value in actions %} -->
-      <a
-        {%if
-        value.href%}href="{{ value.href }}"
-        {%endif%}
-        title="{{ value.name }}"
-        class="{{ value.style}} ml-2 opacity-10 hover:opacity-100 cursor-pointer"
-        {{value.htmx}}
-      >
-        {% include value.icon %}
-      </a>
-      <!-- {% endfor %} -->
-    </span>
-    <!-- {% endif %} -->
+    <!-- Define any actions associated with this item-->
+    {% block actions %}{% endblock actions %}
   </div>
 
+  {% block children %}
   <!-- {% if children and open %} -->
   <div class="flex flex-col ml-7">
-    <!-- {% for name,item in children.items() %}{% if item.children %} -->
-    <!-- Sort by folders first -->
-    {% include "partials/sidenav/task-node.html" %}
-    <!-- {% endif %}{% endfor %} -->
-    <!-- {% for name,item in children.items() %}{% if not item.children %} -->
-    <!-- Show leaf nodes after all folders -->
-    {% include "partials/sidenav/task-node.html" %}
-    <!-- {% endif %}{% endfor %} -->
+    <!-- {% for name,item in children.items() %} -->
+    {% include "partials/sidenav/menu-item.html" %}
+    <!-- {% endfor %} -->
   </div>
   <!-- {% endif %} -->
-  
+  {% endblock children %}
 </div>

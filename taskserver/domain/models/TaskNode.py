@@ -22,24 +22,21 @@ class TaskNode(BaseModel):
     runs: Optional[dict]
 
     class Config:
-        exclude = ['runs']
+        exclude = ['runs', 'is_running', 'has_children', 'up_to_date']
 
     @property
-    def state(self) -> TaskState:
-        has_child = len(self.children.keys()) > 0 if self.children else False
-        running = True if self.runs and len(self.runs.keys()) else False
-        up_to_date = self.data.up_to_date if self.data else False
-        return TaskState(
-            has_child=has_child,
-            running=running,
-            up_to_date=up_to_date
-        )
+    def is_running(self) -> bool:
+        return True if self.runs and len(self.runs.keys()) else False
+
+    @property
+    def up_to_date(self) -> bool:
+        return self.data.up_to_date if self.data else False
 
     @property
     def actions(self):
         task = self.data
 
-        if self.state.running:
+        if self.is_running:
             # Task is being executed or run
             return [
                 {
