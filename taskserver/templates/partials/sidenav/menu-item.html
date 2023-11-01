@@ -16,7 +16,19 @@
 -->
 <!-- {% endif %} -->
 
-<div task="{{name}}" class="menu-item">
+<div
+  hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
+  hx-trigger="{{name}} from:body"
+  hx-target="this"
+  class="menu-item"
+>
+  <!-- {% if item and item.is_running %} -->
+  <span
+    hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
+    hx-trigger="load delay:1s"
+  ></span>
+  <!-- {% endif %} -->
+
   <!-- Render the task node -->
   <div
     class="flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 {{ style | default('text-gray-600 dark:text-gray-300') }}"

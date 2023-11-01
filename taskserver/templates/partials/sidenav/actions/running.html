@@ -1,10 +1,10 @@
 <!-- This is a task node -->
 <span class="flex flex-row ml-2">
   <a class="animate-spin opacity-50"> {% include 'icons/arrow-path.svg' %} </a>
-  <!-- {% if run %} -->
+  <!-- {% if item and item.is_running %} -->
   <a
     title="Stop Task"
-    hx-post="/taskserver/run/stop?job_id={{run.id}}"
+    hx-post="/taskserver/run/stop?job_id={{ item.runs.keys()|first }}"
     hx-target="main"
     class="opacity-50 hover:opacity-100 cursor-pointer"
   >

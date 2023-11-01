@@ -1,24 +1,34 @@
 <div class="flex p-2" hx-target="this" hx-swap="outerHTML">
+  <!-- {% if run and not run.finished %} -->
+  <span
+    hx-get="/taskserver/run/status?job_id={{run.id}}"
+    hx-trigger="load delay:1s"
+  ></span>
+  <!-- {% if name %} -->
+  <script>
+    // Trigger the update event to force sidenav to update
+    htmx && htmx.trigger(htmx.find("body"), "{{name}}");
+  </script>
+  <!-- {% endif %} -->
+  <!--
+  <span
+    hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}&job_id={{run.id}}"
+    hx-trigger="load"
+  ></span>
+  -->
+  <!-- {% endif %} -->
   <!-- {% if not run %} -->
   <em class="text-gray-500 opacity-50">Cannot find any run details</em>
   <!-- {% elif not run.started and not run.finished %} -->
-  <div
-    hx-get="/taskserver/run/status?job_id={{run.id}}"
-    hx-trigger="load delay:1s"
-    class="flex text-gray-500 opacity-50"
-  >
+  <div class="flex text-gray-500 opacity-50">
     {% include 'icons/play.svg' %}
     <span class="ml-2 font-slim">Task has not been run yet...</span>
   </div>
   <!-- {% elif run.started and not run.finished %} -->
-  <div
-    hx-get="/taskserver/run/status?job_id={{run.id}}"
-    hx-trigger="load delay:1s"
-    class="flex text-blue-500 opacity-75"
-  >
-    <span class="w-6 h-6 animate-spin"
-      >{% include 'icons/arrow-path.svg' %}</span
-    >
+  <div class="flex text-blue-500 opacity-75">
+    <span class="w-6 h-6 animate-spin">
+      {% include 'icons/arrow-path.svg' %}
+    </span>
     <span class="ml-2">
       <span class="font-bold">task {{run.task.name}}</span>
       <span class="font-slim italic opacity-75">
