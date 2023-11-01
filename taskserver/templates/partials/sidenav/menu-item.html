@@ -5,7 +5,6 @@
 {% set icon = icon or item.icon %}
 {% set style = style or item.style %} 
 {% set htmx = htmx or item.htmx %} 
-{% set actions = actions or item.actions %} 
 {% set children = children or item.children %} 
 -->
 <!-- {% endif %} -->
@@ -14,19 +13,18 @@
 <!-- 
   {% set icon = 'icons/folder-minus.svg' if open else 'icons/folder-plus.svg' %}
   {% set icon_htmx = 'hx-post="/taskserver/sidenav/toggle?name='+name+'" hx-target="closest .menu-item" hx-swap="outerHTML"' %} 
-  {% set icon_style = 'cursor-pointer' %} 
 -->
 <!-- {% endif %} -->
 
-<div class="menu-item">
+<div task="{{name}}" class="menu-item">
+  <!-- Render the task node -->
   <div
     class="flex items-center px-3 py-2 transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 {{ style | default('text-gray-600 dark:text-gray-300') }}"
   >
+    <!-- Define menu icon -->
     <span class="w-6 h-6 cursor-pointer" {{ icon_htmx or htmx }}>
       {% block icon %}
-      <!-- {% if icon %} -->
-      {% include icon %}
-      <!-- {% endif %} -->
+      <!-- {% if icon %} -->{% include icon %}<!-- {% endif %} -->
       {% endblock icon %}
     </span>
 
@@ -50,6 +48,7 @@
     {% block actions %}{% endblock actions %}
   </div>
 
+  <!-- Render the children (if needed) -->
   {% block children %}
   <!-- {% if children and open %} -->
   <div class="flex flex-col ml-7">

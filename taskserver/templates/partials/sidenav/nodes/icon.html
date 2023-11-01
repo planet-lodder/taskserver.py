@@ -1,0 +1,9 @@
+<!-- {% if children and children.keys() %} -->
+{% include 'icons/folder-minus.svg' if open else 'icons/folder-plus.svg' %}
+<!-- {% elif item.up_to_date == True %} -->
+{% include 'icons/document-check.svg' %}
+<!-- {% elif item.up_to_date == False %} -->
+{% include 'icons/document-text.svg' %}
+<!-- {% else %} -->
+{% include 'icons/document.svg' %}
+<!-- {% endif %} -->

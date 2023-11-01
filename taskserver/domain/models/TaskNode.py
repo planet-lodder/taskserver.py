@@ -32,44 +32,6 @@ class TaskNode(BaseModel):
     def up_to_date(self) -> bool:
         return self.data.up_to_date if self.data else False
 
-    @property
-    def actions(self):
-        task = self.data
-
-        if self.is_running:
-            # Task is being executed or run
-            return [
-                {
-                    "name": "Task Vars",
-                    "icon": "icons/arrow-path.svg",
-                    "href": "/taskserver/start",
-                    "style": "animate-spin"
-                },
-                {
-                    "name": "Run Task",
-                    "icon": "icons/stop.svg",
-                    "href": "/taskserver/build",
-                    "style": "opacity-100"
-                }
-            ]
-
-        if task:
-            return [
-                {
-                    "name": "Task Vars",
-                    "icon": "icons/list.svg",
-                    "htmx": f'hx-target="main" hx-get="/taskserver/task?name={self.name}"'
-                },
-                {
-                    "name": "Run Task",
-                    "icon": "icons/play.svg",
-                    "htmx": f'hx-get="/taskserver/run/dialog?name={self.name}" hx-target="modal" hx-trigger="click" onclick="event.preventDefault()"'
-                }
-            ]
-
-        # Default actions
-        return []
-
     def populate(self, data: List[Task], sep=':'):
         tasks = {t.name: t for t in data}
         path_names = sorted(tasks.keys())

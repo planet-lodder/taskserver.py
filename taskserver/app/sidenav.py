@@ -12,6 +12,14 @@ def taskMain(req, resp):
     return view.index()
 
 
+@router.get('/sidenav/node')
+@router.renders('partials/sidenav/task-node')
+def taskMain(req, resp):
+    view = UseCase.forWeb(req, TaskSideNavUseCase)
+    input = Serialize.fromWeb(req, TaskRequest)
+    return view.nodeInfo(input.name)
+
+
 @router.post('/sidenav/toggle')
 @router.renders('partials/sidenav/task-node')
 def taskMain(req, resp):

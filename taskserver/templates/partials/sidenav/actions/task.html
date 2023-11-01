@@ -1,0 +1,21 @@
+<!-- This is a task node -->
+<span class="flex flex-row ml-2">
+  <a
+    title="Run Task Dialog"    
+    hx-get="/taskserver/run/dialog?name={{name}}"
+    hx-target="modal"
+    hx-trigger="click"
+    onclick="event.preventDefault()"
+    class="opacity-25 hover:opacity-100 cursor-pointer"
+  >
+    {% include 'icons/list.svg' %}
+  </a>
+  <a
+    title="Run Task"
+    hx-post="/taskserver/run?name={{name}}&path={{path}}"
+    hx-target="main"
+    class="opacity-25 hover:opacity-100 cursor-pointer"
+  >
+    {% include 'icons/play.svg' %}
+  </a>
+</span>

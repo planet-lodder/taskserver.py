@@ -20,21 +20,13 @@
 </td>
 <td class="pl-4 py-4 text-sm font-medium whitespace-nowrap">
   <p class="text-sm font-normal text-gray-600 dark:text-gray-400">
-    {{ desc }} 
+    {{ desc }}
     <span class="text-gray-300 dark:text-gray-700">
       <em>{{ hint }}</em>
-    </span>    
+    </span>
   </p>
 </td>
 <td class="flex flex-row px-3 pl-4 py-4 text-sm font-medium whitespace-nowrap">
-  <a
-    hx-get="/taskserver/task?name={{name}}"
-    hx-target="main"
-    class="flex items-center cursor-pointer space-x-2 rounded py-1 px-4 mx-1 text-gray-300 dark:text-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
-  >
-    {% include "icons/list.svg" %}
-    <span>Task Vars</span>
-  </a>
   <a
     hx-get="/taskserver/run/dialog?name={{name}}"
     hx-target="modal"
@@ -42,7 +34,15 @@
     onclick="event.preventDefault()"
     class="flex items-center cursor-pointer space-x-2 rounded py-1 px-4 mx-1 text-gray-300 dark:text-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
   >
+    {% include "icons/list.svg" %}
+    <span>Run with Vars</span>
+  </a>
+  <a
+    hx-post="/taskserver/run?name={{name}}"
+    hx-target="main"
+    class="flex items-center cursor-pointer space-x-2 rounded py-1 px-4 mx-1 text-gray-300 dark:text-gray-700 hover:text-gray-700 dark:hover:text-gray-200"
+  >
     {% include "icons/play.svg" %}
-    <span>Run Task</span>
+    <span>Start Task</span>
   </a>
 </td>
