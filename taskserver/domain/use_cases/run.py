@@ -68,12 +68,11 @@ class TaskRunUseCase(TaskUseCase):
         if not task:
             result.update({"error": 'Task not found'})
             return result
-        
+
         try:
             # Create a new run session and spawn the task
             run = self.createRun(task, vars, result.get("cli_args", ''))
-            run.start()
-            self.repo.saveTaskRun(run)
+            run.start(lambda: self.repo.saveTaskRun(run))
 
             # TODO: Format the terminal output to HTML
             output = self.format_output(run.stdout) if run.stdout else ''
@@ -107,6 +106,12 @@ class TaskRunUseCase(TaskUseCase):
 
         return result
 
+    def runStatus(self, job_id: str):
+        run = self.repo.getTaskRun(job_id) if job_id else None
+        return {
+            "run": run,
+        }
+
     def runVarDetails(self, task_name, key_name):
         task = self.repo.findTask(task_name)
         return {
@@ -115,6 +120,15 @@ class TaskRunUseCase(TaskUseCase):
             "key": key_name,
             "value": "",
         }
+
+    def getRunBreakdown(self, task_name: str, job_id: str):
+        task = self.repo.findTask(task_name)
+        result = self.base(task)
+        result.update({
+            "breakdown": self.taskBreakdown(task_name),
+            "run": self.repo.getTaskRun(job_id) if job_id else None
+        })
+        return result
 
     def format_output(self, output):
         if not output:

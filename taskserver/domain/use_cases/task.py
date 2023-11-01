@@ -104,10 +104,6 @@ class TaskUseCase(TaskfileUseCase):
         if runVars and key in runVars:
             del runVars[key]  # Update run var value
 
-    def getRunBreakdown(self, task_name: str):
-
-        return {"breakdown": self.taskBreakdown(task_name)}
-
     def taskBreakdown(self, task_name: str):
         session = self.session
         breakdown = session.breakdown.get(task_name)

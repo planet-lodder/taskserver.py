@@ -1,18 +1,21 @@
-<div class="flex p-2">
+<div class="flex p-2" hx-target="this" hx-swap="outerHTML">
   <!-- {% if not run %} -->
   <em class="text-gray-500 opacity-50">Cannot find any run details</em>
   <!-- {% elif not run.started and not run.finished %} -->
   <div
-    hx-get="/taskserver/run?job_id={{run.id}}"
-    hx-trigger="load"
-    hx-target="main every 1s"
+    hx-get="/taskserver/run/status?job_id={{run.id}}"
+    hx-trigger="load delay:1s"
     class="flex text-gray-500 opacity-50"
   >
     {% include 'icons/play.svg' %}
     <span class="ml-2 font-slim">Task has not been run yet...</span>
   </div>
   <!-- {% elif run.started and not run.finished %} -->
-  <div class="flex text-blue-500 opacity-75">
+  <div
+    hx-get="/taskserver/run/status?job_id={{run.id}}"
+    hx-trigger="load delay:1s"
+    class="flex text-blue-500 opacity-75"
+  >
     <span class="w-6 h-6 animate-spin"
       >{% include 'icons/arrow-path.svg' %}</span
     >

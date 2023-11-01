@@ -1,4 +1,12 @@
-<div class="flex flex-1 relative group">
+<div hx-target="this" hx-swap="outerHTML" class="flex flex-1 relative group">
+  <!-- {% if run and not run.finished %} -->
+  <!-- Auto-refresh in 1 second -->
+  <div
+    hx-get="/taskserver/run/breakdown?name={{name}}&job_id={{run.id}}"
+    hx-trigger="load delay:1s"
+  ></div>
+  <!-- {% endif %} -->
+
   <!-- {% if breakdown %} -->
 
   <!-- Task breakdown is cached -->
@@ -13,9 +21,7 @@
   <!-- Loading... -->
   <div
     hx-get="/taskserver/run/breakdown?name={{task.name}}"
-    hx-target="closest .task-summary"
     hx-trigger="load"
-    hx-swap="innerHTML"
     class="task-summary flex flex-col flex-1 text-gray-600 dark:text-gray-300"
   >
     <!-- Show loading bar -->

@@ -19,7 +19,6 @@ class TaskRunInputs(TaskRequest):
         super().parse()  # Parse task properties
 
 
-
 class TaskRunVar(WebSerializer):
     path: str = ''
     task: str = ''
@@ -64,6 +63,7 @@ def taskRun(req, resp):
 
     return result
 
+
 @router.post('/run')
 @router.renders('task/single')
 def taskRun(req: WebRequest, resp: WebResponse):
@@ -75,7 +75,7 @@ def taskRun(req: WebRequest, resp: WebResponse):
     vars = req.inputs('config.task.', strip_prefix=True)
     result = view.tryRun(input, node, vars)
 
-    if run := result.get("run"):        
+    if run := result.get("run"):
         new_url = f'{req.path}?job_id={run.id}'
         resp.head['HX-Replace-Url'] = new_url
 
@@ -126,12 +126,22 @@ def taskRunDialogUpdate(req, resp):
     return router.render_template("partials/run/confirm.html", result)
 
 
+@router.get('/run/status')
+@router.renders('partials/run/status')
+def taskBreakdown(req, resp):
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+
+    # Try and run the task (no additional parameters)
+    return view.runStatus(input.job_id)
+
+
 @router.get('/run/breakdown')
-@router.renders('partials/run/list')
+@router.renders('partials/run/breakdown')
 def taskBreakdown(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
 
     # Do a breakdown of the current task
-    result = view.getRunBreakdown(input.name)
+    result = view.getRunBreakdown(input.name, input.job_id)
     return result

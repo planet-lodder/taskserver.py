@@ -91,7 +91,7 @@ class TaskRun(BaseModel):
             sep = ' '
         return command
 
-    def start(self):
+    def start(self, saveChanges: Callable):
         self.started = datetime.now()
         try:
             # Set the ENV vars to pass to the process
@@ -112,11 +112,16 @@ class TaskRun(BaseModel):
                 env=env
             )
             self.pid = proc.pid
+            saveChanges()  # Save the current running process
 
             # Run the (deferred, async) action in a new thread, to make it non-blocking
             def deferred():
+                # Run the process and wait for exit
                 result = asyncio.run(self.trackChanges(proc))
-                self.runCompleted(result, proc)
+
+                # Save the updated state for this process
+                self.runCompleted(result)
+                saveChanges()  
 
             # Spawn task in new tread, but do not wait...
             threading.Thread(target=deferred).start()
@@ -132,7 +137,7 @@ class TaskRun(BaseModel):
             time.sleep(.5)
         return proc.returncode
 
-    def runCompleted(self, result: int, proc: subprocess.Popen):
+    def runCompleted(self, result: int):
         # Stop timer and set the exit code that was returned
         self.finished = datetime.now()
         self.exitCode = result
