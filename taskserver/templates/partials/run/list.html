@@ -1,40 +1,30 @@
 <!-- {% if breakdown %} -->
 <ul class="flex flex-col">
   <!-- {% for item in breakdown.cmds %} -->
-  <!-- 
-{% set item_type = item.type %} 
-{% set item_types = {
-  "cmd": {
-    "icon": "icons/terminal.svg",
-    "style": "text-gray-500",
-  },
-  "task": {
-    "icon": "icons/document-text.svg",
-    "style": "text-blue-500",
-  },
-}
-%}
-{% set values = item_types[item_type] | default(item_types["cmd"])  %} 
-{% set icon = values.icon  %} 
-{% set style = values.style  %} 
 
-{% if run and run.finished and run.exitCode == 0 %}
-{% set icon = 'icons/document-check.svg'  %} 
-{% set style = 'text-green-500'  %} 
-{% endif %}
+  <!-- {% if run and run.exitCode == 0 %} -->
 
-{% if run and run.exitCode %}
-{% set icon = 'icons/error.svg'  %} 
-{% set style = 'text-red-500'  %} 
-{% endif %}
+  <li class="p-1 flex items-top text-green-500">
+    {% include 'icons/check.svg' %}
+    <pre class="pl-2">{{ item.text }}</pre>
+  </li>
 
--->
-  <!-- {% if item.type == 'cmd' %} -->
+  <!-- {% elif run and run.exitCode %} -->
+
+  <li class="p-1 flex items-top text-red-500">
+    {% include 'icons/error.svg' %}
+    <pre class="pl-2">{{ item.text }}</pre>
+  </li>
+
+  <!-- {% elif item.type == 'cmd' %} -->
+
   <li class="p-1 flex items-top text-gray-500">
     {% include 'icons/terminal.svg' %}
     <pre class="pl-2">{{ item.text }}</pre>
   </li>
+
   <!-- {% elif item.type == 'task' %} -->
+
   <!-- {% if not item.open %} -->
   <li class="p-1 flex items-top text-blue-500">
     {% include 'icons/document-text.svg' %}
@@ -53,6 +43,7 @@
     <pre class="pl-2">{{ item.raw }}</pre>
   </li>
   <!-- {% endif %} -->
+  
   <!-- {% endfor %} -->
 </ul>
 <!-- {% else %} -->

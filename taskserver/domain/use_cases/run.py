@@ -122,10 +122,11 @@ class TaskRunUseCase(TaskUseCase):
 
     def getRunBreakdown(self, task_name: str, job_id: str):
         task = self.repo.findTask(task_name)
+        run = self.repo.getTaskRun(job_id) if job_id else None
         result = self.base(task)
         result.update({
             "breakdown": self.taskBreakdown(task_name),
-            "run": self.repo.getTaskRun(job_id) if job_id else None
+            "run": run
         })
         return result
 

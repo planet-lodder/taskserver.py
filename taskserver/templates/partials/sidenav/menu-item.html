@@ -16,12 +16,14 @@
 -->
 <!-- {% endif %} -->
 
-<div
-  hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
-  hx-trigger="{{name}} from:body"
-  hx-target="this"
-  class="menu-item"
->
+<div class="menu-item" hx-target="this">
+  <!-- {% if item.task %} -->
+  <div
+    hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
+    hx-trigger="{{name}} from:body"
+  ></div>
+  <!-- {% endif %} -->
+
   <!-- {% if item and item.is_running %} -->
   <span
     hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
