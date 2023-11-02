@@ -37,7 +37,7 @@ tasks:
       - echo "{{ .MESSAGE }}"
       - task: example:alpha
       - task: example:beta
-      - task: example:omega
+      - task: example:delta
       - echo Done
   example:alpha:
     desc: First example task
@@ -47,11 +47,17 @@ tasks:
       - "./dist/lala.txt"
     cmds:
       - mkdir -p ./dist
-      - cat Taskfile.yaml > ./dist/lala.txt      
+      - cat Taskfile.yaml > ./dist/lala.txt
   example:beta:
     desc: Second example task
     cmds:
       - sleep 1
+  example:delta:
+    - echo "Updating sources..."
+    - task: update
+    - |-
+      echo "Sleep for 1 second..."
+      sleep 1
   example:fail:
     desc: Explicitly exit with exit status
     cmds:
@@ -69,9 +75,3 @@ tasks:
           sleep 2
           count=$(( $count + 1 ))
         done
-
-  example:omega:
-    - echo "Updating sources..."
-    - task: update
-    - sleep 1
-    - echo "Done"

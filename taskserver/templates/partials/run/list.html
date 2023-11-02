@@ -34,9 +34,9 @@
   <li class="p-1 flex items-top {{style}}">
     {% include icon %}
     <!-- {% if item_type == "task" %}-->
-    <pre class="pl-2 flex item-center">task {{ item.message }}</pre>
+    <pre class="pl-2 flex item-center">{{ item.text }}</pre>
     <!-- {% else %}-->
-    <pre class="pl-2">{{ item.message }}</pre>
+    <pre class="pl-2">{{ item.text }}</pre>
     <!-- {% endif %}-->
   </li>
   <!-- {% endfor %} -->

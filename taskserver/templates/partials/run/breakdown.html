@@ -7,32 +7,23 @@
   ></div>
   <!-- {% endif %} -->
 
-  <!-- {% if breakdown %} -->
-
-  <!-- Task breakdown is cached -->
   <div
     class="task-summary flex flex-col flex-1 text-gray-600 dark:text-gray-300"
   >
+    <!-- {% if breakdown %} -->
+    <!-- Task breakdown is cached -->
     {% include 'partials/run/list.html' %}
-  </div>
-
-  <!-- {% else %} -->
-
-  <!-- Loading... -->
-  <div
-    hx-get="/taskserver/run/breakdown?name={{task.name}}"
-    hx-trigger="load"
-    class="task-summary flex flex-col flex-1 text-gray-600 dark:text-gray-300"
-  >
+    <!-- {% else %} -->
+    <!-- Loading... -->
     <!-- Show loading bar -->
-    <div class="task-summary-loading opacity-25 flex flex-row flex-1 my-2">
+    <div class="flex flex-1 my-2 opacity-25">
       <span class="w-6 h-6 animate-spin">
         {% include 'icons/arrow-path.svg' %}
       </span>
       <span class="pl-2">Loading task summary...</span>
     </div>
+    <!-- {% endif %} -->
   </div>
-  <!-- {% endif %} -->
 
   <!-- Copy the task commands to clipboard -->
   <button
