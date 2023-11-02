@@ -8,11 +8,13 @@
   <!-- {% endif %} -->
 
   <div
-    class="task-summary flex flex-col flex-1 text-gray-600 dark:text-gray-300"
+    class="task-commands flex flex-col flex-1 text-gray-600 dark:text-gray-300"
   >
     <!-- {% if breakdown %} -->
     <!-- Task breakdown is cached -->
-    {% include 'partials/run/list.html' %}
+    <div class="-m-1 p-2 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+      {% include 'partials/run/list.html' %}
+    </div>
     <!-- {% else %} -->
     <!-- Loading... -->
     <!-- Show loading bar -->

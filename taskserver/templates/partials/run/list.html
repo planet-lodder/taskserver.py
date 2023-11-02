@@ -1,9 +1,7 @@
 <!-- {% if breakdown %} -->
-<ul
-  class="flex flex-col p-1 -ml-1 pl-2 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
->
-<!-- {% for item in breakdown %} -->
-<!-- 
+<ul class="flex flex-col">
+  <!-- {% for item in breakdown.cmds %} -->
+  <!-- 
 {% set item_type = item.type %} 
 {% set item_types = {
   "cmd": {
@@ -31,14 +29,30 @@
 {% endif %}
 
 -->
-  <li class="p-1 flex items-top {{style}}">
-    {% include icon %}
-    <!-- {% if item_type == "task" %}-->
-    <pre class="pl-2 flex item-center">{{ item.text }}</pre>
-    <!-- {% else %}-->
+  <!-- {% if item.type == 'cmd' %} -->
+  <li class="p-1 flex items-top text-gray-500">
+    {% include 'icons/terminal.svg' %}
     <pre class="pl-2">{{ item.text }}</pre>
-    <!-- {% endif %}-->
   </li>
+  <!-- {% elif item.type == 'task' %} -->
+  <!-- {% if not item.open %} -->
+  <li class="p-1 flex items-top text-blue-500">
+    {% include 'icons/document-text.svg' %}
+    <pre class="pl-2 flex item-center">{{ item.text }}</pre>
+  </li>
+  <!-- {% elif item.cmds %} -->
+  <div class="flex flex-col">
+    <!-- {% with breakdown=item %} -->
+    {% include 'partials/run/list.html' %}
+    <!-- {% endwith %} -->
+  </div>
+  <!-- {% endif %} -->
+  <!-- {% else %} -->
+  <li class="p-1 flex items-top text-gray-500 opacity-50">
+    {% include 'icons/document.svg' %}
+    <pre class="pl-2">{{ item.raw }}</pre>
+  </li>
+  <!-- {% endif %} -->
   <!-- {% endfor %} -->
 </ul>
 <!-- {% else %} -->
