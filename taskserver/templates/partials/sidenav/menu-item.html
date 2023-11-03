@@ -17,19 +17,8 @@
 <!-- {% endif %} -->
 
 <div class="menu-item" hx-target="this">
-  <!-- {% if item.task %} -->
-  <div
-    hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
-    hx-trigger="{{name}} from:body"
-  ></div>
-  <!-- {% endif %} -->
-
-  <!-- {% if item and item.is_running %} -->
-  <span
-    hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
-    hx-trigger="load delay:1s"
-  ></span>
-  <!-- {% endif %} -->
+  <!-- Placeholder for extra content triggers -->
+  {% block trigger %}{% endblock trigger %}
 
   <!-- Render the task node -->
   <div
