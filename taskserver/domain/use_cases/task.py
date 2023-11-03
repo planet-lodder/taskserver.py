@@ -2,6 +2,7 @@
 import re
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskBreakdown import TaskBreakdown
+from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.use_cases.base import TaskfileUseCase
 
@@ -104,14 +105,22 @@ class TaskUseCase(TaskfileUseCase):
         if runVars and key in runVars:
             del runVars[key]  # Update run var value
 
-    def taskBreakdown(self, task_name: str):
+    def taskBreakdown(self, task_name: str, run: TaskRun = None):
+        # Check if we have a task breakdown cached in the run
+        if run and run.breakdown:
+            return run.breakdown
+
+        # Try and resolve the breakdown from cache
         session = self.session
         breakdown = session.breakdown.get(task_name)
-
         if not breakdown:
             # Generate the task breakdown for current this session
-            breakdown = TaskBreakdown.forTask(self.taskfile.path, task_name)
+            breakdown = TaskBreakdown.forTask(self.taskfile.path, task_name, force=True)
             session.breakdown[task_name] = breakdown
+
+        if run and not run.breakdown:
+            run.breakdown = breakdown.copy(deep=True)
+            self.repo.saveTaskRun(run)
 
         # Show the task view
         return breakdown

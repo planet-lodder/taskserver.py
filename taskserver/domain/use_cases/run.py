@@ -23,9 +23,10 @@ class TaskRunUseCase(TaskUseCase):
         run = self.repo.getTaskRun(job_id) if job_id else None
         name = run.task.name if run and run.task else input.name
         task = self.repo.findTask(name) if name else None
+        breakdown = self.taskBreakdown(name, run) if name else None
         result = self.base(task) if task else {
             "taskfile": self.taskfile,
-            "task": task,
+            "task": task,            
         }
         result.update({
             "title": task.name if task else "unknown",
@@ -33,6 +34,7 @@ class TaskRunUseCase(TaskUseCase):
             "disabled": True,  # Clear the change status
             "output": self.format_output(run.stdout) if run else '',
             "run": run,
+            "breakdown": breakdown,
         })
 
         return result
@@ -125,11 +127,13 @@ class TaskRunUseCase(TaskUseCase):
     def getRunBreakdown(self, task_name: str, job_id: str, state):
         task = self.repo.findTask(task_name)
         run = self.repo.getTaskRun(job_id) if job_id else None
-        breakdown = self.taskBreakdown(task_name)
+        breakdown = self.taskBreakdown(task_name, run)
 
         if state == 'expand' or state == 'collapse':
             # Expand / collapse all task commands
             self.toggleCommandRecursive(breakdown, state == 'expand')
+            if run:
+                self.repo.saveTaskRun(run) # Update state
 
         result = self.base(task)
         result.update({
@@ -148,9 +152,9 @@ class TaskRunUseCase(TaskUseCase):
             self.toggleCommandRecursive(item, state)
 
     def toggleRunBreakdown(self, task_name: str, job_id: str, index: str, state: bool):
-        run = self.repo.getTaskRun(job_id) if job_id else None
         task = self.repo.findTask(task_name)
-        breakdown = self.taskBreakdown(task_name)
+        run = self.repo.getTaskRun(job_id) if job_id else None
+        breakdown = self.taskBreakdown(task_name, run)
 
         # Start from the current task breakdown root
         cmd = breakdown
@@ -162,6 +166,10 @@ class TaskRunUseCase(TaskUseCase):
         if cmd:
             # Toggle command state
             cmd.open = state
+        if cmd and run:
+            # Update state of the breakdown
+            run.breakdown = breakdown
+            self.repo.saveTaskRun(run)
 
         # Build the result object
         result = self.base(task)

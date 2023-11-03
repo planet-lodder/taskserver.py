@@ -9,6 +9,7 @@ from colorama import Fore, Style
 from pydantic import BaseModel
 
 from taskserver.domain.models.Task import Task, TaskVars
+from taskserver.domain.models.TaskBreakdown import TaskBreakdown
 from taskserver.domain.models.Taskfile import Taskfile
 
 
@@ -28,6 +29,7 @@ class TaskRun(BaseModel):
     task: Task
     vars: TaskVars
     cli_args: Optional[str]
+    breakdown: Optional[TaskBreakdown]
     pid: Optional[int]
     started: Optional[datetime]
     finished: Optional[datetime]
@@ -39,7 +41,7 @@ class TaskRun(BaseModel):
         exclude = []
 
     def __init__(self, **kwargs):
-        kwargs["id"] = kwargs.get("id", _new_id())
+        kwargs["id"] = kwargs.get("id") or _new_id()
         super().__init__(**kwargs)
 
     @property

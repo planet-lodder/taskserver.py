@@ -11,18 +11,32 @@ from taskserver.domain.models.Taskfile import Taskfile
 class Command(BaseModel):
     type: str = 'cmd'
     raw: str
+    open: Optional[bool]
+    vars: Optional[TaskVars]
+    cmds: Optional[List['Command']]
+    up_to_date: Optional[bool]
 
     @property
     def text(self) -> str:
         return self.raw
 
+    def __init__(self, **kwargs):
+        cmds = kwargs.get("cmds")
+        if cmds:
+            del kwargs["cmds"]
+        super().__init__(**kwargs)
+        if cmds:
+            list = []
+            for cmd in cmds:
+                if cmd.get('type') == 'task':
+                    list.append(TaskCommand(**cmd))
+                else:
+                    list.append(Command(**cmd))
+            self.cmds = list
+
 
 class TaskCommand(Command):
     type = 'task'
-    open: Optional[bool]
-    vars: Optional[TaskVars]
-    cmds: Optional[List[Command]]
-    up_to_date: Optional[bool]
 
     @property
     def text(self) -> str:
@@ -95,10 +109,10 @@ class TaskBreakdown(TaskCommand):
                 # Task close tag has been detected
                 last = stack.pop()
                 cmd_name = check.groups()[0]
-                
+
                 if not existing_root or existing_root.raw != cmd_name:
                     trace(cmd_name, f' <- Task: ', 'finished')
-                
+
                 if cmd_name == task_name and not len(stack) and (last != root or len(stack)):
                     # Main task has finished
                     warn(f'Commands are left on the stack after main task exits.')
@@ -118,7 +132,7 @@ class TaskBreakdown(TaskCommand):
                     True,
                     up_to_date=up_to_date,
                     existing_root=last,
-                    stack=stack,                    
+                    stack=stack,
                 )
                 # last.cmds = full.cmds
                 trace(cmd_name, f' <- Task: ', 'up to date')

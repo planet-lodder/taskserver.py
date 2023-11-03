@@ -39,6 +39,7 @@
     -->
     <!-- {% if breakdown and not breakdown.open %} -->
     <a
+      title="Expand all commands"
       hx-get="{{htmx_toggle}}&state=expand"
       class="opacity-25 hover:opacity-75 cursor-pointer"
     >
@@ -46,6 +47,7 @@
     </a>
     <!-- {% else %} -->
     <a
+      title="Collapse all commands"
       hx-get="{{htmx_toggle}}&state=collapse"
       class="opacity-25 hover:opacity-75 cursor-pointer"
     >

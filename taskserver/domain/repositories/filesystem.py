@@ -292,7 +292,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             return proc.returncode
 
         def setRunActive(node): node.runs[run.id] = run.pid
-        def setRunClosed(node): del(node.runs[run.id])
+        def setRunClosed(node): del (node.runs[run.id])
 
         def runCompleted(result: int):
             # Stop timer and set the exit code that was returned
@@ -356,13 +356,13 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             with open(file_path, 'r') as f:
                 input = f.read()
                 data = yaml.safe_load(input)
-                run = TaskRun(**data)
+                run = TaskRun(**data) if data else None
                 return run
         return None
 
     def saveTaskRun(self, run: TaskRun):
         cache_path = '.task/temp/runs'
-        output = yaml.safe_dump(run.dict())
+        output = yaml.safe_dump(run.dict(exclude_none=True))
         if not os.path.isdir(cache_path):
             os.mkdir(cache_path)
         with open(f'{cache_path}/{run.id}.yaml', 'w') as f:
