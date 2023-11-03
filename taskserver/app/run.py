@@ -141,7 +141,21 @@ def taskBreakdown(req, resp):
 def taskBreakdown(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
+    state = req.query.get('state')
 
     # Do a breakdown of the current task
-    result = view.getRunBreakdown(input.name, input.job_id)
+    result = view.getRunBreakdown(input.name, input.job_id, state)
+    return result
+
+
+@router.get('/run/breakdown/toggle')
+@router.renders('partials/run/breakdown/item')
+def taskBreakdown(req, resp):
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+    index = req.query.get('index', '')
+    state = req.query.get('state', 'closed') == 'open'
+
+    # Do a breakdown of the current task
+    result = view.toggleRunBreakdown(input.name, input.job_id, index, state)
     return result

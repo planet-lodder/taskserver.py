@@ -3,9 +3,11 @@ import os
 
 from ansi2html import Ansi2HTMLConverter
 from ansi2html.style import (get_styles)
+from click import Command
 from colorama import Fore, Style
 
 from taskserver.domain.models.Task import Task, TaskVars
+from taskserver.domain.models.TaskBreakdown import TaskCommand
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.Taskfile import Taskfile
@@ -120,12 +122,53 @@ class TaskRunUseCase(TaskUseCase):
             "value": "",
         }
 
-    def getRunBreakdown(self, task_name: str, job_id: str):
+    def getRunBreakdown(self, task_name: str, job_id: str, state):
         task = self.repo.findTask(task_name)
         run = self.repo.getTaskRun(job_id) if job_id else None
+        breakdown = self.taskBreakdown(task_name)
+
+        if state == 'expand' or state == 'collapse':
+            # Expand / collapse all task commands
+            self.toggleCommandRecursive(breakdown, state == 'expand')
+
         result = self.base(task)
         result.update({
-            "breakdown": self.taskBreakdown(task_name),
+            "breakdown": breakdown,
+            "run": run
+        })
+        return result
+
+    def toggleCommandRecursive(self, cmd: Command, state: bool):
+        if not cmd or not isinstance(cmd, TaskCommand):
+            return
+
+        parent: TaskCommand = cmd
+        parent.open = state
+        for item in parent.cmds:
+            self.toggleCommandRecursive(item, state)
+
+    def toggleRunBreakdown(self, task_name: str, job_id: str, index: str, state: bool):
+        run = self.repo.getTaskRun(job_id) if job_id else None
+        task = self.repo.findTask(task_name)
+        breakdown = self.taskBreakdown(task_name)
+
+        # Start from the current task breakdown root
+        cmd = breakdown
+        if index:
+            # Find the indexed task command to toggle
+            for pos in index.split(','):
+                i = int(pos)
+                cmd = cmd.cmds[i] if cmd and i < len(cmd.cmds) else None
+        if cmd:
+            # Toggle command state
+            cmd.open = state
+
+        # Build the result object
+        result = self.base(task)
+        result.update({
+            "breakdown": breakdown,
+            "indexed": index,
+            "cmd": cmd,
             "run": run
         })
         return result

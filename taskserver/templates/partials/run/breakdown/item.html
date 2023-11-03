@@ -1,0 +1,14 @@
+<!-- 
+{% set is_done = breakdown.up_to_date or run and run.exitCode == 0 %} 
+-->
+<!-- {% if is_done and not cmd.open %} -->
+{% include 'partials/run/breakdown/done.html' %}
+<!-- {% elif run and run.exitCode %} -->
+{% include 'partials/run/breakdown/error.html' %}
+<!-- {% elif cmd.type == 'cmd' %} -->
+{% include 'partials/run/breakdown/command.html' %}
+<!-- {% elif cmd.type == 'task' %} -->
+{% include 'partials/run/breakdown/task.html' %}
+<!-- {% else %} -->
+{% include 'partials/run/breakdown/unknown.html' %}
+<!-- {% endif %} -->

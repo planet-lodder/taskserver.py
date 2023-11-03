@@ -11,29 +11,54 @@
     class="task-commands flex flex-col flex-1 text-gray-600 dark:text-gray-300"
   >
     <!-- {% if breakdown %} -->
+
     <!-- Task breakdown is cached -->
-    <div class="-m-1 p-2 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+    <div
+      class="task-breakdown -m-1 p-2 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+    >
       {% include 'partials/run/list.html' %}
     </div>
+
     <!-- {% else %} -->
-    <!-- Loading... -->
-    <!-- Show loading bar -->
+
+    <!-- No Breakdown available -->
     <div class="flex flex-1 my-2 opacity-25">
-      <span class="w-6 h-6 animate-spin">
-        {% include 'icons/arrow-path.svg' %}
-      </span>
-      <span class="pl-2">Loading task summary...</span>
+      <span class="pl-2">No task breakdown available...</span>
     </div>
+
     <!-- {% endif %} -->
   </div>
 
   <!-- Copy the task commands to clipboard -->
-  <button
-    type="button"
-    title="Copy commands"
-    class="absolute top-2 right-2 opacity-25 group-hover:opacity-75"
-    onclick="navigator.clipboard.writeText(document.querySelector('.task-commands').innerText);"
-  >
-    {% include 'icons/copy.svg' %}
-  </button>
+  <div class="absolute top-2 right-2 space-x-2 flex">
+    <!--
+    {% set htmx_toggle = '/taskserver/run/breakdown?name='+name+'&index=' %}
+    {% if run %}
+    {% set htmx_toggle = htmx_toggle + '&job_id='+run.id %}
+    {% endif %}
+    -->
+    <!-- {% if breakdown and not breakdown.open %} -->
+    <a
+      hx-get="{{htmx_toggle}}&state=expand"
+      class="opacity-25 hover:opacity-75 cursor-pointer"
+    >
+      {% include 'icons/arrow-expand.svg' %}
+    </a>
+    <!-- {% else %} -->
+    <a
+      hx-get="{{htmx_toggle}}&state=collapse"
+      class="opacity-25 hover:opacity-75 cursor-pointer"
+    >
+      {% include 'icons/arrow-collapse.svg' %}
+    </a>
+    <!-- {% endif %} -->
+    <button
+      type="button"
+      title="Copy commands"
+      class="opacity-25 hover:opacity-75"
+      onclick="navigator.clipboard.writeText(document.querySelector('.task-commands').innerText);"
+    >
+      {% include 'icons/copy.svg' %}
+    </button>
+  </div>
 </div>

@@ -1,0 +1,63 @@
+<!-- Task command-->
+<!--
+{% set htmx_toggle = '/taskserver/run/breakdown/toggle?name='+name+'&index='+indexed %}
+{% if run %}
+{% set htmx_toggle = htmx_toggle + '&job_id='+run.id %}
+{% endif %}
+-->
+
+<!-- {% if cmd.open %} -->
+<!-- Task (expanded) -->
+<ul hx-target="this" hx-swap="outerHTML" class="flex flex-col relative">
+  <div class="flex-flex-col pl-8 -ml-8">
+    <span
+      title="{{cmd.text}}"
+      class="absolute -ml-8 w-8 h-8 p-1 opacity-25 hover:opacity-100 cursor-pointer"
+    >
+      <!-- {% if cmd.open %} -->
+      <a hx-get="{{htmx_toggle}}&state=closed" class="cursor-pointer">
+        {% include 'icons/arrow-uturn-left.svg' %}
+      </a>
+      <!-- {% else %} -->
+      {% include 'icons/document-plus.svg' %}
+      <!-- {% endif %} -->
+    </span>
+    <!-- {% with breakdown=cmd, divider=' ' %} -->
+    {% include 'partials/run/list.html' %}
+    <!-- {% endwith %} -->
+  </div>
+</ul>
+
+<!-- {% else %} -->
+<!-- Task (collapsed) -->
+
+<!-- {% if cmd.up_to_date %} -->
+
+<!-- Task is up to date -->
+<li class="p-1 flex items-top text-gray-500 opacity-50">
+  <span class="text-green-500">{% include 'icons/check.svg' %}</span>
+  <pre class="pl-2 text-gray-500 opacity-50">{{ cmd.text }}</pre>
+</li>
+
+<!-- {% else %} -->
+
+<!-- Task in normal state -->
+<li
+  hx-target="this"
+  hx-swap="outerHTML"
+  class="p-1 flex items-top text-blue-500"
+>
+  <!-- {% if cmd.cmds %} -->
+  <a hx-get="{{htmx_toggle}}&state=open" class="cursor-pointer">
+    {% include 'icons/document-plus.svg' %}
+  </a>
+  <!-- {% else %} -->
+  {% include 'icons/document-text.svg' %}
+  <!-- {% endif %} -->
+
+  <pre class="pl-2 flex item-center">{{ cmd.text }}</pre>
+</li>
+
+<!-- {% endif %} -->
+
+<!-- {% endif %} -->

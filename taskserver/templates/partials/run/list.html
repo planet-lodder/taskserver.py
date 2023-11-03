@@ -1,69 +1,19 @@
-<!-- {% if breakdown %} -->
-<ul class="flex flex-col">
-  <!-- {% for item in breakdown.cmds %} -->
-
-  <!-- {% if breakdown.up_to_date or run and run.exitCode == 0 %} -->
-
-  <li class="p-1 flex items-top">    
-    <span class="text-green-500">{% include 'icons/check.svg' %}</span>
-    <pre class="pl-2 text-gray-500">{{ item.text }}</pre>
-  </li>
-
-  <!-- {% elif run and run.exitCode %} -->
-
-  <li class="p-1 flex items-top text-red-500">
-    {% include 'icons/error.svg' %}
-    <pre class="pl-2">{{ item.text }}</pre>
-  </li>
-
-  <!-- {% elif item.type == 'cmd' %} -->
-
-  <li class="p-1 flex items-top text-gray-500">
-    {% include 'icons/terminal.svg' %}
-    <pre class="pl-2">{{ item.text }}</pre>
-  </li>
-
-  <!-- {% elif item.type == 'task' %} -->
-  <!-- Task command-->
-
-  <!-- {% if not item.open %} -->
-  <!-- Task (collapsed) -->
-
-  <!-- {% if not item.up_to_date %} -->
-  <!-- Task in normal state -->
-  <li class="p-1 flex items-top text-blue-500">
-    {% include 'icons/document-text.svg' %}
-    <pre class="pl-2 flex item-center">{{ item.text }}</pre>
-  </li>
-  <!-- {% else %} -->
-  <!-- Task is up to date -->
-  <li class="p-1 flex items-top text-gray-500 opacity-50">
-    <span class="text-green-500">{% include 'icons/document-check.svg' %}</span>
-    <pre class="pl-2 flex item-center line-through font-thin">
-{{ item.text }}</pre
-    >
-  </li>
-  <!-- {% endif %} -->
-
-  <!-- {% elif item.cmds %} -->
-  <!-- Task (expanded )-->
-  <div class="flex flex-col">
-    <!-- {% with breakdown=item %} -->
-    {% include 'partials/run/list.html' %}
-    <!-- {% endwith %} -->
-  </div>
-  <!-- {% endif %} -->
-
-  <!-- {% else %} -->
-
-  <!-- Unknown command type-->
-  <li class="p-1 flex items-top text-gray-500 opacity-50">
-    {% include 'icons/document.svg' %}
-    <pre class="pl-2">{{ item.raw }}</pre>
-  </li>
-
-  <!-- {% endif %} -->
-  <!-- {% endfor %} -->
+<!--
+{% set indexed = indexed or '' %}
+{% set divider = divider or 'divide-y divide-dashed divide-gray-500 divide-opacity-25' %}
+-->
+<!-- {% if breakdown and breakdown.cmds %} -->
+<ul class="flex flex-col {{divider}}">
+  <!-- 
+  {% set prefix = indexed + ',' if indexed else indexed %} 
+  {% for cmd in breakdown.cmds %}
+  {% with indexed=prefix + '%s' % loop.index0 %}
+  -->
+  {% include 'partials/run/breakdown/item.html' %}
+  <!-- 
+  {% endwith %}
+  {% endfor %} 
+  -->
 </ul>
 <!-- {% else %} -->
 <div class="opacity-25 flex flex-row">

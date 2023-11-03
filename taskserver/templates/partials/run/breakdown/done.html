@@ -1,0 +1,22 @@
+<!-- {% if cmd.type != 'task' %} -->
+<li class="p-1 flex items-top">
+  <span class="text-green-500">{% include 'icons/check.svg' %}</span>
+  <pre class="pl-2 text-gray-500 opacity-50">{{ cmd.text }}</pre>
+</li>
+<!-- {% else %} -->
+<!--
+{% set htmx_toggle = '/taskserver/run/breakdown/toggle?name='+name+'&index='+indexed %}
+{% if run %}
+{% set htmx_toggle = htmx_toggle + '&job_id='+run.id %}
+{% endif %}
+-->
+<li hx-target="this" hx-swap="outerHTML" class="p-1 flex items-top">
+  <a
+    title="{{cmd.text}}"
+    hx-get="{{htmx_toggle}}&state=open"
+    class="text-green-500 cursor-pointer"
+    >{% include 'icons/document-check.svg' %}</a
+  >
+  <pre class="pl-2 text-gray-500 opacity-50">{{ cmd.text }}</pre>
+</li>
+<!-- {% endif %} -->
