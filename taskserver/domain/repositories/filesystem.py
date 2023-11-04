@@ -288,7 +288,14 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         async def trackChanges(proc: subprocess.Popen):
             # Wait for a return code
             while proc.poll() == None:
-                time.sleep(.5)
+                # Read the stderr
+                line = proc.stderr.readline()
+                if not line:
+                    time.sleep(.5)
+                    break
+                if run.breakdown:
+                    print(f' - {line}')
+                    #run.breakdown.feed(line)
             return proc.returncode
 
         def setRunActive(node): node.runs[run.id] = run.pid
@@ -304,7 +311,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             if result == 0:
                 # Run completed successfully
                 run.traceDone(run.command)
-            elif result > 0:
+            elif result and result > 0:
                 # Run failed with an exit code
                 run.traceError(run.command)
 

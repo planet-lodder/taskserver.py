@@ -26,7 +26,7 @@ class TaskRunUseCase(TaskUseCase):
         breakdown = self.taskBreakdown(name, run) if name else None
         result = self.base(task) if task else {
             "taskfile": self.taskfile,
-            "task": task,            
+            "task": task,
         }
         result.update({
             "title": task.name if task else "unknown",
@@ -43,6 +43,7 @@ class TaskRunUseCase(TaskUseCase):
         # Create a new object to track the process and its output
         vars = self.getRunVars(task)
         run = TaskRun(task=task, vars=vars, cli_args=cli_args)
+        run.breakdown = self.taskBreakdown(task.name, run) if task else None
 
         # Now that the task has been started, clear run vars and reload details
         self.repo.saveTaskRun(run)
@@ -133,7 +134,7 @@ class TaskRunUseCase(TaskUseCase):
             # Expand / collapse all task commands
             self.toggleCommandRecursive(breakdown, state == 'expand')
             if run:
-                self.repo.saveTaskRun(run) # Update state
+                self.repo.saveTaskRun(run)  # Update state
 
         result = self.base(task)
         result.update({
