@@ -8,7 +8,15 @@ from taskserver.domain.models.Task import TaskVars
 
 class Command(BaseModel):
     type: str = 'cmd'
-    raw: str
+    value: str
+
+    @property
+    def text(self) -> str:
+        return self.value
+
+
+class TaskCommand(Command):
+    type = 'task'
     open: Optional[bool]
     vars: Optional[TaskVars]
     cmds: Optional[List['Command']]
@@ -16,7 +24,7 @@ class Command(BaseModel):
 
     @property
     def text(self) -> str:
-        return self.raw
+        return f"task {self.value}"
 
     def __init__(self, **kwargs):
         cmds = kwargs.get("cmds")
@@ -31,12 +39,3 @@ class Command(BaseModel):
                 else:
                     list.append(Command(**cmd))
             self.cmds = list
-
-
-class TaskCommand(Command):
-    type = 'task'
-
-    @property
-    def text(self) -> str:
-        return f"task {self.raw}"
-

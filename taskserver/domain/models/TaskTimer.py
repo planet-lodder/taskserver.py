@@ -25,7 +25,7 @@ class TaskTimer(TaskTracker):
         if is_root:
             stack.append(self.root)  # Make root the active node
         elif parent := stack[-1] if len(stack) else None:
-            cmd = next(filter(lambda c: c.raw == cmd_name, parent.cmds))
+            cmd = next(filter(lambda c: c.value == cmd_name, parent.cmds))
         if cmd:
             stack.append(cmd)  # Make this command the active node
         else:

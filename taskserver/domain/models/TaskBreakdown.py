@@ -12,9 +12,8 @@ from taskserver.domain.models.Taskfile import Taskfile
 
 class TaskBreakdown(TaskCommand):
     path: str
-    name: str
-    stack: List[TaskCommand] = []
     debug = True
+    stack: List[TaskCommand] = []
 
     class Config:
         exclude = ['stack', 'debug']
@@ -28,10 +27,10 @@ class TaskBreakdown(TaskCommand):
 
         def setOverflow(self, parent: Command, overflow: str):
             if parent and len(parent.cmds):
-                parent.cmds[-1].raw = parent.cmds[-1].raw + overflow
+                parent.cmds[-1].value = parent.cmds[-1].value + overflow
 
         def cmdStarted(self, stack: List[TaskCommand], cmd_raw: str, up_to_date: bool = None):
-            cmd = Command(raw=cmd_raw, up_to_date=up_to_date)
+            cmd = Command(value=cmd_raw, up_to_date=up_to_date)
             parent: TaskCommand = stack[-1] if len(stack) else None
             parent.cmds.append(cmd)
 
@@ -39,7 +38,7 @@ class TaskBreakdown(TaskCommand):
             # Define a new task command node to track on the stack
             is_root = len(stack) == 0
             cmd = self.root if is_root else TaskCommand(
-                raw=cmd_name,
+                value=cmd_name,
                 up_to_date=up_to_date
             )
             if parent := stack[-1] if len(stack) else None:
@@ -50,7 +49,7 @@ class TaskBreakdown(TaskCommand):
             # Forcefully get the sub task breakdown
             TaskBreakdown.forTask(
                 self.root.path,
-                cmd.raw,
+                cmd.value,
                 True,
                 up_to_date=True,
                 existing_root=cmd,
@@ -62,7 +61,11 @@ class TaskBreakdown(TaskCommand):
         def taskFailed(self, stack: List[TaskCommand], cmd: TaskCommand): ...
 
     @staticmethod
-    def forTask(filename, task_name, force=False, up_to_date=False, existing_root=None):
+    def forTask(filename,
+                task_name: str,
+                force: bool = False,
+                up_to_date: bool = None,
+                existing_root: TaskCommand = None):
         # Do a dry run and capture the traced commands (to rebuild a execution tree)
         command = f"{task_name} --dry --verbose"
         command = command + ' -f' if force else command
@@ -74,8 +77,7 @@ class TaskBreakdown(TaskCommand):
         # Define the root node
         root = existing_root or TaskBreakdown(
             path=filename,
-            name=task_name,
-            raw=task_name,
+            value=task_name,
             up_to_date=up_to_date
         )
 
@@ -97,7 +99,7 @@ class TaskBreakdown(TaskCommand):
              silent: bool = False,
              ):
         stack = self.stack
-        task_name = self.raw
+        task_name = self.value
         actions = actions or TaskTimer(self)
 
         def trace(message, prefix='', extra=''):
@@ -131,7 +133,7 @@ class TaskBreakdown(TaskCommand):
             if check := re.search(r'\"(.*)\" started', line):
                 # Task start tag detected
                 cmd_name = check.groups()[0]
-                if silent and self.raw == cmd_name:
+                if silent and self.value == cmd_name:
                     ...  # silently add
                 elif not parent and cmd_name == task_name:
                     # Root task is starting...
@@ -148,7 +150,7 @@ class TaskBreakdown(TaskCommand):
                 last = stack.pop()
                 cmd_name = check.groups()[0]
 
-                if not silent and self.raw != cmd_name:
+                if not silent and self.value != cmd_name:
                     trace(cmd_name, f' <- Task: ', 'finished')
 
                 # Track the task finishing
@@ -157,7 +159,7 @@ class TaskBreakdown(TaskCommand):
                 if cmd_name == task_name and not len(stack) and (last != self or len(stack)):
                     # Main task has finished
                     warn(f'Commands are left on the stack after main task exits.')
-                elif last.raw != cmd_name:
+                elif last.value != cmd_name:
                     # Sub task finished
                     warn(f'Expected "task {cmd_name}", got "{last.text}".')
 
@@ -166,7 +168,7 @@ class TaskBreakdown(TaskCommand):
                 last = stack.pop()
                 last.up_to_date = True
                 cmd_name = check.groups()[0]
-                if last.raw != cmd_name:
+                if last.value != cmd_name:
                     warn(f'Expected "task {cmd_name}", got "{last.text}".')
 
                 # Trigger action when task is up to date
@@ -177,7 +179,7 @@ class TaskBreakdown(TaskCommand):
                 # This is a command being executed
                 cmd_name = check.groups()[0]
                 cmd_raw = check.groups()[1]
-                if parent.raw == cmd_name:
+                if parent.value == cmd_name:
                     trace('', f' -> Cmd: ' + cmd_raw)
                     actions.cmdStarted(stack, cmd_raw, up_to_date=up_to_date)
                 else:
