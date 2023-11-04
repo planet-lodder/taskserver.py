@@ -292,8 +292,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
                 line = proc.stderr.readline()
                 if not line:
                     time.sleep(.5)
-                    break
-                if run.breakdown:
+                elif run.breakdown:
                     print(f' - {line}')
                     #run.breakdown.feed(line)
             return proc.returncode
@@ -302,7 +301,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         def setRunClosed(node): del (node.runs[run.id])
 
         def runCompleted(result: int):
-            # Stop timer and set the exit code that was returned
+            # Stop timer and set the exit code that was returned            
             run.finished = datetime.now()
             run.exitCode = result
             saveChanges()
@@ -359,6 +358,8 @@ class FilesystemTaskfileRepo(TaskfileRepository):
     def getTaskRun(self, id: str) -> Optional[TaskRun]:
         cache_path = '.task/temp/runs'
         file_path = f'{cache_path}/{id}.yaml'
+        if not os.path.isdir(cache_path):
+            return None
         if os.path.isfile(file_path):
             with open(file_path, 'r') as f:
                 input = f.read()

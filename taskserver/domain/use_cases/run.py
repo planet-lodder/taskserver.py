@@ -135,7 +135,7 @@ class TaskRunUseCase(TaskUseCase):
             self.toggleCommandRecursive(breakdown, state == 'expand')
             if run:
                 self.repo.saveTaskRun(run)  # Update state
-
+        
         result = self.base(task)
         result.update({
             "breakdown": breakdown,
