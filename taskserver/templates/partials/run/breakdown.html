@@ -1,9 +1,15 @@
 <div hx-target="this" hx-swap="outerHTML" class="flex flex-1 relative group">
-  <!-- {% if run and not run.finished %} -->
+  <!-- {% if run and run.exitCode == None %} -->
   <!-- Auto-refresh in 1 second -->
   <div
     hx-get="/taskserver/run/breakdown?name={{name}}&job_id={{run.id}}"
     hx-trigger="load delay:1s"
+  ></div>
+  <!-- {% elif run %} -->
+  <!-- Listen for the refresh event -->
+  <div
+    hx-get="/taskserver/run/breakdown?name={{name}}&job_id={{run.id}}"
+    hx-trigger="{{name}} from:body"
   ></div>
   <!-- {% endif %} -->
 

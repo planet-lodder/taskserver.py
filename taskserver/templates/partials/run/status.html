@@ -4,12 +4,21 @@
     hx-get="/taskserver/run/status?job_id={{run.id}}"
     hx-trigger="load delay:1s"
   ></span>
-  <!-- {% if name %} -->
+  <!-- {% if run and run.task %} -->
   <script>
-    // Trigger the update event to force sidenav to update
-    htmx && htmx.trigger(htmx.find("body"), "{{name}}");
+    setTimeout(() => {
+      // Trigger the update event to force content to update
+      htmx && htmx.trigger(htmx.find("body"), "{{run.task.name}}");
+    });
   </script>
   <!-- {% endif %} -->
+  <!-- {% elif run and run.task and run.exitCode %} -->
+  <script>
+    setTimeout(() => {
+      // Trigger the update event to refresh on error
+      htmx && htmx.trigger(htmx.find("body"), "{{run.task.name}}");
+    });
+  </script>
   <!-- {% endif %} -->
 
   <!-- {% if not run %} -->
@@ -32,7 +41,7 @@
       </span>
     </span>
   </div>
-  
+
   <!-- {% elif run.started and run.finished %} -->
   <!-- {% if run.exitCode %} -->
   <div class="flex text-red-500">
@@ -43,7 +52,7 @@
       <span class="font-bold">{{ run.exitCode }}</span> ]
     </span>
     <span class="font-thin">
-      -
+      <span class="pl-2">-</span>
       <!-- {% set timed = run.finished - run.started %} -->
       {% include 'partials/run/timer.html' %}
     </span>

@@ -36,13 +36,13 @@ class TaskRunUseCase(TaskUseCase):
             "run": run,
             "breakdown": breakdown,
         })
-
         return result
 
     def createRun(self, task: Task, vars: dict, cli_args=''):
         # Create a new object to track the process and its output
         vars = self.getRunVars(task)
         run = TaskRun(task=task, vars=vars, cli_args=cli_args)
+        self.repo.saveTaskRun(run)
         run.breakdown = self.taskBreakdown(task.name, run) if task else None
 
         # Now that the task has been started, clear run vars and reload details
@@ -128,19 +128,19 @@ class TaskRunUseCase(TaskUseCase):
     def getRunBreakdown(self, task_name: str, job_id: str, state):
         task = self.repo.findTask(task_name)
         run = self.repo.getTaskRun(job_id) if job_id else None
-        breakdown = self.taskBreakdown(task_name, run)
-
+        breakdown = self.taskBreakdown(task_name, run, reload=True)
         if state == 'expand' or state == 'collapse':
             # Expand / collapse all task commands
             self.toggleCommandRecursive(breakdown, state == 'expand')
             if run:
                 self.repo.saveTaskRun(run)  # Update state
-        
+
         result = self.base(task)
         result.update({
             "breakdown": breakdown,
             "run": run
         })
+
         return result
 
     def toggleCommandRecursive(self, cmd: Command, state: bool):

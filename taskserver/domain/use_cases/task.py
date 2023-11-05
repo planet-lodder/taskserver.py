@@ -105,10 +105,14 @@ class TaskUseCase(TaskfileUseCase):
         if runVars and key in runVars:
             del runVars[key]  # Update run var value
 
-    def taskBreakdown(self, task_name: str, run: TaskRun = None):
+    def taskBreakdown(self, task_name: str, run: TaskRun = None, reload=False):
         # Check if we have a task breakdown cached in the run
+        if run and reload: # Reload
+            if new := self.repo.getTaskRun(run.id):
+                run.breakdown = new.breakdown # Save to cache
+                return run.breakdown # Return updated breakdown
         if run and run.breakdown:
-            return run.breakdown
+            return run.breakdown # Load the cached version
 
         # Try and resolve the breakdown from cache
         session = self.session
@@ -121,7 +125,7 @@ class TaskUseCase(TaskfileUseCase):
         if run and not run.breakdown:
             run.breakdown = breakdown.copy(deep=True)
             self.repo.saveTaskRun(run)
-            return run.breakdown # Return the cloned copy
+            return run.breakdown  # Return the cloned copy
 
         # Show the task view
         return breakdown

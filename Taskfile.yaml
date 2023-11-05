@@ -63,6 +63,7 @@ tasks:
     cmds:
       - echo "Crashing this task..." 1>&2
       - exit 2
+      - echo "Technically this command should never run."
   example:infinite:
     desc: Run this task indefinately
     cmds:

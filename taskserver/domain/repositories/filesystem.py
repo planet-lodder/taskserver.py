@@ -381,8 +381,17 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         if os.path.isfile(file_path):
             with open(file_path, 'r') as f:
                 input = f.read()
+                if not input:
+                    # No input, wait for file to write...
+                    time.sleep(0.1)
+                    input = f.read()
+
+                # Parse the raw job run data and load into model
                 data = yaml.safe_load(input)
                 run = TaskRun(**data) if data else None
+                if not run:
+                    print(f'WARNING: Failed to parse run [{id}] data:\n'+input)
+
                 return run
         return None
 

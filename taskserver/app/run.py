@@ -78,7 +78,6 @@ def taskRun(req: WebRequest, resp: WebResponse):
     if run := result.get("run"):
         new_url = f'{req.path}?job_id={run.id}'
         resp.head['HX-Replace-Url'] = new_url
-
     return result
 
 
