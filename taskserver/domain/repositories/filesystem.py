@@ -6,6 +6,7 @@ import string
 import subprocess
 import threading
 import time
+from colorama import Fore, Style
 import yaml
 import json
 import yq
@@ -17,6 +18,7 @@ from typing import Callable, Dict, List, Optional, Sequence
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.TaskRun import TaskRun
+from taskserver.domain.models.TaskTimer import TaskTimer
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories.base import TaskfileRepository
 
@@ -286,22 +288,38 @@ class FilesystemTaskfileRepo(TaskfileRepository):
 
         # Track status of a running process and wait for it to exit
         async def trackChanges(proc: subprocess.Popen):
+
+            def save():
+                try:
+                    self.saveTaskRun(run)
+                except Exception as ex:
+                    print(f'{Fore.RED}{ex}{Style.RESET_ALL}')
+
+            tracker = TaskTimer(
+                root=run.breakdown,
+                onUpdate=save
+            )
+
+            def pipe():
+                while line := proc.stderr.read():
+                    line = line.decode("utf-8")
+                    print(f'{Fore.CYAN}{line}{Style.RESET_ALL}')
+                    if run.breakdown:
+                        run.breakdown.feed(line, actions=tracker)
+
+                return proc.poll()
+
             # Wait for a return code
-            while proc.poll() == None:
-                # Read the stderr
-                line = proc.stderr.readline()
-                if not line:
-                    time.sleep(.5)
-                elif run.breakdown:
-                    print(f' - {line}')
-                    #run.breakdown.feed(line)
+            while pipe() == None:
+                time.sleep(.5)
+
             return proc.returncode
 
         def setRunActive(node): node.runs[run.id] = run.pid
         def setRunClosed(node): del (node.runs[run.id])
 
         def runCompleted(result: int):
-            # Stop timer and set the exit code that was returned            
+            # Stop timer and set the exit code that was returned
             run.finished = datetime.now()
             run.exitCode = result
             saveChanges()
@@ -319,7 +337,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             # Create and open a new process (async)
             run.started = datetime.now()
             proc = subprocess.Popen(
-                ['task'] + run.arguments,
+                ['task', '-v'] + run.arguments,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 env=env

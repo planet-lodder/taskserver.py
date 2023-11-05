@@ -1,4 +1,28 @@
+<!-- {% if cmd.type != 'task' %} -->
 <li class="p-1 flex items-top text-red-500">
-  {% include 'icons/error.svg' %}
+  {% include 'icons/close.svg' %}
   <pre class="pl-2">{{ cmd.text }}</pre>
+  {% include 'partials/run/comment.html' %}
 </li>
+<!-- {% else %} -->
+<!--
+{% set htmx_toggle = '/taskserver/run/breakdown/toggle?name='+name+'&index='+indexed %}
+{% if run %}
+{% set htmx_toggle = htmx_toggle + '&job_id='+run.id %}
+{% endif %}
+-->
+<li
+  hx-target="this"
+  hx-swap="outerHTML"
+  class="p-1 flex items-top text-red-500"
+>
+  <a
+    title="{{cmd.text}}"
+    hx-get="{{htmx_toggle}}&state=open"
+    class="cursor-pointer"
+    >{% include 'icons/error.svg' %}</a
+  >
+  <pre class="pl-2">{{ cmd.text }}</pre>
+  {% include 'partials/run/comment.html' %}
+</li>
+<!-- {% endif %} -->

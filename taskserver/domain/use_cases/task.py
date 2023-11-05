@@ -115,12 +115,13 @@ class TaskUseCase(TaskfileUseCase):
         breakdown = session.breakdown.get(task_name)
         if not breakdown:
             # Generate the task breakdown for current this session
-            breakdown = TaskBreakdown.forTask(self.taskfile.path, task_name, force=True)
+            breakdown = TaskBreakdown.forTask(self.taskfile.path, task_name)
             session.breakdown[task_name] = breakdown
 
         if run and not run.breakdown:
             run.breakdown = breakdown.copy(deep=True)
             self.repo.saveTaskRun(run)
+            return run.breakdown # Return the cloned copy
 
         # Show the task view
         return breakdown

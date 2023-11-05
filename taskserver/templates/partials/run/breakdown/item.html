@@ -1,10 +1,16 @@
 <!-- 
 {% set is_done = breakdown.up_to_date or run and run.exitCode == 0 %} 
+{% set is_done = is_done or cmd.started and cmd.finished %} 
+{% set is_busy = cmd.started and not cmd.finished %} 
+{% set is_errror = run and run.exitCode %} 
+{% set is_errror = is_error or cmd.has_error %} 
 -->
-<!-- {% if is_done and not cmd.open %} -->
-{% include 'partials/run/breakdown/done.html' %}
-<!-- {% elif run and run.exitCode %} -->
+<!-- {% if is_busy and not cmd.open %} -->
+{% include 'partials/run/breakdown/busy.html' %}
+<!-- {% elif is_errror and not cmd.open %} -->
 {% include 'partials/run/breakdown/error.html' %}
+<!-- {% elif is_done and not cmd.open %} -->
+{% include 'partials/run/breakdown/done.html' %}
 <!-- {% elif cmd.type == 'cmd' %} -->
 {% include 'partials/run/breakdown/command.html' %}
 <!-- {% elif cmd.type == 'task' %} -->

@@ -13,7 +13,6 @@ from taskserver.domain.models.Taskfile import Taskfile
 class TaskBreakdown(TaskCommand):
     path: str
     debug = True
-    stack: List[TaskCommand] = []
 
     class Config:
         exclude = ['stack', 'debug']
@@ -47,6 +46,7 @@ class TaskBreakdown(TaskCommand):
 
         def taskUpToDate(self, stack: List[TaskCommand], cmd: TaskCommand):
             # Forcefully get the sub task breakdown
+            cmd.up_to_date = True
             TaskBreakdown.forTask(
                 self.root.path,
                 cmd.value,
@@ -54,7 +54,6 @@ class TaskBreakdown(TaskCommand):
                 up_to_date=True,
                 existing_root=cmd,
             )
-            cmd.up_to_date = True
 
         def taskFinished(self, stack: List[TaskCommand], cmd: TaskCommand): ...
 
@@ -75,19 +74,20 @@ class TaskBreakdown(TaskCommand):
             raise Exception(message)
 
         # Define the root node
-        root = existing_root or TaskBreakdown(
+        root = TaskBreakdown(
             path=filename,
             value=task_name,
-            up_to_date=up_to_date
+            up_to_date=up_to_date,
         )
+        parser = TaskBreakdown.TaskParser(existing_root or root)
 
         # Read the trace logs to reconstruct the task breakdown
         if buffer := stderr:
             root.feed(
                 buffer,
                 up_to_date=up_to_date,
-                silent=existing_root != None,
-                actions=TaskBreakdown.TaskParser(root),
+                existing_root=existing_root,
+                actions=parser,
             )
 
         return root
@@ -96,10 +96,11 @@ class TaskBreakdown(TaskCommand):
              buffer: str,
              actions: TaskTracker = None,
              up_to_date: bool = None,
-             silent: bool = False,
+             existing_root: TaskCommand = None,
              ):
-        stack = self.stack
+        stack = actions.stack if actions else []
         task_name = self.value
+        silent = existing_root != None
         actions = actions or TaskTimer(self)
 
         def trace(message, prefix='', extra=''):
@@ -133,17 +134,16 @@ class TaskBreakdown(TaskCommand):
             if check := re.search(r'\"(.*)\" started', line):
                 # Task start tag detected
                 cmd_name = check.groups()[0]
-                if silent and self.value == cmd_name:
-                    ...  # silently add
+                if existing_root and existing_root.value == cmd_name:
+                    stack.append(existing_root)  # silently add
                 elif not parent and cmd_name == task_name:
                     # Root task is starting...
                     trace(cmd_name, f' -> Task: ', 'root')
+                    actions.taskStarted(stack, cmd_name, up_to_date)
                 else:
                     # New sub task has started, add to parent
                     trace(cmd_name, f' -> Task: ', 'started')
-
-                # Define or track task starting
-                actions.taskStarted(stack, cmd_name, up_to_date)
+                    actions.taskStarted(stack, cmd_name, up_to_date)
 
             elif check := re.search(r'\"(.*)\" finished', line):
                 # Task close tag has been detected
@@ -179,13 +179,17 @@ class TaskBreakdown(TaskCommand):
                 # This is a command being executed
                 cmd_name = check.groups()[0]
                 cmd_raw = check.groups()[1]
-                if parent.value == cmd_name:
+
+                if parent and parent.value == cmd_name:
                     trace('', f' -> Cmd: ' + cmd_raw)
                     actions.cmdStarted(stack, cmd_raw, up_to_date=up_to_date)
                 else:
                     warn(f'Found an orphan command: {cmd_raw} ({cmd_name})')
+            elif check := re.search(r'Failed to run task \"(.*)\":(.*)', line):
+                last = stack.pop() if len(stack) else self
+                actions.taskFailed(stack, last)
             else:
-                warn(f'Line not recognised: {line}')
+                warn(f'Line not recognised: "{line}"')
 
         # Edge case: Check for overflow on last command
         if parent and buffer and actions:
