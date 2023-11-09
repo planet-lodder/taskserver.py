@@ -134,6 +134,14 @@ def taskBreakdown(req, resp):
     # Try and run the task (no additional parameters)
     return view.runStatus(input.job_id)
 
+@router.post('/run/stop')
+def taskBreakdown(req, resp):
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+
+    # Try and run the task (no additional parameters)
+    return view.stopJob(input.job_id)
+
 
 @router.get('/run/breakdown')
 @router.renders('partials/run/breakdown')

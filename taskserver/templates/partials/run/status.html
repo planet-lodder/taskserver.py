@@ -28,6 +28,33 @@
     {% include 'icons/play.svg' %}
     <span class="ml-2 font-slim">Task has not been run yet...</span>
   </div>
+  <!-- {% elif run.stopped and not run.finished %} -->
+  <div class="flex text-blue-500 opacity-75">
+    <span class="w-6 h-6 animate-spin">
+      {% include 'icons/arrow-path.svg' %}
+    </span>
+    <span class="ml-2">
+      <span class="font-bold">Stopping task {{run.task.name}}...</span>
+      <span class="font-slim italic opacity-75">
+        <!-- {% set timed = run.ellapsed %} -->
+        {% include 'partials/run/timer.html' %}
+      </span>
+    </span>
+  </div>
+  <!-- {% elif run.stopped and run.finished %} -->
+  <div class="flex text-blue-500 opacity-75">
+    <span class="w-6 h-6">
+      {% include 'icons/stop.svg' %}
+    </span>
+    <span class="ml-2">
+      <span class="font-slim">Stopped task {{run.task.name}}.</span>
+      <span class="font-slim italic opacity-75">
+        <!-- {% set timed = run.ellapsed %} -->
+        {% include 'partials/run/timer.html' %}
+      </span>
+    </span>
+  </div>
+
   <!-- {% elif run.started and not run.finished %} -->
   <div class="flex text-blue-500 opacity-75">
     <span class="w-6 h-6 animate-spin">

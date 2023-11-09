@@ -115,6 +115,14 @@ class TaskRunUseCase(TaskUseCase):
         return {
             "run": run,
         }
+    
+    def stopJob(self, job_id: str):
+        run = self.repo.getTaskRun(job_id) if job_id else None
+        if run:
+            self.repo.stopTaskRun(run)
+        return {
+            "run": run,
+        }
 
     def runVarDetails(self, task_name, key_name):
         task = self.repo.findTask(task_name)

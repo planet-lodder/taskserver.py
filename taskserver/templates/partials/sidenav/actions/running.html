@@ -5,7 +5,8 @@
   <a
     title="Stop Task"
     hx-post="/taskserver/run/stop?job_id={{ item.runs.keys()|first }}"
-    hx-target="main"
+    hx-target="this"
+    hx-swap="none"
     class="opacity-50 hover:opacity-100 cursor-pointer"
   >
     {% include 'icons/stop.svg' %}

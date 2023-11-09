@@ -33,6 +33,7 @@ class TaskRun(BaseModel):
     pid: Optional[int]
     started: Optional[datetime]
     finished: Optional[datetime]
+    stopped: Optional[bool]
     exitCode: Optional[int]
     stdout: Optional[str]
     stderr: Optional[str]

@@ -41,6 +41,9 @@ class TaskfileRepository(ABC):
     def startTaskRun(self, run: TaskRun) -> Optional[TaskRun]: ...
 
     @abstractmethod
+    def stopTaskRun(self, run: TaskRun) -> Optional[TaskRun]: ...
+
+    @abstractmethod
     def getTaskRun(self, id: str) -> Optional[TaskRun]: ...
     
     @abstractmethod

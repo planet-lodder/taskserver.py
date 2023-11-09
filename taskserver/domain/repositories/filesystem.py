@@ -2,6 +2,7 @@
 import asyncio
 import os
 import random
+import signal
 import string
 import subprocess
 import threading
@@ -316,7 +317,10 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             return proc.returncode
 
         def setRunActive(node): node.runs[run.id] = run.pid
-        def setRunClosed(node): del (node.runs[run.id])
+
+        def setRunClosed(node):
+            if run.id in node.runs:
+                del (node.runs[run.id])
 
         def runCompleted(result: int):
             # Stop timer and set the exit code that was returned
@@ -372,6 +376,35 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             raise ex
 
         return run
+
+    def stopTaskRun(self, run: TaskRun) -> Optional[TaskRun]:
+        try:
+            # Flag the task as stopped
+            run.stopped = True
+
+            # Try and stop the process if it exists
+            print(
+                f'{Fore.MAGENTA}Stopping run {run.id} (pid: {run.pid}){Style.RESET_ALL}')
+            #os.kill(run.pid, signal.SIGTERM)
+            os.kill(run.pid, signal.SIGKILL)
+
+            time.sleep(.5)
+        except Exception as ex:
+            print(f'{Fore.RED}{ex}{Style.RESET_ALL}')
+
+        # Get the last run status and update as closed
+        run = self.getTaskRun(run.id)
+        run.stopped = True
+        #run.exitCode = 1
+        run.finished = datetime.now()
+        if run.breakdown:
+            run.breakdown.finished = run.finished
+        self.saveTaskRun(run)
+
+        # Remove active run from task node
+        node = self.getMenu(run.task.name)
+        if node and node.runs and run.id in node.runs:
+            del (node.runs[run.id])
 
     def getTaskRun(self, id: str) -> Optional[TaskRun]:
         cache_path = '.task/temp/runs'
