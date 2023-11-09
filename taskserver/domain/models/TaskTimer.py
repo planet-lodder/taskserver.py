@@ -33,30 +33,31 @@ class TaskTimer(TaskTracker):
             self.save()
 
     def taskStarted(self, stack: List[TaskCommand], cmd_name: str, up_to_date: bool = None):
-        # Define a new task command node to track on the stack
-        is_root = len(stack) == 0
-        cmd = None
-        if is_root:
-            # Make root the active node
-            #cmd = self.root
+        cmd: Command = None
+
+        def unstarted(c: Command):
+            return c.value == cmd_name and not c.started
+
+        # Check for root task starting...
+        if not len(stack) and self.root.value == cmd_name:
+            #self.root.started = datetime.now()
             stack.append(self.root)
-        elif parent := stack[-1] if len(stack) else None:
+            self.save()
+        elif parent := stack[-1] if len(stack) else self.root:
             # Find a matching node in the parent's (unstarted) commands
-            def unstarted(c: Command):
-                return c.value == cmd_name and not c.started
             found = list(filter(unstarted, parent.cmds))
             if len(found):
                 cmd = found[0]
-                #self.markFinishedUpTo(parent, cmd)
+                self.markFinishedUpTo(parent, cmd)
 
         if cmd:
             cmd.started = datetime.now()
             stack.append(cmd)  # Make this command the active node
             self.save()
-        else:
-            print(f'WARNING: Command "{cmd_name}" not found')
 
     def taskUpToDate(self, stack: List[TaskCommand], cmd: TaskCommand):
+        if parent := stack[-1] if len(stack) else None:
+            self.markFinishedUpTo(parent, cmd)
         if cmd:
             cmd.up_to_date = True
             cmd.started = datetime.now()
@@ -76,10 +77,11 @@ class TaskTimer(TaskTracker):
         def mark_last_run_as_failed(parent: Command):
             parent.finished = finished
             parent.exitCode = exitCode
+
             if isinstance(parent, TaskCommand) and parent.cmds:
                 # Find all previous siblings that needs to be closed
-                found = list(filter(lambda c: not c.finished, parent.cmds))
-                if active := found[0] if len(found) else None:
+                found = list(filter(lambda c: c.started, parent.cmds))
+                if active := found[-1] if len(found) else None:
                     mark_last_run_as_failed(active)
 
         # Set current task exit code
@@ -107,7 +109,6 @@ class TaskTimer(TaskTracker):
                 else:
                     # Stop updating timestamps, as this is the active node
                     return
-        
 
     def closeTask(self, cmd: TaskCommand, save=True):
         if not cmd.finished:

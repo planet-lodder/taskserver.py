@@ -185,9 +185,10 @@ class TaskBreakdown(TaskCommand):
                     actions.cmdStarted(stack, cmd_raw, up_to_date=up_to_date)
                 else:
                     warn(f'Found an orphan command: {cmd_raw} ({cmd_name})')
-            elif check := re.search(r'Failed to run task \"(.*)\": exit status (\d+)', line):
-                code = cmd_raw = check.groups()[1]
+            elif check := re.search(r'(Failed to run task \"(.*)\": )+(exit status (\d+))', line):
+                groups = check.groups()
                 last = stack.pop() if len(stack) else self
+                code = groups[-1]
                 actions.taskFailed(stack, last, int(code))
             else:
                 warn(f'Line not recognised: "{line}"')
