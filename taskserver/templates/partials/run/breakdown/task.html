@@ -32,16 +32,22 @@
 <!-- Task (collapsed) -->
 
 <!-- {% if cmd.up_to_date %} -->
-
 <!-- Task is up to date -->
 {% include 'partials/run/breakdown/done.html' %}
 <!-- {% else %} -->
 
 <!-- Task in normal state -->
+
+<!-- 
+{% set css = 'text-blue-500' %} 
+{% if run %}
+{% set css = 'text-blue-500' if cmd.started else 'text-gray-500 opacity-25' %} 
+{% endif %}
+-->
 <li
   hx-target="this"
   hx-swap="outerHTML"
-  class="p-1 flex items-top text-blue-500"
+  class="p-1 flex items-top {{css}}"
 >
   <!-- {% if cmd.cmds %} -->
   <a hx-get="{{htmx_toggle}}&state=open" class="cursor-pointer">
@@ -50,7 +56,6 @@
   <!-- {% else %} -->
   {% include 'icons/document-text.svg' %}
   <!-- {% endif %} -->
-
   <pre class="pl-2 flex item-center">{{ cmd.text }}</pre>
 </li>
 
