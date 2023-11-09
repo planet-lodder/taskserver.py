@@ -20,7 +20,7 @@ tasks:
     desc: Bootstrap the server and load from config
     deps: [init:python]
     cmds:
-      - ./main.py --debug
+      - ./main.py --dev
 
   update: [{ task: "core:update" }]
   clean: [{ task: "core:clean" }]
@@ -54,7 +54,6 @@ tasks:
       - sleep 1
   example:delta:
     - echo "Updating sources..."
-    - task: update
     - |-
       echo "Sleep for 1 second..."
       sleep 1
@@ -64,6 +63,15 @@ tasks:
       - echo "Crashing this task..." 1>&2
       - exit 2
       - echo "Technically this command should never run."
+  example:complex:
+    desc: Explicitly exit with exit status
+    cmds:
+      - task: example:alpha
+      - task: example:beta
+      - task: example:delta
+      - task: example:delta
+      - task: example:fail
+      - task: example:delta
   example:infinite:
     desc: Run this task indefinately
     cmds:
@@ -76,3 +84,13 @@ tasks:
           sleep 2
           count=$(( $count + 1 ))
         done
+  example:repeats:
+    desc: Run the same command repeatedly
+    cmds:
+      - echo "Sleeping 5 times..."
+      - sleep 1
+      - sleep 1
+      - sleep 1
+      - sleep 1
+      - sleep 1
+      - echo "Done"

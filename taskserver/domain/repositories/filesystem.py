@@ -301,8 +301,8 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             )
 
             def pipe():
-                while line := proc.stderr.read():
-                    line = line.decode("utf-8")
+                while line := proc.stderr.readline():
+                    line = line.decode("utf-8").rstrip()
                     print(f'{Fore.CYAN}{line}{Style.RESET_ALL}')
                     if run.breakdown:
                         run.breakdown.feed(line, actions=tracker)
@@ -381,8 +381,10 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         if os.path.isfile(file_path):
             with open(file_path, 'r') as f:
                 input = f.read()
+
+                # Do a sanity check, seeing that we are writing file from different thread
                 if not input:
-                    # No input, wait for file to write...
+                    # No input, wait for file to finish writing...
                     time.sleep(0.1)
                     input = f.read()
 

@@ -193,6 +193,7 @@ class TaskBreakdown(TaskCommand):
                 warn(f'Line not recognised: "{line}"')
 
         # Edge case: Check for overflow on last command
+        parent = stack[-1] if len(stack) else None
         if parent and buffer and actions:
             actions.setOverflow(parent, buffer)
 

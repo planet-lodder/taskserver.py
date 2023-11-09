@@ -22,7 +22,12 @@ class TaskTimer(TaskTracker):
     def cmdStarted(self, stack: List[TaskCommand], cmd_raw: str, up_to_date: bool = None):
         parent: TaskCommand = stack[-1] if len(stack) else None
         cmds = parent.cmds if parent else []
-        if cmd := next(filter(lambda c: c.value.startswith(cmd_raw), cmds)):
+
+        def active(c: Command):
+            return c.value.startswith(cmd_raw) and not c.started
+
+        found = list(filter(active, cmds))
+        if cmd := found[0] if len(found) else None:
             cmd.started = datetime.now()
             self.markFinishedUpTo(parent, cmd)
             self.save()
@@ -30,15 +35,22 @@ class TaskTimer(TaskTracker):
     def taskStarted(self, stack: List[TaskCommand], cmd_name: str, up_to_date: bool = None):
         # Define a new task command node to track on the stack
         is_root = len(stack) == 0
+        cmd = None
         if is_root:
             # Make root the active node
-            cmd = self.root
+            #cmd = self.root
+            stack.append(self.root)
         elif parent := stack[-1] if len(stack) else None:
-            # Find a matching node in the commands
-            cmd = next(filter(lambda c: c.value == cmd_name, parent.cmds))
+            # Find a matching node in the parent's (unstarted) commands
+            def unstarted(c: Command):
+                return c.value == cmd_name and not c.started
+            found = list(filter(unstarted, parent.cmds))
+            if len(found):
+                cmd = found[0]
+                #self.markFinishedUpTo(parent, cmd)
+
         if cmd:
             cmd.started = datetime.now()
-            # self.markFinishedUpTo(stack[-1] if not is_root else self.root, cmd)
             stack.append(cmd)  # Make this command the active node
             self.save()
         else:
@@ -53,18 +65,22 @@ class TaskTimer(TaskTracker):
 
     def taskFinished(self, stack: List[TaskCommand], cmd: TaskCommand):
         parent = stack[-1] if len(stack) else None
+        cmd.finished = datetime.now()
         self.markFinishedUpTo(parent, cmd)
         self.closeTask(cmd)
 
     def taskFailed(self, stack: List[TaskCommand], cmd: TaskCommand, exitCode=1):
+        finished = datetime.now()
+
         # If this is a task command, check last child prcess that was finished
         def mark_last_run_as_failed(parent: Command):
+            parent.finished = finished
             parent.exitCode = exitCode
             if isinstance(parent, TaskCommand) and parent.cmds:
                 # Find all previous siblings that needs to be closed
-                found = list(filter(lambda c: c.finished, parent.cmds))
-                if last := found[-1] if len(found) else None:
-                    mark_last_run_as_failed(last)
+                found = list(filter(lambda c: not c.finished, parent.cmds))
+                if active := found[0] if len(found) else None:
+                    mark_last_run_as_failed(active)
 
         # Set current task exit code
         mark_last_run_as_failed(cmd)
@@ -75,17 +91,40 @@ class TaskTimer(TaskTracker):
         self.closeTask(cmd)
 
     def markFinishedUpTo(self, parent: TaskCommand, cmd: Command):
-        if not parent and cmd:
-            # Mark the current command as finished
-            cmd.finished = datetime.now()
-        elif parent and isinstance(parent, TaskCommand):
+        if parent and isinstance(parent, TaskCommand) and parent.cmds and cmd in parent.cmds:
             # Find all previous siblings that needs to be closed
-            found = filter(lambda c: not c.finished, parent.cmds)
-            while sibling := next(found):
-                sibling.finished = datetime.now()
-                if sibling == cmd:
-                    return  # Break here, do not mar future tasks as complete
 
-    def closeTask(self, cmd: TaskCommand):
-        cmd.finished = cmd.finished or datetime.now()
-        self.save()
+            for index, sibling in enumerate(parent.cmds):
+                if sibling.finished:
+                    continue  # Already completed
+                elif sibling != cmd:
+                    # Close sibling preceding the active command
+                    if index + 1 < len(parent.cmds):
+                        # Use the starting time for the next command as the finish time for this command
+                        next = parent.cmds[index + 1]
+                        sibling.finished = next.started
+                    self.closeTask(sibling)
+                else:
+                    # Stop updating timestamps, as this is the active node
+                    return
+        
+
+    def closeTask(self, cmd: TaskCommand, save=True):
+        if not cmd.finished:
+            cmd.finished = datetime.now()
+
+        # Finish any open child nodes
+        if isinstance(cmd, TaskCommand) and cmd.cmds:
+            for i, sub in enumerate(cmd.cmds):
+                if i + 1 < len(cmd.cmds):
+                    # Use the starting time for the next command as the finish time for this command
+                    next = cmd.cmds[i + 1]
+                    sub.finished = next.started
+                else:
+                    # No next command, so just use current timestamp
+                    sub.finished = cmd.finished
+                self.closeTask(sub, save=False)
+
+        # Close any open and dangling tasks
+        if save:
+            self.save()
