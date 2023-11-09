@@ -1,5 +1,7 @@
 from datetime import datetime
 from typing import Callable, List
+
+from colorama import Fore, Style
 from taskserver.domain.models.TaskCommand import Command, TaskCommand
 from taskserver.domain.models.TaskTracker import TaskTracker
 
@@ -33,27 +35,23 @@ class TaskTimer(TaskTracker):
             self.save()
 
     def taskStarted(self, stack: List[TaskCommand], cmd_name: str, up_to_date: bool = None):
-        cmd: Command = None
-
         def unstarted(c: Command):
             return c.value == cmd_name and not c.started
 
         # Check for root task starting...
         if not len(stack) and self.root.value == cmd_name:
-            #self.root.started = datetime.now()
             stack.append(self.root)
             self.save()
         elif parent := stack[-1] if len(stack) else self.root:
             # Find a matching node in the parent's (unstarted) commands
             found = list(filter(unstarted, parent.cmds))
             if len(found):
-                cmd = found[0]
+                cmd: Command = found[0]
+                cmd.started = datetime.now()
                 self.markFinishedUpTo(parent, cmd)
+                stack.append(cmd)  # Make this command the active node
+                self.save()
 
-        if cmd:
-            cmd.started = datetime.now()
-            stack.append(cmd)  # Make this command the active node
-            self.save()
 
     def taskUpToDate(self, stack: List[TaskCommand], cmd: TaskCommand):
         if parent := stack[-1] if len(stack) else None:
@@ -66,16 +64,13 @@ class TaskTimer(TaskTracker):
 
     def taskFinished(self, stack: List[TaskCommand], cmd: TaskCommand):
         parent = stack[-1] if len(stack) else None
-        cmd.finished = datetime.now()
         self.markFinishedUpTo(parent, cmd)
         self.closeTask(cmd)
 
     def taskFailed(self, stack: List[TaskCommand], cmd: TaskCommand, exitCode=1):
-        finished = datetime.now()
-
         # If this is a task command, check last child prcess that was finished
         def mark_last_run_as_failed(parent: Command):
-            parent.finished = finished
+            parent.finished = datetime.now()
             parent.exitCode = exitCode
 
             if isinstance(parent, TaskCommand) and parent.cmds:
@@ -90,6 +85,7 @@ class TaskTimer(TaskTracker):
         # Add exitCode all the way up to root
         for parent in stack:
             parent.exitCode = exitCode
+
         self.closeTask(cmd)
 
     def markFinishedUpTo(self, parent: TaskCommand, cmd: Command):
