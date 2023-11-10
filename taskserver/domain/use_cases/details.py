@@ -9,7 +9,13 @@ from taskserver.domain.use_cases.task import TaskUseCase
 
 class TaskDetailUseCase(TaskUseCase):
 
-    def index(self, task: Task):
+    def index(self, task: Task, values=None):
+        vars = self.getRunVars(task)
+        for key in values or {}:
+            val = values[key]
+            print(f'RUN VAR {key} = {val}')
+            vars[key] = val
+
         result = self.base(task)
         result.update({
             "toolbar": "partials/toolbar/task.html",

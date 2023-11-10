@@ -7,12 +7,12 @@ from taskserver.domain.use_cases.base import TaskfileUseCase
 
 class TaskUseCase(TaskfileUseCase):
 
-    def base(self, task: Task, breakdown: TaskBreakdown = None):
+    def base(self, task: Task, breakdown: TaskBreakdown = None, vars: TaskVars = None):
         if not task:
             raise Exception('Task is not defined')
 
         # Get the task vars and their current status
-        vars = self.getRunVars(task)
+        vars = vars or self.getRunVars(task)
         changes = self.getRunVarStatusMap(vars)
         results = self.defaults()
         results.update({

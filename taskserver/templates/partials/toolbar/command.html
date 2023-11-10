@@ -86,6 +86,17 @@
     <!-- {% elif run %} -->
     <!-- Job History button(s) -->
     <button
+      hx-post="/taskserver/task?name={{task.name}}"
+      hx-target="main"
+      hx-indicator=".task-loading,.task-run-btn"
+      hx-replace-url="true"
+      onclick="event.preventDefault()"
+      class="task-run-btn flex items-center space-x-2 cursor-pointer rounded py-1 px-4 shadow-md bg-gray-300 text-gray-500 dark:bg-gray-500 dark:text-gray-100"
+    >
+      {% include 'icons/edit.svg' %}
+      <span>Modify Run</span>
+    </button>
+    <button
       hx-post="/taskserver/run?name={{task.name}}"
       hx-target="main"
       hx-replace-url="true"
