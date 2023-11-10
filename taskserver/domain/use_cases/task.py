@@ -29,6 +29,16 @@ class TaskUseCase(TaskfileUseCase):
 
         return results
 
+    def runToolbar(self, task_name: str, job_id: str = None):
+        results = self.defaults()
+        run = self.repo.getTaskRun(job_id) if job_id else None
+        task = self.repo.findTask(task_name) if task_name else None
+        results.update({
+            "task": task,
+            "run": run,
+        })
+        return results
+
     def getRunVars(self, task: Task):
         # Get the current run variables (if they are cached in the session)
         runVars = self.session.runVars.get(task.name)

@@ -25,11 +25,11 @@ class TaskTimer(TaskTracker):
 
     def cmdStarted(self, stack: List[TaskCommand], cmd_raw: str, up_to_date: bool = None):
         parent: TaskCommand = stack[-1] if len(stack) else None
-        cmds = parent.cmds if parent else []
 
         def active(c: Command):
             return c.value.startswith(cmd_raw) and not c.started
 
+        cmds = parent.cmds if parent else []
         found = list(filter(active, cmds))
         if cmd := found[0] if len(found) else None:
             cmd.started = datetime.now()
@@ -43,7 +43,6 @@ class TaskTimer(TaskTracker):
         # Check for root task starting...
         if not len(stack) and self.root.value == cmd_name:
             stack.append(self.root)
-            self.save()
         elif parent := stack[-1] if len(stack) else self.root:
             # Find a matching node in the parent's (unstarted) commands
             found = list(filter(unstarted, parent.cmds))

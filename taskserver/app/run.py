@@ -81,6 +81,14 @@ def taskRun(req: WebRequest, resp: WebResponse):
     return result
 
 
+@router.get('/run/toolbar')
+@router.renders("partials/toolbar/command")
+def taskUpdateRunVar(req, resp):
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+    return view.runToolbar(input.name, input.job_id)
+
+
 @router.post('/run/var')
 @router.renders("partials/values/item")
 def taskUpdateRunVar(req, resp):

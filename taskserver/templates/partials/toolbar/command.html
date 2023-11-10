@@ -1,35 +1,47 @@
 <!-- {% if task %} -->
-<!-- 
-{% set name = task.name %}
-{% set path = taskfile.path %}
-{% set cmd = run.command if run else ("task " + name) %}
--->
-<style>
-  .task-run-btn {
-    display: flex;
-  }
-  .task-loading {
-    display: none;
-  }
-  /* Show loader during HTMX request */
-  .htmx-request .task-loading,
-  .htmx-request.task-loading {
-    display: flex;
-  }
-  /* Hide previously loaded content during HTMX request */
-  .htmx-request .task-run-btn,
-  .htmx-request.task-run-btn {
-    display: none;
-  }
-</style>
 <div
+  hx-target="this"
   class="flex flex-row items-center bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
 >
+  <span
+    hx-get="/taskserver/run/toolbar?name={{task.name}}{% if run %}&job_id={{run.id}}{%endif%}"
+    hx-swap="outerHTML"
+    hx-trigger="{{task.name}} from:body"
+  ></span>
+  <!-- {% if run and run.breakdown.is_busy %} -->
+  <!-- Fallback if no update event withn 2 seconds -->
+  <div
+    hx-get="/taskserver/run/toolbar?name={{task.name}}{% if run %}&job_id={{run.id}}{%endif%}"
+    hx-swap="outerHTML"
+    hx-trigger="load delay:1s"
+  ></div>
+  <!-- {% endif %} -->
+  <style>
+    .task-run-btn {
+      display: flex;
+    }
+    .task-loading {
+      display: none;
+    }
+    /* Show loader during HTMX request */
+    .htmx-request .task-loading,
+    .htmx-request.task-loading {
+      display: flex;
+    }
+    /* Hide previously loaded content during HTMX request */
+    .htmx-request .task-run-btn,
+    .htmx-request.task-run-btn {
+      display: none;
+    }
+  </style>
   <!-- Parsed command in the retminal -->
   <span class="font-bold pl-4 pr-2 py-3.5">
     {% include 'icons/terminal.svg' %}
   </span>
   <span class="font-bold pr-2 py-3.5">Command:</span>
+  <!-- 
+  {% set cmd = run.breakdown.text if run else ("task " + name) %} 
+  -->
   <input
     type="text"
     name="command"
@@ -38,42 +50,75 @@
     readonly
   />
 
-  <!-- Loading placeholder -->
-  <span
-    class="task-loading flex items-center space-x-2 cursor-pointer rounded py-1 px-4 mx-2 mr-5 shadow-md text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 cursor-pointer"
-  >
-    <span class="w-6 h-6 animate-spin"
-      >{% include "icons/arrow-path.svg" %}</span
+  <div class="flex flex-0 space-x-2 pl-2 pr-4">
+    <!-- {% if run and run.breakdown.is_busy %} -->
+    <!-- Loading placeholder -->
+    <span
+      class="task-loading flex items-center space-x-2 cursor-pointer rounded py-1 px-4 shadow-md text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 cursor-pointer"
     >
-    <span>Starting</span>
-  </span>
-
-  {% if run %}
-  <!-- Job History button(s) -->
-  <button
-    hx-post="/taskserver/run?name={{name}}"
-    hx-target="main"
-    hx-replace-url="true"
-    hx-indicator=".task-loading,.task-run-btn"
-    onclick="event.preventDefault()"
-    class="task-run-btn flex items-center space-x-2 cursor-pointer rounded py-1 px-4 mx-2 mr-5 shadow-md bg-gray-300 text-gray-500 dark:bg-gray-500 dark:text-gray-100"
-  >
-    {% include 'icons/play.svg' %}
-    <span>Run Again</span>
-  </button>
-  {% else %}  
-  <!-- Run button -->
-  <button
-    hx-post="/taskserver/run?name={{name}}"
-    hx-target="main"
-    hx-replace-url="true"
-    hx-indicator=".task-loading,.task-run-btn"
-    onclick="event.preventDefault()"
-    class="task-run-btn flex items-center space-x-2 cursor-pointer rounded py-1 px-4 mx-2 mr-5 shadow-md bg-blue-500 text-gray-100"
-  >
-    {% include 'icons/play.svg' %}
-    <span>Run Task</span>
-  </button>
-  {% endif %}
+      <span class="w-6 h-6 animate-spin"
+        >{% include "icons/arrow-path.svg" %}</span
+      >
+      <span>Stopping</span>
+    </span>
+    <!-- {% if not run.stopped %} -->
+    <button
+      hx-post="/taskserver/run/stop?job_id={{ run.id }}"
+      hx-target="this"
+      hx-swap="none"
+      hx-indicator=".task-loading,.task-run-btn"
+      onclick="event.preventDefault()"
+      class="task-run-btn flex items-center space-x-2 cursor-pointer rounded py-1 px-4 shadow-md bg-red-300 text-gray-500 dark:bg-red-500 dark:text-gray-100"
+    >
+      {% include 'icons/stop.svg' %}
+      <span>Stop Task</span>
+    </button>
+    <!-- {% endif %} -->
+    <button
+      disabled
+      class="flex items-center space-x-2 rounded py-1 px-4 shadow-md bg-gray-300 text-gray-500 dark:bg-gray-500 dark:text-gray-100"
+    >
+      <span class="w-6 h-6 animate-spin"
+        >{% include "icons/arrow-path.svg" %}</span
+      >
+      <span>Running</span>
+    </button>
+    <!-- {% elif run %} -->
+    <!-- Job History button(s) -->
+    <button
+      hx-post="/taskserver/run?name={{task.name}}"
+      hx-target="main"
+      hx-replace-url="true"
+      hx-indicator=".task-loading,.task-run-btn"
+      onclick="event.preventDefault()"
+      class="task-run-btn flex items-center space-x-2 cursor-pointer rounded py-1 px-4 shadow-md bg-gray-300 text-gray-500 dark:bg-gray-500 dark:text-gray-100"
+    >
+      {% include 'icons/play.svg' %}
+      <span>Run Again</span>
+    </button>
+    <!-- {% else %} -->
+    <!-- Loading placeholder -->
+    <span
+      class="task-loading flex items-center space-x-2 cursor-pointer rounded py-1 px-4 shadow-md text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 cursor-pointer"
+    >
+      <span class="w-6 h-6 animate-spin"
+        >{% include "icons/arrow-path.svg" %}</span
+      >
+      <span>Starting</span>
+    </span>
+    <!-- Run button -->
+    <button
+      hx-post="/taskserver/run?name={{task.name}}"
+      hx-target="main"
+      hx-replace-url="true"
+      hx-indicator=".task-loading,.task-run-btn"
+      onclick="event.preventDefault()"
+      class="task-run-btn flex items-center space-x-2 cursor-pointer rounded py-1 px-4 shadow-md bg-blue-500 text-gray-100"
+    >
+      {% include 'icons/play.svg' %}
+      <span>Run Task</span>
+    </button>
+    <!-- {% endif %} -->
+  </div>
 </div>
 <!-- {% endif %} -->

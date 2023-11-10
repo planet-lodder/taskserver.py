@@ -24,6 +24,11 @@ class TaskRunUseCase(TaskUseCase):
         name = run.task.name if run and run.task else input.name
         task = self.repo.findTask(name) if name else None
         breakdown = self.taskBreakdown(name, run) if name else None
+
+        if not task and run and run.task:
+            # Load task definition from the job metadata
+            task = self.repo.findTask(run.task.name)
+
         result = self.base(task, breakdown=breakdown) if task else {
             "taskfile": self.taskfile,
             "task": task,
@@ -115,7 +120,7 @@ class TaskRunUseCase(TaskUseCase):
         return {
             "run": run,
         }
-    
+
     def stopJob(self, job_id: str):
         run = self.repo.getTaskRun(job_id) if job_id else None
         if run:
