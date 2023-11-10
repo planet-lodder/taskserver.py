@@ -28,9 +28,9 @@
         </div>
 
         <div class="flex flex-row">
-          <label class="p-2 w-32 on inline-block element">Description:</label>
-          {% if task.task and task.task.desc %}
-          <div class="p-2 flex-grow">{{ task.task.desc }}</div>
+          <label class="p-2 w-32 on inline-block element">Description:</label>          
+          {% if task and task.desc %}
+          <div class="p-2 flex-grow">{{ task.desc }}</div>
           {% else %}
           <em class="p-2 text-gray-500 opacity-50">No description available</em>
           {% endif %}
