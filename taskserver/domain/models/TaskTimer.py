@@ -8,12 +8,14 @@ from taskserver.domain.models.TaskTracker import TaskTracker
 
 class TaskTimer(TaskTracker):
     root: TaskCommand
+    stack: List[TaskCommand]
     onUpdate: Callable
 
     def __init__(self, root: TaskCommand, onUpdate=None) -> None:
         super().__init__()
         self.root = root
         self.onUpdate = onUpdate
+        self.stack = []
 
     def save(self):
         if self.onUpdate:

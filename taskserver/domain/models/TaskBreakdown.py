@@ -9,6 +9,50 @@ from taskserver.domain.models.TaskTracker import TaskTracker
 
 from taskserver.domain.models.Taskfile import Taskfile
 
+class TaskParser(TaskTracker):
+    root: TaskCommand
+    stack: List[TaskCommand]
+
+    def __init__(self, root: TaskCommand) -> None:
+        super().__init__()
+        self.root = root
+        self.stack = []
+
+    def setOverflow(self, parent: Command, overflow: str):
+        if parent and len(parent.cmds):
+            parent.cmds[-1].value = parent.cmds[-1].value + overflow
+
+    def cmdStarted(self, stack: List[TaskCommand], cmd_raw: str, up_to_date: bool = None):
+        cmd = Command(value=cmd_raw, up_to_date=up_to_date)
+        parent: TaskCommand = stack[-1] if len(stack) else None
+        parent.cmds.append(cmd)
+
+    def taskStarted(self, stack: List[TaskCommand], cmd_name: str, up_to_date: bool = None):
+        # Define a new task command node to track on the stack
+        is_root = len(stack) == 0
+        cmd = self.root if is_root else TaskCommand(
+            value=cmd_name,
+            up_to_date=up_to_date
+        )
+        if parent := stack[-1] if len(stack) else None:
+            parent.cmds.append(cmd)  # Append to the parent node
+        stack.append(cmd)  # Make this the active node
+
+    def taskUpToDate(self, stack: List[TaskCommand], cmd: TaskCommand):
+        # Forcefully get the sub task breakdown
+        cmd.up_to_date = True
+        TaskBreakdown.forTask(
+            self.root.path,
+            cmd.value,
+            True,
+            up_to_date=True,
+            existing_root=cmd,
+        )
+
+    def taskFinished(self, stack: List[TaskCommand], cmd: TaskCommand): ...
+
+    def taskFailed(self, stack: List[TaskCommand], cmd: TaskCommand): ...
+
 
 class TaskBreakdown(TaskCommand):
     path: str
@@ -16,48 +60,6 @@ class TaskBreakdown(TaskCommand):
 
     class Config:
         exclude = ['stack', 'debug']
-
-    class TaskParser(TaskTracker):
-        root: TaskCommand
-
-        def __init__(self, root: TaskCommand) -> None:
-            super().__init__()
-            self.root = root
-
-        def setOverflow(self, parent: Command, overflow: str):
-            if parent and len(parent.cmds):
-                parent.cmds[-1].value = parent.cmds[-1].value + overflow
-
-        def cmdStarted(self, stack: List[TaskCommand], cmd_raw: str, up_to_date: bool = None):
-            cmd = Command(value=cmd_raw, up_to_date=up_to_date)
-            parent: TaskCommand = stack[-1] if len(stack) else None
-            parent.cmds.append(cmd)
-
-        def taskStarted(self, stack: List[TaskCommand], cmd_name: str, up_to_date: bool = None):
-            # Define a new task command node to track on the stack
-            is_root = len(stack) == 0
-            cmd = self.root if is_root else TaskCommand(
-                value=cmd_name,
-                up_to_date=up_to_date
-            )
-            if parent := stack[-1] if len(stack) else None:
-                parent.cmds.append(cmd)  # Append to the parent node
-            stack.append(cmd)  # Make this the active node
-
-        def taskUpToDate(self, stack: List[TaskCommand], cmd: TaskCommand):
-            # Forcefully get the sub task breakdown
-            cmd.up_to_date = True
-            TaskBreakdown.forTask(
-                self.root.path,
-                cmd.value,
-                True,
-                up_to_date=True,
-                existing_root=cmd,
-            )
-
-        def taskFinished(self, stack: List[TaskCommand], cmd: TaskCommand): ...
-
-        def taskFailed(self, stack: List[TaskCommand], cmd: TaskCommand): ...
 
     @staticmethod
     def forTask(filename,
@@ -78,8 +80,9 @@ class TaskBreakdown(TaskCommand):
             path=filename,
             value=task_name,
             up_to_date=up_to_date,
+            cmds=[]
         )
-        parser = TaskBreakdown.TaskParser(existing_root or root)
+        parser = TaskParser(root)
 
         # Read the trace logs to reconstruct the task breakdown
         if buffer := stderr:
@@ -94,11 +97,11 @@ class TaskBreakdown(TaskCommand):
 
     def feed(self,
              buffer: str,
-             actions: TaskTracker = None,
+             actions: TaskTracker,
              up_to_date: bool = None,
              existing_root: TaskCommand = None,
              ):
-        stack = actions.stack if actions else []
+        stack = actions.stack
         task_name = self.value
         silent = existing_root != None
         actions = actions or TaskTimer(self)
@@ -198,4 +201,3 @@ class TaskBreakdown(TaskCommand):
         if parent and buffer and actions:
             actions.setOverflow(parent, buffer)
 
-        return buffer

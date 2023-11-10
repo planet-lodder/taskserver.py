@@ -1,15 +1,13 @@
 
-import re
 from taskserver.domain.models.Task import Task, TaskVars
 from taskserver.domain.models.TaskBreakdown import TaskBreakdown
 from taskserver.domain.models.TaskRun import TaskRun
-from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.use_cases.base import TaskfileUseCase
 
 
 class TaskUseCase(TaskfileUseCase):
 
-    def base(self, task: Task):
+    def base(self, task: Task, breakdown: TaskBreakdown = None):
         if not task:
             raise Exception('Task is not defined')
 
@@ -25,7 +23,7 @@ class TaskUseCase(TaskfileUseCase):
             "dest": f'task',
             "vars": vars,
             "changes": changes,
-            "breakdown": self.taskBreakdown(task.name),
+            "breakdown": breakdown or self.taskBreakdown(task.name),
             "htmx_base": "/taskserver/run/var",
         })
 
@@ -107,12 +105,8 @@ class TaskUseCase(TaskfileUseCase):
 
     def taskBreakdown(self, task_name: str, run: TaskRun = None, reload=False):
         # Check if we have a task breakdown cached in the run
-        if run and reload: # Reload
-            if new := self.repo.getTaskRun(run.id):
-                run.breakdown = new.breakdown # Save to cache
-                return run.breakdown # Return updated breakdown
         if run and run.breakdown:
-            return run.breakdown # Load the cached version
+            return run.breakdown  # Load the cached version
 
         # Try and resolve the breakdown from cache
         session = self.session

@@ -24,7 +24,7 @@ class TaskRunUseCase(TaskUseCase):
         name = run.task.name if run and run.task else input.name
         task = self.repo.findTask(name) if name else None
         breakdown = self.taskBreakdown(name, run) if name else None
-        result = self.base(task) if task else {
+        result = self.base(task, breakdown=breakdown) if task else {
             "taskfile": self.taskfile,
             "task": task,
         }
@@ -143,9 +143,8 @@ class TaskRunUseCase(TaskUseCase):
             if run:
                 self.repo.saveTaskRun(run)  # Update state
 
-        result = self.base(task)
+        result = self.base(task, breakdown=breakdown)
         result.update({
-            "breakdown": breakdown,
             "run": run
         })
 
@@ -181,9 +180,8 @@ class TaskRunUseCase(TaskUseCase):
             self.repo.saveTaskRun(run)
 
         # Build the result object
-        result = self.base(task)
+        result = self.base(task, breakdown)
         result.update({
-            "breakdown": breakdown,
             "indexed": index,
             "cmd": cmd,
             "run": run

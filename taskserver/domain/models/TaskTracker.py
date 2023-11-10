@@ -6,8 +6,8 @@ from taskserver.domain.models.TaskCommand import Command, TaskCommand
 
 
 class TaskTracker(ABC):
-    stack: List[TaskCommand] = []
-    
+    stack: List[TaskCommand]
+
     @abstractmethod
     def setOverflow(self, parent: Command, overflow: str): ...
 
