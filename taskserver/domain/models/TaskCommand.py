@@ -12,6 +12,7 @@ class Command(BaseModel):
     value: str
     started: Optional[datetime]
     finished: Optional[datetime]
+    stopped: Optional[bool]
     exitCode: Optional[int]
     up_to_date: Optional[bool]
 
@@ -22,6 +23,10 @@ class Command(BaseModel):
     @property
     def has_error(self) -> bool:
         return self.exitCode and self.exitCode > 0
+    
+    @property
+    def is_busy(self) -> bool:
+        return self.started and not self.finished
 
     @property
     def ellapsed(self):
@@ -42,6 +47,15 @@ class TaskCommand(Command):
     @property
     def text(self) -> str:
         return f"task {self.value}"
+
+    @property
+    def is_busy(self) -> bool:
+        if self.started and not self.finished:
+            return True
+        for cmd in self.cmds or []:
+            if cmd.is_busy:
+                return True
+        return False
 
     @property
     def has_error(self) -> bool:

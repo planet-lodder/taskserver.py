@@ -1,5 +1,5 @@
 <div hx-target="this" hx-swap="outerHTML" class="flex flex-1 relative group">
-  <!-- {% if run and run.exitCode == None %} -->
+  <!-- {% if (run and run.exitCode == None) or (run and run.breakdown.is_busy) %} -->
   <!-- Auto-refresh in 1 second -->
   <div
     hx-get="/taskserver/run/breakdown?name={{name}}&job_id={{run.id}}"
@@ -11,6 +11,15 @@
     hx-get="/taskserver/run/breakdown?name={{name}}&job_id={{run.id}}"
     hx-trigger="{{name}} from:body"
   ></div>
+
+  <!-- {% if run.breakdown.is_busy %} -->
+  <!-- Fallback if no update event withn 2 seconds -->
+  <div
+    hx-get="/taskserver/run/breakdown?name={{name}}&job_id={{run.id}}"
+    hx-trigger="load delay:2s"
+  ></div>
+  <!-- {% endif %} -->
+  
   <!-- {% endif %} -->
 
   <div

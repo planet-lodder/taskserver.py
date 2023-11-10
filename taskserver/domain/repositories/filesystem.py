@@ -17,11 +17,20 @@ from datetime import datetime
 from typing import Callable, Dict, List, Optional, Sequence
 
 from taskserver.domain.models.Task import Task, TaskVars
+from taskserver.domain.models.TaskCommand import Command, TaskCommand
 from taskserver.domain.models.TaskNode import TaskNode
 from taskserver.domain.models.TaskRun import TaskRun
 from taskserver.domain.models.TaskTimer import TaskTimer
 from taskserver.domain.models.Taskfile import Taskfile
 from taskserver.domain.repositories.base import TaskfileRepository
+
+
+def feedback(message):
+    print(f'{Fore.MAGENTA}{message}{Style.RESET_ALL}')
+
+
+def warning(message):
+    print(f'{Fore.YELLOW}{message}{Style.RESET_ALL}')
 
 
 class FilesystemTaskfileRepo(TaskfileRepository):
@@ -30,6 +39,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
     tasks: List[Task] = None
     edits: Taskfile = None  # Keep track of changed values
     menu: TaskNode = None
+    runs: Dict[str, TaskRun] = {}
 
     def __init__(self, filename: str):
         super().__init__(filename)
@@ -233,7 +243,6 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         data = self.taskfile.dict().get('tasks', {}).get(task.name)
         if not data:
             includes = filter(lambda x: x, self.taskfile.includes.keys())
-            print(f'INCLUDE --=> {includes}')
 
         if not data or type(data) == list:
             # This task has no vars defined (or does ot exists)
@@ -378,35 +387,66 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         return run
 
     def stopTaskRun(self, run: TaskRun) -> Optional[TaskRun]:
+        def is_running(pid):
+            try:
+                os.kill(pid, 0)
+            except OSError:
+                return False
+
+            return True
+
         try:
             # Flag the task as stopped
             run.stopped = True
 
             # Try and stop the process if it exists
-            print(
-                f'{Fore.MAGENTA}Stopping run {run.id} (pid: {run.pid}){Style.RESET_ALL}')
-            #os.kill(run.pid, signal.SIGTERM)
+            feedback(f'Stopping {run.id} (pid: {run.pid})')
+            # os.kill(run.pid, signal.SIGTERM)
             os.kill(run.pid, signal.SIGKILL)
 
-            time.sleep(.5)
+            # Wait for process to exit
+            while is_running(run.pid):
+                time.sleep(.25)
+            feedback(f'Stopped {run.id} (pid: {run.pid})')
         except Exception as ex:
             print(f'{Fore.RED}{ex}{Style.RESET_ALL}')
 
         # Get the last run status and update as closed
         run = self.getTaskRun(run.id)
         run.stopped = True
-        #run.exitCode = 1
         run.finished = datetime.now()
+
+        def stopRecursive(cmd: Command):
+            cmd.stopped = True
+            cmd.finished = run.finished
+
+            if isinstance(cmd, TaskCommand) and cmd.cmds:
+                for to_close in filter(lambda c: c.started and not c.finished, cmd.cmds):
+                    stopRecursive(to_close)
+
         if run.breakdown:
-            run.breakdown.finished = run.finished
-        self.saveTaskRun(run)
+            # Update the breakdown state to reflect that the task was stopped
+            stopRecursive(run.breakdown)
+            self.saveTaskRun(run)
+        else:
+            warning(f'No task breakdown available for {run.id}')
 
         # Remove active run from task node
         node = self.getMenu(run.task.name)
         if node and node.runs and run.id in node.runs:
             del (node.runs[run.id])
 
+        # Finally, remove the run from the active run cache
+        if run.id in self.runs:
+            del (self.runs[run.id])
+
     def getTaskRun(self, id: str) -> Optional[TaskRun]:
+        # Check if the run is in the cache
+        if id in self.runs:
+            # Return the cached run
+            return self.runs[id]
+
+        # Try and load the historic run from disk
         cache_path = '.task/temp/runs'
         file_path = f'{cache_path}/{id}.yaml'
         if not os.path.isdir(cache_path):
@@ -418,6 +458,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
                 # Do a sanity check, seeing that we are writing file from different thread
                 if not input:
                     # No input, wait for file to finish writing...
+                    warning(f'WARNING: No input detected, waiting 100 ms...')
                     time.sleep(0.1)
                     input = f.read()
 
@@ -425,12 +466,16 @@ class FilesystemTaskfileRepo(TaskfileRepository):
                 data = yaml.safe_load(input)
                 run = TaskRun(**data) if data else None
                 if not run:
-                    print(f'WARNING: Failed to parse run [{id}] data:\n'+input)
+                    warning(f'WARNING: Failed to parse run [{id}] data:\n'+input)
 
                 return run
         return None
 
     def saveTaskRun(self, run: TaskRun):
+        if not run.id in self.runs:
+            self.runs[run.id] = run
+
+        # Write to file
         cache_path = '.task/temp/runs'
         output = yaml.safe_dump(run.dict(exclude_none=True))
         if not os.path.isdir(cache_path):

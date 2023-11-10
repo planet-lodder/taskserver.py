@@ -5,7 +5,9 @@
 {% set is_errror = run and run.exitCode %} 
 {% set is_errror = is_error or cmd.has_error %} 
 -->
-<!-- {% if is_busy and not cmd.open %} -->
+<!-- {% if cmd.stopped and not cmd.open %} -->
+{% include 'partials/run/breakdown/stopped.html' %}
+<!-- {% elif is_busy and not cmd.open %} -->
 {% include 'partials/run/breakdown/busy.html' %}
 <!-- {% elif is_errror and not cmd.open %} -->
 {% include 'partials/run/breakdown/error.html' %}

@@ -56,7 +56,6 @@ class TaskParser(TaskTracker):
 
 class TaskBreakdown(TaskCommand):
     path: str
-    debug = True
 
     class Config:
         exclude = ['stack', 'debug']
@@ -105,9 +104,10 @@ class TaskBreakdown(TaskCommand):
         task_name = self.value
         silent = existing_root != None
         actions = actions or TaskTimer(self)
+        debug = False
 
         def trace(message, prefix='', extra=''):
-            if not self.debug:
+            if not debug:
                 return
             prefix = f'{Style.DIM}{prefix}{Style.RESET_ALL}' if prefix else ''
             prefix = ('   '*len(stack)) + prefix
