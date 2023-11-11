@@ -5,7 +5,7 @@ import taskserver.main
 import taskserver.app.index
 import taskserver.app.sidenav
 import taskserver.app.list
-import taskserver.app.details
+import taskserver.app.task
 import taskserver.app.run
 import taskserver.app.config
 import taskserver.app.run

@@ -17,6 +17,8 @@ class TaskDetailUseCase(TaskUseCase):
             if not selected and val != vars[key]:
                 selected = key
             vars[key] = val
+        if not selected and values and len(values.keys()):
+            selected = list(values.keys())[0]
 
         result = self.base(task)
         result.update({
