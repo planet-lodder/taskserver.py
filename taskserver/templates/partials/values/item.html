@@ -77,7 +77,8 @@
     <!-- {% endif %} -->
   </td>
 </tr>
-{% if focus %}
+<!-- {% set focus = focus or selected == key %} -->
+<!-- {% if focus %} -->
 <script>
   (function () {
     input = document.getElementsByName("config.{{dest}}.{{key}}")[0];
@@ -86,4 +87,5 @@
     }
   })();
 </script>
-{% endif %} {% endwith %}
+<!-- {% endif %} -->
+{% endwith %}

@@ -11,15 +11,18 @@ class TaskDetailUseCase(TaskUseCase):
 
     def index(self, task: Task, values=None):
         vars = self.getRunVars(task)
+        selected = None
         for key in values or {}:
             val = values[key]
-            print(f'RUN VAR {key} = {val}')
+            if not selected and val != vars[key]:
+                selected = key
             vars[key] = val
 
         result = self.base(task)
         result.update({
             "toolbar": "partials/toolbar/task.html",
             "title": task.name if task else "(unknown)",
+            "selected": selected,
         })
         return result
 
