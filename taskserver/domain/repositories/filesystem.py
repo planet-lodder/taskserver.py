@@ -1,10 +1,12 @@
 
 import asyncio
+from io import TextIOWrapper
 import os
 import random
 import signal
 import string
 import subprocess
+import sys
 import threading
 import time
 from colorama import Fore, Style
@@ -284,10 +286,18 @@ class FilesystemTaskfileRepo(TaskfileRepository):
         # Search for the node by task path
         return self.menu.find(task_path)
 
+    def getRunPath(self, run_id: str) -> str:
+        run_path = f'.task/temp/runs/{run_id}'
+        os.makedirs(run_path, exist_ok=True)
+        return run_path
+
     def startTaskRun(self, run: TaskRun) -> Optional[TaskRun]:
 
         def saveChanges():
-            self.saveTaskRun(run)
+            try:
+                self.saveTaskRun(run)
+            except Exception as ex:
+                print(f'{Fore.RED}{ex}{Style.RESET_ALL}')
 
         def withTaskNode(callback: Callable):
             if node := self.getMenu(run.task.name):
@@ -296,33 +306,57 @@ class FilesystemTaskfileRepo(TaskfileRepository):
                 # Trigger the callback if node was found
                 callback(node)
 
+        def piped(pipe, stream1: TextIOWrapper, stream2=None, processLine=None):
+            for line in pipe:
+
+                # Write to the stream buffers
+                starts = stream1.tell()
+                stream1.write(line)
+                ends = stream1.tell()
+
+                # Write to secondary buffer (if needed)
+                if stream2:
+                    stream2.write(line)
+
+                # Additionally process the line (if needed)
+                line = line.decode("utf-8").rstrip()
+                if line and processLine:
+                    processLine(line, starts, ends)
+
         # Track status of a running process and wait for it to exit
-        async def trackChanges(proc: subprocess.Popen):
+        async def spawnProcess(proc: subprocess.Popen):
 
-            def save():
-                try:
-                    self.saveTaskRun(run)
-                except Exception as ex:
-                    print(f'{Fore.RED}{ex}{Style.RESET_ALL}')
+            # Create a tracker that will record when commands start and finish
+            tracker = TaskTimer(root=run.breakdown, onUpdate=saveChanges)
 
-            tracker = TaskTimer(
-                root=run.breakdown,
-                onUpdate=save
+            def feed(line, starts, ends):
+                if run.breakdown:
+                    run.breakdown.feed(line, actions=tracker)
+
+            # Open the output files for stdout/err in unbuffered mode.
+            out_file = open(run.stdout, "wb", 0)
+            err_file = open(run.stderr, "wb", 0)
+
+            # Start threads to duplicate the pipes.
+            out_thread = threading.Thread(
+                target=piped,
+                args=(proc.stdout, out_file)
             )
+            err_thread = threading.Thread(
+                target=piped,
+                args=(proc.stderr, err_file, out_file, feed)
+            )
+            out_thread.start()
+            err_thread.start()
 
-            def pipe():
-                while line := proc.stderr.readline():
-                    line = line.decode("utf-8").rstrip()
-                    print(f'{Fore.CYAN}{line}{Style.RESET_ALL}')
-                    if run.breakdown:
-                        run.breakdown.feed(line, actions=tracker)
+            # Wait for the command to finish.
+            proc.wait()
 
-                return proc.poll()
+            # Join the pipe threads.
+            out_thread.join()
+            err_thread.join()
 
-            # Wait for a return code
-            while pipe() == None:
-                time.sleep(.5)
-
+            # Return the final return code
             return proc.returncode
 
         def setRunActive(node): node.runs[run.id] = run.pid
@@ -355,8 +389,8 @@ class FilesystemTaskfileRepo(TaskfileRepository):
                 stderr=subprocess.PIPE,
                 env=env
             )
-            run.stdout = f'{run.id}/stdout.log'
-            run.stderr = f'{run.id}/stderr.log'
+            run.stdout = f'{self.getRunPath(run.id)}/output.log'
+            run.stderr = f'{self.getRunPath(run.id)}/error.log'
             run.pid = proc.pid
 
             # Save the current running process
@@ -364,7 +398,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             withTaskNode(setRunActive)
 
             # Run the process and wait for exit
-            result = asyncio.run(trackChanges(proc))
+            result = asyncio.run(spawnProcess(proc))
 
             # Save the updated state for this process
             runCompleted(result)
@@ -447,10 +481,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             return self.runs[id]
 
         # Try and load the historic run from disk
-        cache_path = '.task/temp/runs'
-        file_path = f'{cache_path}/{id}.yaml'
-        if not os.path.isdir(cache_path):
-            return None
+        file_path = f'{self.getRunPath(id)}/run.yaml'
         if os.path.isfile(file_path):
             with open(file_path, 'r') as f:
                 input = f.read()
@@ -466,7 +497,8 @@ class FilesystemTaskfileRepo(TaskfileRepository):
                 data = yaml.safe_load(input)
                 run = TaskRun(**data) if data else None
                 if not run:
-                    warning(f'WARNING: Failed to parse run [{id}] data:\n'+input)
+                    warning(
+                        f'WARNING: Failed to parse run [{id}] data:\n'+input)
 
                 return run
         return None
@@ -476,9 +508,6 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             self.runs[run.id] = run
 
         # Write to file
-        cache_path = '.task/temp/runs'
         output = yaml.safe_dump(run.dict(exclude_none=True))
-        if not os.path.isdir(cache_path):
-            os.mkdir(cache_path)
-        with open(f'{cache_path}/{run.id}.yaml', 'w') as f:
+        with open(f'{self.getRunPath(run.id)}/run.yaml', 'w') as f:
             f.write(output)
