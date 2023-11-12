@@ -10,11 +10,9 @@
     {{output}}
   </div>
 
-  <!-- {% if run.started and not run.finished %} -->
   <!-- Auto reload while running -->
   <div
     hx-get="/taskserver/run/output?job_id={{run.id}}"
     hx-trigger="{{run.task.name}} from:body"
   ></div>
-  <!-- {% endif %} -->
 </div>

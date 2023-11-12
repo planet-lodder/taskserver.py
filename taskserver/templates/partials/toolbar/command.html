@@ -8,14 +8,7 @@
     hx-swap="outerHTML"
     hx-trigger="{{task.name}} from:body"
   ></span>
-  <!-- {% if run and run.breakdown.is_busy %} -->
-  <!-- Fallback if no update event withn 2 seconds -->
-  <div
-    hx-get="/taskserver/run/toolbar?name={{task.name}}{% if run %}&job_id={{run.id}}{%endif%}"
-    hx-swap="outerHTML"
-    hx-trigger="load delay:1s"
-  ></div>
-  <!-- {% endif %} -->
+
   <style>
     .task-run-btn {
       display: flex;
@@ -40,7 +33,7 @@
   </span>
   <span class="font-bold pr-2 py-3.5">Command:</span>
   <!-- 
-  {% set cmd = run.breakdown.text if run else ("task " + name) %} 
+  {% set cmd = run.breakdown.text if run else ("task " + task.name) %} 
   -->
   <input
     type="text"

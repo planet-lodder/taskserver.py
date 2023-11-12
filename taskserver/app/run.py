@@ -37,6 +37,7 @@ def taskRun(req: WebRequest, resp: WebResponse):
     if run := result.get("run"):
         new_url = f'{req.path}?job_id={run.id}'
         resp.head['HX-Replace-Url'] = new_url
+        resp.head['hx-trigger'] = run.task.name
     return result
 
 
@@ -99,7 +100,8 @@ def taskStatus(req, resp):
     input = Serialize.fromWeb(req, TaskRunInputs)
 
     # Trigger update event when status is loaded
-    #resp.head['hx-trigger'] = input.name
+    if name := input.name or view.repo.getTaskRun(input.job_id).task.name:
+        resp.head['hx-trigger'] = name
 
     # Try and run the task (no additional parameters)
     return view.runStatus(input.job_id)

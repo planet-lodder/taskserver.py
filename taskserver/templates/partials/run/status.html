@@ -4,21 +4,6 @@
     hx-get="/taskserver/run/status?job_id={{run.id}}"
     hx-trigger="load delay:1s"
   ></span>
-  <!-- {% if run and run.task %} -->
-  <script>
-    setTimeout(() => {
-      // Trigger the update event to force content to update
-      htmx && htmx.trigger(htmx.find("body"), "{{run.task.name}}");
-    });
-  </script>
-  <!-- {% endif %} -->
-  <!-- {% elif run and run.task and run.exitCode %} -->
-  <script>
-    setTimeout(() => {
-      // Trigger the update event to refresh on error
-      htmx && htmx.trigger(htmx.find("body"), "{{run.task.name}}");
-    });
-  </script>
   <!-- {% endif %} -->
 
   <!-- {% if not run %} -->
@@ -43,9 +28,7 @@
   </div>
   <!-- {% elif run.stopped and run.finished %} -->
   <div class="flex text-blue-500 opacity-75">
-    <span class="w-6 h-6">
-      {% include 'icons/stop.svg' %}
-    </span>
+    <span class="w-6 h-6"> {% include 'icons/stop.svg' %} </span>
     <span class="ml-2">
       <span class="font-slim">Stopped task {{run.task.name}}.</span>
       <span class="font-slim italic opacity-75">

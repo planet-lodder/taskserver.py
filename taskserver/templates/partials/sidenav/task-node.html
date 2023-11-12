@@ -16,13 +16,7 @@
 <!-- {% endif %} -->
 
 {% extends 'partials/sidenav/menu-item.html' %} {% block trigger %}
-<!-- {% if item and item.is_running %} -->
-<!-- Task is running, so refresh after one second -->
-<span
-  hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
-  hx-trigger="load delay:1s"
-></span>
-<!-- {% elif not ' ' in name %} -->
+<!-- {% if not ' ' in name %} -->
 <!-- Trigger update of this node from an event -->
 <div
   hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
