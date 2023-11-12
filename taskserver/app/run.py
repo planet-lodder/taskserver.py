@@ -4,51 +4,10 @@ from anyserver import WebRequest, WebResponse
 
 from taskserver import router
 from taskserver.domain.serializers import Serialize, WebSerializer
+from taskserver.domain.serializers.run import TaskRunInputs, TaskRunVar
 from taskserver.domain.serializers.task import TaskRequest
 from taskserver.domain.use_cases.base import UseCase
 from taskserver.domain.use_cases.run import TaskRunUseCase
-
-
-class TaskRunInputs(TaskRequest):
-    job_id: str
-
-    def parse(self):
-        # Check if the job key was provided
-        self.job_id = self.req.query.get('job_id')
-
-        super().parse()  # Parse task properties
-
-
-class TaskRunVar(WebSerializer):
-    path: str = ''
-    task: str = ''
-    key: str = ''
-    value: str = ''
-
-    def parse(self):
-        self.path = self.req.query.get('path', 'Taskfile.yaml')
-        self.task = self.req.input('name', self.req.query.get('name', ''))
-        self.key = self.req.query.get('key', '')
-        self.value = self.req.input(f'value', '')
-
-        if not self.key and self.htmx:
-            # Look for request originating from HTMX interactions
-            if requested_key := self.htmx.prompt:
-                self.key = requested_key  # User entered new key name from prompt
-
-        # Ensure that the key is defined before continuing
-        if not self.key:
-            raise Exception('Key required for config value.')
-
-    def forUpdate(self, dest):
-        # Get the key value
-        self.value = self.req.input(f'config.{dest}.{self.key}', '')
-
-        # Return relevant information
-        return self.task, dest, self.key, self.value
-
-    def forDelete(self, dest):
-        return self.task, dest, self.key
 
 
 @router.get('/run')
@@ -135,12 +94,16 @@ def taskRunDialogUpdate(req, resp):
 
 @router.get('/run/status')
 @router.renders('partials/run/status')
-def taskBreakdown(req, resp):
+def taskStatus(req, resp):
     view = UseCase.forWeb(req, TaskRunUseCase)
     input = Serialize.fromWeb(req, TaskRunInputs)
 
+    # Trigger update event when status is loaded
+    #resp.head['hx-trigger'] = input.name
+
     # Try and run the task (no additional parameters)
     return view.runStatus(input.job_id)
+
 
 @router.post('/run/stop')
 def taskBreakdown(req, resp):
@@ -173,4 +136,16 @@ def taskBreakdown(req, resp):
 
     # Do a breakdown of the current task
     result = view.toggleRunBreakdown(input.name, input.job_id, index, state)
+    return result
+
+
+@router.get('/run/output')
+@router.renders('partials/terminal/window')
+def taskRun(req, resp):
+    view = UseCase.forWeb(req, TaskRunUseCase)
+    input = Serialize.fromWeb(req, TaskRunInputs)
+
+    # Try and run the task (no additional parameters)
+    result = view.runOutput(input.job_id)
+
     return result

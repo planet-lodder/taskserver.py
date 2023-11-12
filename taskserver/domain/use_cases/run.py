@@ -24,6 +24,7 @@ class TaskRunUseCase(TaskUseCase):
         name = run.task.name if run and run.task else input.name
         task = self.repo.findTask(name) if name else None
         breakdown = self.taskBreakdown(name, run) if name else None
+        output = self.getOutput(run)
 
         if not task and run and run.task:
             # Load task definition from the job metadata
@@ -37,10 +38,27 @@ class TaskRunUseCase(TaskUseCase):
             "title": task.name if task else "unknown",
             "toolbar": "partials/toolbar/task.html",
             "disabled": True,  # Clear the change status
-            "output": self.format_output(run.stdout) if run else '',
             "run": run,
             "breakdown": breakdown,
+            "output": self.format_output(output),
         })
+        return result
+
+    def getOutput(self, run: TaskRun, starts=0, ends=None):
+        if run and run.stdout:
+            with open(run.stdout, 'r') as f:
+                f.seek(starts)
+                return f.read(ends - starts if ends else None)
+
+    def runOutput(self, job_id: str, starts=0, ends=None):
+        run = self.repo.getTaskRun(job_id) if job_id else None
+        output = self.getOutput(run, starts, ends)
+
+        # Return the formatted output
+        result = {
+            "run": run,
+            "output": self.format_output(output),
+        }
         return result
 
     def createRun(self, task: Task, vars: dict, cli_args=''):

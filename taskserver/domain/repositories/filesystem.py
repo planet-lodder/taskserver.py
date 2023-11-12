@@ -344,7 +344,7 @@ class FilesystemTaskfileRepo(TaskfileRepository):
             )
             err_thread = threading.Thread(
                 target=piped,
-                args=(proc.stderr, err_file, out_file, feed)
+                args=(proc.stderr, out_file, err_file, feed)
             )
             out_thread.start()
             err_thread.start()
