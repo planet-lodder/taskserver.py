@@ -1,5 +1,3 @@
-> This project is heavily inspired by [Taskfile.dev](https://taskfile.dev/), and built on top of it's functionality.
-
 <p align="center" style="padding-top:20px">
  <img width="100px" src="static/img/logo.svg" align="center" alt="GitHub Readme Stats" />
  <h1 align="center">Taskfile Server</h1>
@@ -25,6 +23,8 @@
     <a href="https://github.com/planet-lodder/taskserver.py/issues">Report Bug</a>
   </p>
 </p>
+
+> This project is heavily inspired by [Taskfile.dev](https://taskfile.dev/), and built on top of it's functionality.
 
 This project gives the ability to run and manage `task`'s from any given host or cloud environment.
 
