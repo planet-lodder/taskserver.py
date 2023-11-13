@@ -26,8 +26,6 @@
 
 > This project is heavily inspired by [Taskfile.dev](https://taskfile.dev/), and built on top of it's functionality.
 
-This project gives the ability to run and manage `task`'s from any given host or cloud environment.
-
 ## Features
 
 Features include:
