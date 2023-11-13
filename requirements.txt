@@ -1,5 +1,5 @@
 # Required base libraries
-anyserver>=0.3.1
+anyserver>=0.3.3
 python-multipart==0.0.6
 Jinja2==3.1.2
 
