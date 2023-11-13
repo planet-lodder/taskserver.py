@@ -68,7 +68,7 @@ This project would be incomplete without the ability to spawn an actual task. To
 
 ![Run Task](./static/img/task-run.png)
 
-Currently this is limited to the running context of the web server, so **should not be used in a production environment**. It works great as a local-only solution to manage tasks outside of the command line.
+> Currently this is limited to the running context of the web server, so **should not be used in a production environment**. It works great as a local-only solution to manage tasks outside of the command line.
 
 In a future release, we do envision implementing mechanisms to allow user permissions and context, but for now this is outside of the scope of the project.
 
