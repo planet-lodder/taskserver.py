@@ -93,7 +93,7 @@ Taskfile works well for automating all kinds of tasks. Some features include:
 
 - It's declared in a simple, machine-readable file format (YAML).
 - Task varibales make it easy to define defaults and overrides.
-- It subbports `includes` making it composable / extensible.
+- We can use `includes`, making it composable / extensible.
 - Task caching and run metadata make it efficient and fast.
 - Good support for debugging, dry-run of tasks (with execution plans).
 
