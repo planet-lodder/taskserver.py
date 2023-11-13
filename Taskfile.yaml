@@ -38,6 +38,10 @@ tasks:
       - task: example:alpha
       - task: example:beta
       - task: example:delta
+      - task: example:delta
+      - task: example:repeats
+      - task: example:fail
+      - task: example:infinite
       - echo Done
   example:alpha:
     desc: First example task
@@ -63,15 +67,6 @@ tasks:
       - echo "Crashing this task..." 1>&2
       - exit 2
       - echo "Technically this command should never run."
-  example:complex:
-    desc: Explicitly exit with exit status
-    cmds:
-      - task: example:alpha
-      - task: example:beta
-      - task: example:delta
-      - task: example:delta
-      - task: example:fail
-      - task: example:delta
   example:infinite:
     desc: Run this task indefinately
     cmds:

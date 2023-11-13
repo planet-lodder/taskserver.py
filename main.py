@@ -4,7 +4,7 @@ from taskserver import router as TASK_ROUTES
 
 app = AnyServer(prefers='FastAPI')
 app.register(TASK_ROUTES)
-app.static("./public")
+app.static("./static")
 
 
 def main():
