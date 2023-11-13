@@ -6,7 +6,11 @@
 {% endif %} 
 -->
 <td class="text-gray-600 pl-4 py-4 text-sm font-medium whitespace-nowrap">
+  <!-- {% if item and item.up_to_date %} -->
+  {% include "icons/document-check.svg" %}
+  <!-- {% else %} -->
   {% include "icons/document.svg" %}
+  <!-- {% endif %} -->
 </td>
 <td class="pl-4 py-4 text-sm font-medium whitespace-nowrap">
   <a
@@ -15,7 +19,12 @@
     hx-replace-url="true"
     class="font-medium cursor-pointer text-gray-800 dark:text-white"
   >
+    <!-- {% if item and item.up_to_date %} -->
+    <span class="opacity-50">{{name}}</span>
+    <span class="ml-2 font-thin italic text-gray-500">( up to date )</span>
+    <!-- {% else %} -->
     {{name}}
+    <!-- {% endif %} -->
   </a>
 </td>
 <td class="pl-4 py-4 text-sm font-medium whitespace-nowrap">
