@@ -33,9 +33,9 @@ This project gives the ability to run and manage `task`'s from any given host or
 Features include:
 
 - a web user interface
-- configurable taskfiles
 - spawning and managing tasks
 - modify task vars before run
+- configurable taskfiles
 - show execution path (with full drill down)
 
 Features that are not included (yet):
@@ -51,16 +51,6 @@ We support both light and dark mode (auto detects from browser settings):
 ![Light Mode](./static/img/sample-light.png)
 
 ![Dark Mode](./static/img/sample-dark.png)
-
-### Configurable Taskfiles
-
-Taskfiles can be viewed and modified (to some extent), with the focus being on:
-
-- Adding or modifying task `includes`'s (with some validations).
-- Setting or overriding default `Environment Variables`.
-- Defining global `Taskfile Variables`.
-
-![Taskfile Config](./static/img/taskfile-config.png)
 
 ### Spawning and managing tasks
 
@@ -78,19 +68,26 @@ You can add custom task variables, to be attached to a specific run. This enable
 
 ![Taskfile Variables](./static/img/task-vars.png)
 
+### Configurable Taskfiles
+
+Taskfiles can be viewed and modified (to some extent), with the focus being on:
+
+- Adding or modifying task `includes`'s (with some validations).
+- Setting or overriding default `Environment Variables`.
+- Defining global `Taskfile Variables`.
+
+![Taskfile Config](./static/img/taskfile-config.png)
+
 ### Showing execution breakdown
 
 One nice feature we have is the ability to do a task execution breakdown. We use the `--dry` run feature of taskfile's, to plan out and parse the execution, before running it.
 
 This has two advantages:
 
- - For oversight: Know the commands you are about to execute...
- - Track task execution: See where exactly the task fails, and for what reason.
+- For oversight: Know the commands you are about to execute...
+- Track task execution: See where exactly the task fails, and for what reason.
 
 ![Taskfile Config](./static/img/breakdown.png)
-
-
-
 
 ## Motivation
 
