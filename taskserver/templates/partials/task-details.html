@@ -1,38 +1,36 @@
 <!-- {% if task %} -->
 <!-- 
-{% set name = task.key %}
-{% set path = taskfile._path %}
+{% set name = task.name %}
+{% set path = taskfile.path %}
 -->
-<div
-  class="flex flex-row flex-1 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
->
+<div class="flex flex-row flex-1 overflow-y-auto bg-white dark:bg-gray-900">
   <div class="w-48 h-48 p-6 text-gray-500">
     {% include "icons/document-large.svg" %}
   </div>
-  <div class="flex flex-col flex-grow p-4 text-gray-600 dark:text-gray-300">
+  <div class="flex flex-col flex-grow py-4 text-gray-600 dark:text-gray-300">
     <div class="flex flex-row">
       <!-- Task main details -->
-      <div class="w-2/3 flex flex-col">
+      <div class="w-1/2 flex flex-col">
+        <div class="flex flex-row">
+          <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
+          <a class="p-2 font-bold">{{ path }}</a>
+          <!-- {% if path != task.src %} -->
+          <span class="p-2 opacity-50">
+            {% include 'icons/forward.svg' %}
+          </span>
+          <a class="p-2 font-bold">{{ task.src }}</a>
+          <!-- {% endif %} -->
+        </div>
+
         <div class="flex flex-row">
           <label class="p-2 w-32 on inline-block element">Task Name:</label>
           <a class="p-2 font-bold">{{ name }}</a>
         </div>
 
         <div class="flex flex-row">
-          <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
-          <a class="p-2 font-bold">{{ path }}</a>
-          <!-- {% if path != task.path %} -->
-          <span class="p-2 opacity-50"
-            >{% include 'icons/forward.svg' %}</span
-          >
-          <a class="p-2 font-bold">{{ task.path }}</a>
-          <!-- {% endif %} -->
-        </div>
-
-        <div class="flex flex-row">
-          <label class="p-2 w-32 on inline-block element">Description:</label>
-          {% if task.value and task.value.desc %}
-          <div class="p-2 flex-grow">{{ task.value.desc }}</div>
+          <label class="p-2 w-32 on inline-block element">Description:</label>          
+          {% if task and task.desc %}
+          <div class="p-2 flex-grow">{{ task.desc }}</div>
           {% else %}
           <em class="p-2 text-gray-500 opacity-50">No description available</em>
           {% endif %}
@@ -40,26 +38,50 @@
       </div>
 
       <!-- Task variables -->
-      <div class="w-1/3 flex relative">
-        <label class="p-2 w-32 on absolute -left-36">Task Variables:</label>
-        <div class="flex-1">
-          <div class="task-vars">
-            <!-- {% if taskfile and name in taskfile.tasks and taskfile.tasks[name].vars %} -->
-            <!-- {% for key,value in taskfile.tasks[name].vars.items() %} -->
-            {% include 'partials/run/vars/item.html' %}
-            <!-- {% endfor %} -->
-            <!-- {% endif %} -->
+      <div class="w-1/2 flex flex-col relative">
+        <!-- Global Task Vars -->
+        <div class="flex flex-row mr-8">
+          <div class="flex-1 align-top">
+            <!-- {% with title="Task Variables", values=vars, dest="task" %} -->
+            {% include 'partials/values/list.html' %}
+            <!-- {% endwith %} -->
           </div>
-          {% include 'partials/run/vars/add.html' %}
         </div>
       </div>
     </div>
 
-    <!-- Task breakdown -->
-    <div class="flex flex-row">
-      <label class="p-2 w-32 on inline-block element">Executes:</label>
-      {% include 'partials/execution/index.html' %}
+    <!-- {% if run %} -->
+
+    <!-- Task run is attached -->
+    <div class="flex flex-row mr-4">
+      <label class="p-2 w-32 on inline-block element">Run Status:</label>
+      {% include 'partials/run/status.html' %}
     </div>
+    <div class="flex flex-row mr-4">      
+      <label class="p-2 w-32 on inline-block element">Executes:</label>
+      {% include 'partials/run/breakdown.html' %}
+    </div>
+
+    <!-- {% else %} -->
+
+    <!-- {% if breakdown.up_to_date %} -->
+    <!-- Task is up to date -->
+    <div class="flex flex-row mr-4">
+      <label class="p-2 w-32 on inline-block element">Task Status:</label>
+      <div class="p-2 flex text-gray-500 opacity-50">
+        <span class="text-green-500">{% include 'icons/check.svg' %}</span>
+        <em class="ml-2 font-slim">Task is up to date</em>
+      </div>
+    </div>
+    <!-- {% endif %} -->
+
+    <!-- Task breakdown -->
+    <div class="flex flex-row mr-4">
+      <label class="p-2 w-32 on inline-block element">Executes:</label>
+      {% include 'partials/run/breakdown.html' %}
+    </div>
+
+    <!-- {% endif %} -->
   </div>
 </div>
 <!-- {% endif %} -->

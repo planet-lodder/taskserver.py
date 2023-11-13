@@ -1,11 +1,24 @@
 <a
-  hx-get="/task"
+  hx-get="/taskserver"
   hx-target="main"
+  hx-swap="innerHTML"
+  hx-replace-url="true"
   class="flex items-center space-x-2 rounded py-1 px-4 my-4 mx-1 shadow-md text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-600 cursor-pointer"
 >
   {% include "icons/back.svg" %}
   <span>Back</span>
 </a>
+<span x-data="{ dropdownOpen: {% if trigger_import %}true{%else%}false{% endif%} }">
+  <button
+    type="button"
+    @click="dropdownOpen = !dropdownOpen"
+    class="flex items-center space-x-2 rounded py-1 px-4 my-4 mx-1 shadow-md text-gray-500 bg-gray-200 dark:bg-gray-400 dark:text-gray-100"
+  >
+    {% include "icons/folder-plus.svg" %}
+    <span>Import Tasks</span>
+  </button>  
+  {% include 'partials/config/includes/popup.html' %}
+</span>
 
 <button
   type="submit"

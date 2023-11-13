@@ -1,0 +1,11 @@
+<!-- {% if cmd.started or not run %} -->
+<li class="p-1 flex items-top text-gray-500">
+  {% include 'icons/terminal.svg' %}
+  <pre class="pl-2">{{ cmd.text }}</pre>
+</li>
+<!-- {% else %} -->
+<li class="p-1 flex items-top text-gray-500 opacity-25">
+  {% include 'icons/terminal.svg' %}
+  <pre class="pl-2">{{ cmd.text }}</pre>
+</li>
+<!-- {% endif %} -->

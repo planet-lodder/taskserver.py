@@ -1,0 +1,14 @@
+{% set htmx_base = htmx_base or "/taskserver/config/"+dest %}
+<button
+  type="button"
+  name="action"
+  value="add"
+  hx-post="{{htmx_base}}?path={{taskfile.path}}"
+  hx-prompt="Key Name"
+  hx-target="next .config-{{dest}}"
+  hx-swap="beforeend"
+  class="flex flex-0 py-1 -my-1 px-2 mx-1 items-center space-x-2 text-gray-300 dark:text-gray-700 hover:text-gray-500 dark:hover:text-gray-500"
+>
+  {% include 'icons/plus.svg' %}
+  <span>Add</span>
+</button>

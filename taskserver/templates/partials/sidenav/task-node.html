@@ -1,0 +1,57 @@
+<!-- {% if item %} -->
+<!-- 
+{% set name = item.name %} 
+{% set open = item.open %} 
+{% set icon = 'icons/document.svg' %}
+{% set style = 'text-gray-600 dark:text-gray-300' %} 
+{% set htmx = 'hx-target="main" hx-get="/taskserver/task?name='+name+'" hx-replace-url="true"' %} 
+
+{% if item.is_running %}
+  {% set style = 'text-blue-500' %} 
+{% elif item.up_to_date == True %}
+  {% set style = 'opacity-50' %} 
+{% elif item.up_to_date == False %}
+{% endif %}
+-->
+<!-- {% endif %} -->
+
+{% extends 'partials/sidenav/menu-item.html' %} {% block trigger %}
+<!-- {% if not ' ' in name %} -->
+<!-- Trigger update of this node from an event -->
+<div
+  hx-get="/taskserver/sidenav/node?name={{name}}&path={{path}}"
+  hx-trigger="{{name}} from:body"
+></div>
+<!-- {% endif %} -->
+{% endblock trigger %}
+
+<!-- Override the task node icon -->
+{% block icon %}{% include 'partials/sidenav/nodes/icon.html' %}{% endblock icon
+%}
+
+<!-- Override task item actions -->
+{% block actions %}
+<!-- {% if item.is_running %} -->
+{% include 'partials/sidenav/actions/running.html' %}
+<!-- {% elif item.data %} -->
+{% include 'partials/sidenav/actions/task.html' %}
+<!-- {% endif %} -->
+{% endblock actions %}
+
+<!-- Sort task nodes by folders first, then leaf nodes -->
+{% block children %}
+<!-- {% set children = item.children %} -->
+<!-- {% if children and open %} -->
+<div class="flex flex-col ml-7">
+  <!-- Sort by folders first -->
+  <!-- {% for name,item in children.items() %}{% if item.children %} -->
+  {% include "partials/sidenav/task-node.html" %}
+  <!-- {% endif %}{% endfor %} -->
+
+  <!-- Show leaf nodes after all folders -->
+  <!-- {% for name,item in children.items() %}{% if not item.children %} -->
+  {% include "partials/sidenav/task-node.html" %}
+  <!-- {% endif %}{% endfor %} -->
+</div>
+<!-- {% endif %} -->
+{% endblock children %}

@@ -1,0 +1,22 @@
+<!-- {% if timed %} -->
+<!-- {% set sep = '' %} -->
+<!-- {% set total = timed.total_seconds() %} -->
+<!-- {% set hours = total // 3600 %} -->
+<!-- {% set minutes = total % 3600 // 60 %} -->
+<!-- {% set seconds = total % 60 // 1  %} -->
+<!-- {% set milliseconds = (timed.total_seconds() * 1000) % 1000 // 1  %} -->
+
+<!-- {% if hours >= 1 %} -->
+{{ sep+" %d" | format(hours) }} hour(s)
+<!-- {% set sep = ',' %} -->
+<!-- {% endif %} --> 
+<!-- {% if minutes >= 1 %} -->
+{{ sep+" %d" | format(minutes) }} minutes
+<!-- {% set sep = ',' %} -->
+<!-- {% endif %} --> 
+<!-- {% if seconds >= 1 %} -->
+{{ sep+" %d" | format(seconds) }} seconds
+<!-- {% set sep = ',' %} -->
+<!-- {% endif %} -->
+{{ sep+" %d" | format(milliseconds) }} ms
+<!-- {% endif %} -->

@@ -1,41 +1,55 @@
-<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-  <thead class="bg-gray-50 dark:bg-gray-800">
-    <tr class="text-sm font-normal text-gray-500 dark:text-gray-400">
-      <th class="flex flex-row py-3.5 px-4 w-1/2">
-        {% include 'icons/chevron-down.svg' %}
-        <span class="pl-2 py-0.5">Configuration</span>
-      </th>
-      <th class="py-3.5 px-4 w-1/2">
-        {% include "partials/config/includes/header.html" %}
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr class="bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">
-      <td
-        class="flex flex-row pb-0.5"
-      >
-        <div class="w-48 h-48 p-6 text-gray-500">
-          {% include 'icons/tools-large.svg' %}
+<div
+  class="flex flex-0 text-sm font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800"
+>
+  <div class="w-full flex flex-row py-3.5 px-4">
+    {% include 'icons/gears.svg' %}
+    <span class="pl-2 py-0.5">Configuration</span>
+  </div>
+</div>
+<div
+  class="flex flex-row flex-1 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
+>
+  <div class="w-48 h-48 p-6 text-gray-500">
+    {% include 'icons/tools-large.svg' %}
+  </div>
+  <div class="flex flex-col flex-grow py-4 text-gray-600 dark:text-gray-300">
+    <div class="flex flex-row">
+      <!-- Task main details -->
+      <div class="w-1/2 flex flex-col">
+        <div class="flex flex-row">
+          <label class="p-2 w-32 on inline-block element">Taskfile Path:</label>
+          <a class="p-2 font-bold flex flex-row"> {{ taskfile.path }} </a>
         </div>
-        <div class="flex flex-col flex-grow p-4">
-          <div class="flex flex-row">
-            <label class="p-2 w-32 on inline-block element">Version:</label>
-            <span class="p-2">{{ taskfile.version }}</span>
-          </div>
-          <div class="flex flex-row">
-            <label class="p-2 w-32 on inline-block element"
-              >Taskfile Path:</label
-            >
-            <span class="p-2 font-bold">{{ taskfile._path }}</span>
+
+        <!-- Task Includes -->
+        <div class="flex flex-row mr-8">
+          <label class="p-2 w-32 on inline-block element">Include Tasks:</label>
+          <div class="flex-1 align-top">
+            {% include "partials/config/includes.html" %}
           </div>
         </div>
-      </td>
-      <td
-        class="align-top pb-0.5"
-      >
-        {% include "partials/config/includes.html" %}
-      </td>
-    </tr>
-  </tbody>
-</table>
+      </div>
+
+      <!-- Task variables -->
+      <div class="w-1/2 flex flex-col relative">
+        <!-- ENV Overrides -->
+        <div class="flex flex-row mr-8">
+          <div class="flex-1 align-top">
+            <!-- Environment Vars {% with title="System Environment Variables", values=taskfile.env, dest="env" %} -->
+            {% include 'partials/values/list.html' %}
+            <!-- {% endwith %} -->
+          </div>
+        </div>
+
+        <!-- Global Task Vars -->
+        <div class="flex flex-row mr-8">
+          <div class="flex-1 align-top">
+            <!-- Taskfile Variables {% with title="Global Taskfile Variables", values=taskfile.vars, dest="vars" %} -->
+            {% include 'partials/values/list.html' %}
+            <!-- {% endwith %} -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

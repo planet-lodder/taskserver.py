@@ -1,0 +1,22 @@
+<!--
+{% set indexed = indexed or '' %}
+{% set divider = divider or 'divide-y divide-dashed divide-gray-500 divide-opacity-25' %}
+-->
+<!-- {% if breakdown and breakdown.cmds %} -->
+<ul class="flex flex-col {{divider}}">
+  <!-- 
+  {% set prefix = indexed + ',' if indexed else indexed %} 
+  {% for cmd in breakdown.cmds %}
+  {% with indexed=prefix + '%s' % loop.index0 %}
+  -->
+  {% include 'partials/run/breakdown/item.html' %}
+  <!-- 
+  {% endwith %}
+  {% endfor %} 
+  -->
+</ul>
+<!-- {% else %} -->
+<div class="opacity-25 flex flex-row">
+  <em class="p-2">Not available...</em>
+</div>
+<!-- {% endif %} -->

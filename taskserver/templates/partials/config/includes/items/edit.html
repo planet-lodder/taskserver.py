@@ -1,10 +1,12 @@
 <!-- 
 {% set item_key = '.includes.' + key %} 
-{% set status_raw = taskfile.status(item_key) if not errors else "Error" %} 
+
+
+{% set status = status if not errors else "Error" %}
 {% set status_values = {
   "Unchanged": {
     "icon": "icons/document.svg",
-    "style": "text-gray-500",
+    "style": "text-gray-600 dark:text-gray-300",
   },
   "Changed": {
     "icon": "icons/document-text.svg",
@@ -14,7 +16,7 @@
     "icon": "icons/document-minus.svg",
     "style": "text-red-500 line-through",
   },
-  "Added": {
+  "New": {
     "icon": "icons/document-plus.svg",
     "style": "text-green-500",
   },
@@ -24,89 +26,82 @@
   }
 }
 %}
-{% set status = status_values[status_raw] | default(status_values["Unchanged"])  %} 
+{% set status_obj = status_values[status] | default(status_values["Unchanged"])  %} 
+{% set icon = status_obj.icon %} 
+{% set style = status_obj.style %} 
 -->
+
 <form
   id="include_{{id}}"
   method="post"
-  action="/task/config/includes"
-  hx-post="/task/config/includes"
+  action="/taskserver/config/includes?path={{taskfile.path}}&id={{id}}"
+  hx-post="/taskserver/config/includes?path={{taskfile.path}}&id={{id}}"
   hx-target="self"
   hx-swap="outerHTML"
-  class="flex flex-row my-1 text-gray-500 {{ status.style }}"
+  class="flex flex-row h-10 text-gray-500 {{ style }}"
 >
-  <div class="w-6 mr-1">{% include status.icon %}</div>
-  <div class="w-24">
+  <div class="w-6 py-2 mr-1">{% include icon %}</div>
+  <div class="w-24 flex flex-0">
     <!--
     {% set target_name = "key"  %} 
     {% set validations = errors[target_name] if target_name in errors else []  %} 
-    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:outline-red-500 dark:focus:outline-0"  %} 
+    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:border-red-600 dark:focus:border-red-500"  %} 
     -->
     <input
       type="text"
       id="key_{{id}}"
-      name="key.includes.{{id}}"
+      name="key"
       value="{{key}}"
-      placeholder="{{ key | default('prefix', true) }}"
-      class="peer w-24 px-2 py-0.5 flex-1 text-sm block bg-white text-gray-900 border border-gray-300 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white {{extra_style}}"
+      placeholder="name"
+      class="{{extra_style}} peer block my-2 px-2 w-full font-normal bg-transparent border-0 border-b border-gray-300 appearance-none text-gray-900 dark:text-white placeholder:text-gray-400 placeholder:text-gray-600 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600"
+      autocomplete="off"
       required
     />
     <!-- {% if validations %} -->
-    <div
-      class="invisible peer-focus:visible p-2 mt-0 text-sm font-normal absolute w-max whitespace-normal break-words border border-red-50 bg-white text-red-500 shadow-lg focus:outline-none"
-    >
-      {% for error in validations %}
-      <div>{{error}}</div>
-      {% endfor %}
-    </div>
+    {% include 'partials/config/includes/items/validations.html' %}
     <!-- {% endif %} -->
   </div>
-  <div class="flex flex-row flex-1">
+  <div class="flex flex-1">
     <!--
     {% set target_name = "value"  %} 
     {% set validations = errors[target_name] if target_name in errors else []  %} 
-    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:outline-red-500 dark:focus:outline-0"  %} 
+    {% set extra_style = "" if not validations else "text-red-500 placeholder:text-red-500 border-red-500 focus:border-red-600 dark:focus:border-red-500"  %} 
     -->
     <input
       type="text"
       id="value_{{id}}"
-      name="config.includes.{{id}}"
+      name="value"
       value="{{value}}"
-      placeholder="{{ placeholder | default('/path/to/Taskfile.yaml', true) }}"
-      class="peer flex flex-1 px-2 py-0.5 text-sm block bg-white text-gray-900 border border-gray-300 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white {{extra_style}}"
-      required
+      placeholder="{{placeholder}}"
+      class="{{extra_style}} peer block my-2 px-2 w-full font-normal bg-transparent border-0 border-b border-gray-300 appearance-none text-gray-900 dark:text-white placeholder:text-gray-400 placeholder:text-gray-600 dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600"
+      autocomplete="off"
+      required 
     />
 
     <!-- {% if validations %} -->
-    <div
-      class="invisible peer-focus:visible p-2 mt-6 text-sm font-normal absolute w-max whitespace-normal break-words border border-red-50 bg-white dark:bg-gray-900 text-red-500 shadow-lg focus:outline-none"
-    >
-      {% for error in validations %}
-      <div>{{error}}</div>
-      {% endfor %}
-    </div>
+    {% include 'partials/config/includes/items/validations.html' %}
     <!-- {% endif %} -->
 
     <button
       type="submit"
-      name="{{key}}"
+      name="action"
       value="save"
-      hx-post="/task/config/includes"
+      hx-post="/taskserver/config/includes?path={{taskfile.path}}&id={{id}}"
       hx-target="#include_{{id}}"
       hx-swap="outerHTML"
-      class="mx-1 opacity-20 hover:opacity-100"
+      class="mx-1 opacity-50 hover:opacity-100"
     >
       {% include "icons/check.svg" %}
     </button>
     <button
       type="button"
-      name="{{key}}"
+      name="action"
       value="close"
-      hx-get="/task/config/includes"
-      hx-confirm="{% if key and not status_raw == 'Unchanged' %}Are you sure? Unsaved changes for '{{key}}' will be lost?{% endif %}"
+      hx-get="/taskserver/config/includes?path={{taskfile.path}}&id={{id}}"
+      hx-confirm="{% if key and not status == 'Unchanged' %}Are you sure? Unsaved changes for '{{key}}' will be lost?{% endif %}"
       hx-target="#include_{{id}}"
       hx-swap="outerHTML"
-      class="mx-1 opacity-20 hover:opacity-100"
+      class="mx-1 opacity-50 hover:opacity-100"
     >
       {% include "icons/close.svg" %}
     </button>
@@ -116,11 +111,10 @@
 <script>
   (function () {
     // Trigger a focus action on the target input (if not already focussed)    
-    found = document.getElementsByName("{{autofocus}}");
-    input = (found.length && found[0]) || null;
-    isActive = document.activeElement === input;    
-    if (input && !isActive) {
-      input.focus();
+    found = document.getElementById("{{autofocus}}");
+    isActive = document.activeElement === found;    
+    if (found && !isActive) {
+      found.focus();
     }
   })();
 </script>

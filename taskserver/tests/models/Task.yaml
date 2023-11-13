@@ -1,0 +1,10 @@
+desc: Install required application dependencies
+sources:
+  - requirements.txt
+generates:
+  - "./dist/lala.txt"
+vars:
+  MESSAGE: '{{ .MESSAGE | default "Hello World" }}'
+  OUTPUT_PATH: ./dist/lala.txt
+cmds:
+  - pip3 install -r requirements.txt

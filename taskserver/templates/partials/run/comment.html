@@ -1,0 +1,9 @@
+<!-- {% if cmd.up_to_date %} -->
+<span class="px-4 text-gray-500 font-slim italic opacity-25">
+  ( <emv>up to date</emv> )
+</span>
+<!-- {% elif cmd.started %}{% with timed = cmd.ellapsed %} -->
+<span class="px-4 text-gray-500 font-slim italic opacity-25">
+  {% include 'partials/run/timer.html' %}
+</span>
+<!-- {% endwith %}{% endif %} -->

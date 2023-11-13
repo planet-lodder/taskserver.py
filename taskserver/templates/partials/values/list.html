@@ -1,47 +1,63 @@
+<!-- 
+{% set closed = values.keys() | length == 0 %} 
+-->
 <style>
-  #{{dest}}_values tr.htmx-swapping td {
+  .task-variables tr.htmx-swapping td {
     opacity: 0;
-    transition: opacity 1s ease-out;
+    transition: opacity 0.5s ease-out;
   }
 </style>
 <table
   id="{{dest}}_values"
   x-data="{ open: {% if closed %}false{% else %}true{% endif %} }"
-  class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border-solid border-0 border-b border-gray-200 dark:border-gray-700"
+  class="task-variables min-w-full"
 >
-  <thead class="bg-gray-50 dark:bg-gray-800">
-    <tr
-      class="font-normal text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-    >
-      <th class="w-4 py-3.5 px-4 cursor-pointer" @click="open = !open">
-        <span x-show="open">{% include 'icons/chevron-down.svg' %}</span>
-        <span x-show="!open">{% include 'icons/chevron-right.svg' %}</span>
+  <thead class="font-normal">
+    <tr class="{{style_head}} text-left text-gray-500 dark:text-gray-300">
+      <th class="w-4 p-2 cursor-pointer" @click="open = !open">
+        <span style="display: block" x-show="open"
+          >{% include 'icons/chevron-down.svg' %}</span
+        >
+        <span style="display: none" x-show="!open"
+          >{% include 'icons/chevron-right.svg' %}</span
+        >
       </th>
-      <th class="w-64 py-3.5 px-4">
+      <th class="flex flex-row">
         <!-- Display Name -->
-        {{ title }}
-      </th>
-      <th class="py-3.5 px-4">
-        <div class="flex flex-row">
+        <label
+          @click="open = !open"
+          class="flex-1 py-1.5 font-normal cursor-pointer"
+        >
+          {{title}}
+          <!-- {% if values and values.keys() | length > 0 %} -->
+          ( {{ values.keys() | length }} )
+          <!-- {% endif %} -->
+        </label>
+        <!-- Value Actions (top-right) -->
+        <div class="flex flex-row flex-0" @click="open = true">
           <span class="flex-1"></span>
-          <!-- Value Actions (top-right) -->
-          {% include 'partials/config/add.html' %}
+          {% if run %}
+          <!-- {% if run.started %} Task was already started -->
+          <div class="m-1 font-light italic text-gray-500 opacity-75">
+            Spawned: {{ run.started.strftime('%l:%M %p %Z on %b %d, %Y') }}
+          </div>
+          <!-- {% endif %} -->
+          {% else %}
+          <!-- Show tools for spawning new task -->
+          {% include 'partials/values/add.html' %} {% endif %}
         </div>
       </th>
     </tr>
   </thead>
   <tbody
-    id="config-{{dest}}"
-    class="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900"
+    class="config-{{dest}}"
     style="{% if closed %}display: none{% endif %}"
     x-show="open"
   >
-    <!-- {% if ctx %} List values for the current context -->
-    {% for key,value in ctx.items() %}
-    <!-- Key-value pair -->
+    <!-- {% if values %} List values for the current context -->
+    {% for key,value in values.items() %}
+    <!-- {% set status = changes[key] if changes and key in changes else "Unchanged" %} -->
     {% include 'partials/values/item.html' %} {% endfor %}
-    <!-- {% else %} Empty: No value defined for context -->
-    {% include 'partials/config/empty.html' %}
     <!-- {% endif %} -->
   </tbody>
 </table>

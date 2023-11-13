@@ -1,31 +1,20 @@
 {% extends 'base.html' %} {% block content %}
+<!-- Add Toolbar -->
+{% include 'partials/toolbar.html'%}
 
-<main class="flex flex-col flex-1">
-  {% include 'partials/toolbar.html' %}
-
-  <form class="flex flex-col flex-1">
-    <input type="hidden" name="name" value="{{task.key}}" />
-    <input type="hidden" name="path" value="{{taskfile._path}}" />
+<div class="h-full flex flex-col justify-stretch bg-white dark:bg-gray-900">
+  <form class="flex flex-col flex-0 resize-y overflow-hidden">
+    <input type="hidden" name="name" value="{{task.name}}" />
+    <input type="hidden" name="path" value="{{taskfile.path}}" />
     <!-- Command toolbar -->
     {% include 'partials/toolbar/command.html' %}
     <!-- Task details and variables -->
     {% include 'partials/task-details.html' %}
   </form>
 
-  <!-- View placeholder -->
-  {% block view %}
-  {% if output %}
-  <style>
-    .terminal-output:empty {
-      display: none;
-    }
-  </style>
-  <div
-    class="terminal-output flex flex-col flex-0 text-sm p-4 h-64 min-h-64 text-gray-500 bg-gray-900 dark:bg-gray-900"
-  >
-    {{output}}
-  </div>
-  {% endif %}
-  {% endblock view %}
-</main>
+  <!-- Terminal Output -->
+  <!-- {% if run %} -->
+  {% include 'partials/terminal/window.html' %}
+  <!-- {% endif %} -->
+</div>
 {% endblock content %}

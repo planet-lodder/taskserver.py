@@ -37,7 +37,7 @@ tasks:
   clean: # Clean out any temp files (and untracked files)
     desc: Clean all untracked data (including files added, but not comitted to git)
     cmds:
-      - git clean -fdx
+      - git clean -fdX
 
   reset: # Reset all submodules to its pristine state
     desc: Reset the git submodules to the original state

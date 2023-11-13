@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 from anyserver import AnyServer
-
 from taskserver import router as TASK_ROUTES
 
-app = AnyServer()
+app = AnyServer(prefers='FastAPI')
+app.register(TASK_ROUTES)
+app.static("./static")
+
 
 def main():
-    # app.config.reloads = "main:app.app"
-    app.register(TASK_ROUTES)
-    app.static("./public")
     app.start()
 
 

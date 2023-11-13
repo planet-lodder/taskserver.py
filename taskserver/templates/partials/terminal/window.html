@@ -1,0 +1,18 @@
+<div
+  hx-target="this"
+  hx-swap="outerHTML"
+  class="terminal-output min-h-64 overflow-y-auto flex flex-col flex-1 border-t border-gray-200 dark:border-gray-700"
+>
+  <!-- Terminal output-->
+  <div
+    class="text-sm p-4 text-gray-500 bg-gray-900 dark:bg-gray-900 opacity-75 dark:opacity-100"
+  >
+    {{output}}
+  </div>
+
+  <!-- Auto reload while running -->
+  <div
+    hx-get="/taskserver/run/output?job_id={{run.id}}"
+    hx-trigger="{{run.task.name}} from:body"
+  ></div>
+</div>

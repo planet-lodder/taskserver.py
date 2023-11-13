@@ -1,0 +1,39 @@
+<!-- {% if cmd.type != 'task' %} -->
+<li class="p-1 flex items-top">
+  <!-- {% if cmd.up_to_date %} -->
+  <span class="text-green-500 opacity-25">{% include 'icons/check.svg' %}</span>
+  <!-- {% else %} -->
+  <span class="text-green-500">{% include 'icons/check.svg' %}</span>
+  <!-- {% endif %} -->
+
+  <pre class="pl-2 text-gray-500 opacity-75">{{ cmd.text }}</pre>
+  {% include 'partials/run/comment.html' %}
+</li>
+<!-- {% else %} -->
+<!--
+{% set htmx_toggle = '/taskserver/run/breakdown/toggle?name='+name+'&index='+indexed %}
+{% if run %}
+{% set htmx_toggle = htmx_toggle + '&job_id='+run.id %}
+{% endif %}
+-->
+<li hx-target="this" hx-swap="outerHTML" class="p-1 flex items-top">
+  <!-- {% if cmd.up_to_date %} -->
+  <a
+    title="{{cmd.text}}"
+    hx-get="{{htmx_toggle}}&state=open"
+    class="text-green-500 cursor-pointer opacity-25"
+    >{% include 'icons/document-check-light.svg' %}</a
+  >
+  <!-- {% else %} -->
+  <a
+    title="{{cmd.text}}"
+    hx-get="{{htmx_toggle}}&state=open"
+    class="text-green-500 cursor-pointer"
+    >{% include 'icons/document-check.svg' %}</a
+  >
+  <!-- {% endif %} -->
+  
+  <pre class="pl-2 text-gray-500 opacity-75">{{ cmd.text }}</pre>
+  {% include 'partials/run/comment.html' %}
+</li>
+<!-- {% endif %} -->

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>Sandbox - Tailwind CSS + htmx</title>
+    <!-- Load HTMX, Alpine and Tailwind from a CDN -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.4/htmx.min.js"
+      integrity="sha512-ZM2vxgVBxhBI5Etj/c/qcJV+upate3VzbVQOQRCx1YGuyEX9dYdMh8pRUot4xIwtAay6QwRQC/FdXRjSWIEHrg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.3.0/alpine.js"
+      integrity="sha512-nIwdJlD5/vHj23CbO2iHCXtsqzdTTx3e3uAmpTm4x2Y8xCIFyWu4cSIV8GaGe2UNVq86/1h9EgUZy7tn243qdA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+      htmx.config.useTemplateFragments = true;
+    </script>
+  </head>
+  <body>
+    <!-- Load script to toggle dark mode before loading content (avoids flashing of dark mode) -->
+    <script src="/js/dark-mode.js"></script>
+
+    <!-- Main template -->
+    <div
+      class="flex flex-col h-screen w-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+    >
+      <!-- App Toolbar -->
+      <header
+        class="flex flex-0 w-full p-4 items-center justify-between border-b-2 bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+      >
+        <h2
+          class="w-80 flex space-x-2 text-2xl font-extrabold text-gray-800 dark:text-gray-100"
+        >
+          <img width="24" src="/img/logo.svg" alt="TaskServer Logo" />
+          <a href="/">Task Server</a>
+        </h2>
+        <div class="flex-1">
+          <nav class="w-full">
+            <ul class="items-center justify-between text-base w-full">
+              <li
+                class="inline-block no-underline hover:text-black font-medium text-lg py-0 px-4 lg:-ml-2 hover:dark:text-gray-100"
+              >
+                <a href="/taskserver">Tasks List</a>
+              </li>
+              <li
+                class="inline-block no-underline hover:text-black font-medium text-lg py-0 px-4 lg:-ml-2 hover:dark:text-gray-100"
+              >
+                <a href="/taskserver/config">Configuration</a>
+              </li>
+              <!--
+              <li
+                class="inline-block no-underline hover:text-black font-medium text-lg py-0 px-4 lg:-ml-2 hover:dark:text-gray-100"
+              >
+                <a href="/taskserver">Task History</a>
+              </li>
+              -->
+            </ul>
+          </nav>
+        </div>
+
+        <div>
+          <button
+            id="theme-toggle"
+            type="button"
+            class="p-1 text-sm text-gray-500 rounded-lg md: dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 md:ml-2 max-w-5 xs:hidden"
+          >
+            <span id="theme-toggle-dark-icon" class="w-5 h-5 hidden">
+              {% include 'icons/dark.svg' %}
+            </span>
+            <span id="theme-toggle-light-icon" class="w-5 h-5 hidden">
+              {% include 'icons/light.svg' %}
+            </span>
+          </button>
+        </div>
+      </header>
+
+      <div class="flex flex-1 h-full">
+        <!-- Side Navigation -->
+        <nav
+          id="sidenav"
+          class="w-80 h-full overflow-y-auto flex flex-col flex-0 border-gray-200 bg-white dark:bg-gray-600"
+        >
+          {% block sidenav %}{% endblock sidenav %}
+        </nav>
+
+        <!-- Main content page -->
+        <main
+          id="main"
+          class="w-full h-full flex flex-col flex-1 overflow-y-auto"
+        >
+          {% block content %}{% endblock content %}
+        </main>
+
+        <!-- Side panel (right) -->
+        <aside
+          id="aside"
+          class="flex flex-col space-y-2 min-w-0 border-gray-200 bg-white dark:bg-gray-600"
+        >
+          {% block aside %}{% endblock aside %}
+        </aside>
+      </div>
+    </div>
+
+    {% block modal_overlay %}
+    <style>
+      modal:empty {
+        display: none;
+      }
+    </style>
+    <modal
+      class="h-screen w-full fixed left-0 top-0 flex justify-center items-center bg-gray-500 bg-opacity-75 z-20 close-modal"
+      >{% block modal %}{% endblock modal %}</modal
+    >
+    <!-- Example content -->
+    <script>
+      const modal = document.querySelector("modal");
+      const closeModal = document.querySelectorAll(".close-modal");
+      const clearTarget = (close) => {
+        close.addEventListener("click", function () {
+          modal.innerHTML = "";
+        });
+      };
+      closeModal && closeModal.forEach(clearTarget);
+    </script>
+
+    {% endblock modal_overlay %}
+
+    <!-- Script block for initialisation hooks -->
+    {% block script %}{% endblock script %}
+  </body>
+</html>

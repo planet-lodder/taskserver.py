@@ -20,7 +20,7 @@ tasks:
     desc: Bootstrap the server and load from config
     deps: [init:python]
     cmds:
-      - ./main.py --debug
+      - ./main.py --dev
 
   update: [{ task: "core:update" }]
   clean: [{ task: "core:clean" }]
@@ -28,8 +28,23 @@ tasks:
   # -------------------------------------------------
   # Example commands
   # -------------------------------------------------
+  example:
+    desc: A fairly complex example task
+    vars:
+      MESSAGE: '{{ .MESSAGE | default "Hello World" }}'
+      OUTPUT_PATH: ./dist/lala.txt
+    cmds:
+      - echo "{{ .MESSAGE }}"
+      - task: example:alpha
+      - task: example:beta
+      - task: example:delta
+      - task: example:delta
+      - task: example:repeats
+      - task: example:fail
+      - task: example:infinite
+      - echo Done
   example:alpha:
-    desc: Testing
+    desc: First example task
     sources:
       - Taskfile.yaml
     generates:
@@ -37,21 +52,40 @@ tasks:
     cmds:
       - mkdir -p ./dist
       - cat Taskfile.yaml > ./dist/lala.txt
-      - sleep 3
-
   example:beta:
-    vars:
-      MESSAGE: Hello World
-      OUTPUT_PATH: ./some/path
+    desc: Second example task
     cmds:
-      - echo "{{ .MESSAGE }}"
-      - task: example
-      - echo {{ .OUTPUT_PATH }}
-
-  example:omega:
+      - sleep 1
+  example:delta:
     - echo "Updating sources..."
-    - task: update
-    - echo "Start Examples..."
-    - task: example
-    - task: example2
-    - echo "Done"
+    - |-
+      echo "Sleep for 1 second..."
+      sleep 1
+  example:fail:
+    desc: Explicitly exit with exit status
+    cmds:
+      - echo "Crashing this task..." 1>&2
+      - exit 2
+      - echo "Technically this command should never run."
+  example:infinite:
+    desc: Run this task indefinately
+    cmds:
+      - echo "Starting infinite loop"
+      - |-
+        count=1
+        while true; 
+        do 
+          echo $count
+          sleep 2
+          count=$(( $count + 1 ))
+        done
+  example:repeats:
+    desc: Run the same command repeatedly
+    cmds:
+      - echo "Sleeping 5 times..."
+      - sleep 1
+      - sleep 1
+      - sleep 1
+      - sleep 1
+      - sleep 1
+      - echo "Done"
