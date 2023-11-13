@@ -1,5 +1,4 @@
-> This project is heavily inspired by [Taskfile.dev](https://taskfile.dev/), and built on top of it's functionality. 
-
+> This project is heavily inspired by [Taskfile.dev](https://taskfile.dev/), and built on top of it's functionality.
 
 <p align="center" style="padding-top:20px">
  <img width="100px" src="static/img/logo.svg" align="center" alt="GitHub Readme Stats" />
@@ -19,9 +18,11 @@
   </p>
 
   <p align="center">
-    <a href="https://www.club404.io">View Demo</a>
+    <!--
+    <a href="https://planet-lodder.github.io">View Demo</a>
     ·
-    <a href="https://github.com/Club404/website/issues">Report Bug</a>
+    -->
+    <a href="https://github.com/planet-lodder/taskserver.py/issues">Report Bug</a>
   </p>
 </p>
 
@@ -30,23 +31,63 @@ This project gives the ability to run and manage `task`'s from any given host or
 ## Features
 
 Features include:
- - a user interface
- - configurable taskfiles
- - spawning and managing tasks
- - modify task vars before run
- - show execution path (with full drill down)
+
+- a web user interface
+- configurable taskfiles
+- spawning and managing tasks
+- modify task vars before run
+- show execution path (with full drill down)
 
 Features that are not included (yet):
- - Authentication and Authorization of users (eg: local only)
- - Multitenancy and user based run contexts, permissions
- - Security hardening and Threat Analysis report(s)
- 
-## Previews and dark mode support
+
+- Authentication and Authorization of users (eg: local only)
+- Multitenancy and user based run contexts, permissions
+- Security hardening and Threat Analysis report(s)
+
+### Web User Interface (with dark mode support)
 
 We support both light and dark mode (auto detects from browser settings):
 
 ![Light Mode](./static/img/sample-light.png)
+
 ![Dark Mode](./static/img/sample-dark.png)
+
+### Configurable Taskfiles
+
+Taskfiles can be viewed and modified (to some extent), with the focus being on:
+
+- Adding or modifying task `includes`'s (with some validations).
+- Setting or overriding default `Environment Variables`.
+- Defining global `Taskfile Variables`.
+
+![Taskfile Config](./static/img/taskfile-config.png)
+
+### Spawning and managing tasks
+
+This project would be incomplete without the ability to spawn an actual task. To achieve this, we implemented a simple REST API that can handle invocations of tasks.
+
+Currently this is limited to the running context of the web server, so **should not be used in a production environment**. It works great as a local-only solution to manage tasks outside of the command line.
+
+In a future release, we do envision implementing mechanisms to allow user permissions and context, but for now this is outside of the scope of the project.
+
+### Extending task variables
+
+You can add custom task variables, to be attached to a specific run. This enables you to supply user input to the underlying task.
+
+![Taskfile Config](./static/img/task-vars.png)
+
+### Showing execution breakdown
+
+One nice feature we have is the ability to do a task execution breakdown. We use the `--dry` run feature of taskfile's, to plan out and parse the execution, before running it.
+
+This has two advantages:
+
+ - For oversight: Know the commands you are about to execute...
+ - Track task execution: See where exactly the task fails, and for what reason.
+
+![Taskfile Config](./static/img/breakdown.png)
+
+
 
 
 ## Motivation
@@ -59,7 +100,6 @@ Taskfile works well for automating all kinds of tasks. Some features include:
 - Task caching and run metadata make it efficient and fast.
 - Good support for debugging, dry-run of tasks (with execution plans).
 
-As your taskfile's become larger and more complicated, it becomes harder to manage and understand. 
+As your taskfile's become larger and more complicated, it becomes harder to manage and understand.
 
 We try to tackle this problem by giving more advanced tooling around managing these task automations from a web interface, with the ability to track execution steps in near real time.
-
