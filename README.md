@@ -4,7 +4,7 @@
 <p align="center" style="padding-top:20px">
  <img width="100px" src="static/img/logo.svg" align="center" alt="GitHub Readme Stats" />
  <h1 align="center">Taskfile Server</h1>
- <p align="center">TaskServer is a web application, to run and manage Taskfile automations.</p>
+ <p align="center">Taskfile Server is a web application, to run and manage Taskfile automations.</p>
 </p>
   <p align="center">    
     <a href="https://gohugo.io/">
