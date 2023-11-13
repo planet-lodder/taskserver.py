@@ -4,7 +4,7 @@
  <p align="center">Taskfile Server is a web application, to run and manage <a href="https://taskfile.dev/">Taskfile</a> automations.</p>
 </p>
   <p align="center">    
-    <a href="https://gohugo.io/">
+    <a href="https://www.python.org/">
       <img src="https://img.shields.io/badge/Python%20-3.10+%20-gray.svg?colorA=c9177e&colorB=FF4088&style=for-the-badge"/>
     </a>
     <a href="https://tailwindcss.com/">
