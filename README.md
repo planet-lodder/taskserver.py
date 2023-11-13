@@ -1,22 +1,21 @@
 # Taskfile Server
 
-This project was heavily inspired and built on top of by [Taskfile](https://taskfile.dev/).
+This project is heavily inspired by, and built on top of [Taskfile](https://taskfile.dev/).
+
+This project implements a web server and user interface for spawning tasks, configuring taskfiles and view execution steps.
 
 ## Motivation
-
-This project implements a web server and user interface for working with [Taskfile's](https://taskfile.dev/). 
 
 Taskfile works well for automating all kinds of tasks. Some features include:
 
 - It's declared in a simple, machine-readable file format (YAML).
 - It subbports (file) `includes` making it composable / extensible.
-- Task varibales make it easy to define defaults and overrides
-- Internal task caching and run metadata make it extremely efficient
-- Good support for debugging and dry-run of tasks (with execution plan)
+- Task varibales make it easy to define defaults and overrides.
+- Internal task caching and run metadata make it efficient and fast.
+- Good support for debugging and dry-run of tasks (with execution plans).
 
 As your taskfile's become larger, and more complicated, it bacomes harder to manage and understand. Having an overview and way to navigate this is what the project aims to do.
 
-Native support for installing tasks, from lets say a github repo, is also not available.
 
 ## Architecture
 
