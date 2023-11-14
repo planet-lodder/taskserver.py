@@ -1,0 +1,37 @@
+.debug [id] {
+  outline: dashed 1px silver;
+  position: relative;
+}
+.debug [id]:hover:after {
+  opacity: 1;
+}
+.debug [id]:after {
+  opacity: 0.5;
+  content: attr(id);
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: xx-small;
+  padding: 2px;
+  background: #8884;
+  outline: solid 1px #888;
+  text-wrap: nowrap;
+  overflow: hidden;
+}
+
+.debug [hx-get],
+.debug [hx-post],
+.debug [hx-put],
+.debug [hx-patch],
+.debug [hx-delete] {
+  outline: dashed 1px blue;  
+}
+body.debug {
+  transition: outline 0.1s ease-out;
+}
+.debug  .htmx-request {
+  outline: dashed 1px orange;
+}
+.debug  .htmx-added {
+  outline: dashed 1px lime;
+}
