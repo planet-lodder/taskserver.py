@@ -9,6 +9,7 @@ pydantic==1.10.7
 pytest==7.4.2
 pytest-cov==4.0.0
 pytest-factoryboy==2.5.1
+colorama==0.4.6
 
 # Optional Dependencies
 fastapi==0.103.2
