@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 name = 'taskserver'
-version = '0.0.5'
+version = '0.0.6'
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
