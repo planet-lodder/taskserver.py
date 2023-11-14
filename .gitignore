@@ -10,3 +10,4 @@ venv/
 .pytest_cache
 .DS_Store
 .hugo_build.lock
+*.egg-info/
