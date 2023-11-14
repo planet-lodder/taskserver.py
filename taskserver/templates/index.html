@@ -23,8 +23,9 @@
     <script>
       htmx.config.useTemplateFragments = true;
     </script>
+    <link rel="stylesheet" href="/css/debug.css" />
   </head>
-  <body>
+  <body class="{% if req and req.query.get('debug') %}debug{% endif %}">
     <!-- Load script to toggle dark mode before loading content (avoids flashing of dark mode) -->
     <script src="/js/dark-mode.js"></script>
 
