@@ -9,3 +9,4 @@ import taskserver.app.task
 import taskserver.app.run
 import taskserver.app.config
 import taskserver.app.run
+import taskserver.templates

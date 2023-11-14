@@ -1,0 +1,3 @@
+include taskserver/templates
+recursive-include taskserver/templates *.html
+recursive-include taskserver/templates *.svg

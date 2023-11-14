@@ -1,4 +1,3 @@
-import subprocess
 from distutils.core import setup
 
 name = 'taskserver'
@@ -31,6 +30,8 @@ setup(
     url='https://github.com/planet-lodder/taskserver.py',
     download_url='https://github.com/planet-lodder/taskserver.py/archive/refs/tags/%s.tar.gz' % version,
     keywords=['taskfile', 'http', 'server'],
+    include_package_data=True,
+    package_data = {'taskserver': ['templates/*.html']},
     install_requires=[],
     classifiers=[  # Optional
         # How mature is this project? Common values are
