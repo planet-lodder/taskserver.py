@@ -16,10 +16,8 @@
   </p>
 
   <p align="center">
-    <!--
-    <a href="https://planet-lodder.github.io">View Demo</a>
+    <a href="https://shiny-goggles-6xgx47v769f4974-9999.app.github.dev/taskserver">View Demo</a>
     ·
-    -->
     <a href="https://github.com/planet-lodder/taskserver.py/issues">Report Bug</a>
   </p>
 </p>
