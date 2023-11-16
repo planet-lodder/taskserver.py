@@ -12,7 +12,7 @@ class TaskListUseCase(TaskfileUseCase):
         return result
 
     def list(self, values=None):
-        values = values or self.repo.listTasks()
+        values =  self.repo.listTasks() if values == None else values
         results = self.defaults()
         results.update({
             "list": values
@@ -20,5 +20,5 @@ class TaskListUseCase(TaskfileUseCase):
         return results
 
     def search(self, terms: str):
-        found = self.repo.searchTasks(terms)
+        found = self.repo.searchTasks(terms)        
         return self.list(found)
